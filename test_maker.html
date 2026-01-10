@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일일 테스트 생성기 V3</title>
+    <title>일일 테스트 생성기 V5 (전략적 피드백)</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 20px; max-width: 800px; margin: 0 auto; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -11,7 +11,6 @@
         .input-group { margin-bottom: 20px; }
         label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
         input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        .help-text { font-size: 0.85rem; color: #888; margin-top: 5px; }
         
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; }
@@ -24,11 +23,11 @@
 <body>
 
 <div class="card">
-    <h2>🏭 일일 테스트 공장 (V3)</h2>
+    <h2>🏭 일일 테스트 공장 (V5)</h2>
     
     <div class="input-group">
         <label>1. 시험 제목</label>
-        <input type="text" id="title" placeholder="예: 1월 12일 문학 쪽지시험">
+        <input type="text" id="title" placeholder="예: 1월 13일 비문학 테스트">
     </div>
 
     <div class="input-group">
@@ -47,8 +46,8 @@
     </div>
 
     <div class="input-group">
-        <label>5. 최대 도전 횟수 (0=무제한)</label>
-        <input type="number" id="maxAttempts" value="0">
+        <label>5. 최대 도전 횟수 (예: 3)</label>
+        <input type="number" id="maxAttempts" value="3">
     </div>
 
     <div class="btn-group">
@@ -83,13 +82,23 @@
         .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
         .title { text-align: center; color: #333; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; }
-        .q-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
-        .q-item { text-align: center; }
-        .q-num { font-size: 0.8rem; color: #888; margin-bottom: 3px; display: block; }
-        .q-input { width: 100%; padding: 10px; text-align: center; border: 1px solid #ccc; border-radius: 5px; font-size: 1.1rem; font-weight: bold; box-sizing: border-box; }
-        .btn-submit { display: block; width: 100%; padding: 15px; background: #2c3e50; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        
+        .q-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+        .q-num { font-weight: bold; color: #2196f3; width: 40px; }
+        .omr-group { display: flex; gap: 8px; flex: 1; justify-content: space-around; }
+        .omr-input { display: none; }
+        .omr-label { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #999; cursor: pointer; transition: 0.2s; }
+        .omr-input:checked + .omr-label { background: #2196f3; border-color: #2196f3; color: white; }
+        
+        /* 오답 표시 (조건부) */
+        .show-wrong .wrong-row .omr-input:checked + .omr-label { background: #ef5350; border-color: #ef5350; }
+        .show-wrong .wrong-row .q-num { color: #d32f2f; }
+
+        .btn-submit { display: block; width: 100%; padding: 15px; background: #fee500; color: #3c1e1e; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top:20px; }
+        .btn-submit:hover { background: #fdd835; }
         .btn-submit:disabled { background: #cfd8dc; color: #90a4ae; cursor: not-allowed; }
-        .result-box { display: none; margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; }
+        
+        .result-box { display: none; margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; background: #e3f2fd; }
         .pass { background: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32; }
         .fail { background: #ffebee; border: 2px solid #ef5350; color: #c62828; }
         .timer-msg { text-align: center; color: #d32f2f; font-weight: bold; margin-top: 10px; display: none; }
@@ -99,23 +108,37 @@
 <div class="container">
     <h2 class="title">${title}</h2>
     <p class="subtitle">총 ${answersArr.length}문항 / ${cutline}개까지 통과</p>
-    <div style="margin-bottom:15px"><label style="font-weight:bold">이름</label><input type="text" id="studentName" style="width:100%;padding:10px;margin-top:5px;border:1px solid #ccc;border-radius:5px"></div>
-    <div id="questionContainer" class="q-list"></div>
-    <button id="submitBtn" class="btn-submit" onclick="checkAnswers()">채점하기</button>
+    
+    <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
+        <label style="font-weight:bold">학생 이름</label>
+        <input type="text" id="studentName" style="width:100%;padding:10px;margin-top:5px;border:1px solid #ccc;border-radius:5px" placeholder="이름을 입력하세요">
+    </div>
+
+    <div id="questionContainer"></div>
+
+    <button id="submitBtn" class="btn-submit" onclick="checkAnswers()">🟡 채점하고 선생님께 카톡 보내기</button>
     <div id="timerMsg" class="timer-msg"></div>
     <div id="resultArea" class="result-box"></div>
 </div>
+
 <script>
     const correctAnswers = [${answersArr.join(', ')}];
     const passCriteria = ${cutline};
     const COOLDOWN_MINUTES = ${cooldown};
     const MAX_ATTEMPTS = ${maxAttempts};
     const STORAGE_KEY = "${uniqueId}";
-    let attempt = 0; const totalQ = correctAnswers.length;
+    let attempt = 0; 
+    const totalQ = correctAnswers.length;
 
     window.onload = function() {
         let html = "";
-        for(let i=1; i<=totalQ; i++) html += '<div class="q-item"><span class="q-num">'+i+'번</span><input type="tel" class="q-input" id="a'+i+'" maxlength="1"></div>';
+        for(let i=1; i<=totalQ; i++) {
+            html += '<div class="q-item" id="qRow'+i+'"><span class="q-num">'+i+'번</span><div class="omr-group">';
+            for(let j=1; j<=5; j++) {
+                html += '<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" class="omr-input"><label for="q'+i+'_'+j+'" class="omr-label">'+j+'</label>';
+            }
+            html += '</div></div>';
+        }
         document.getElementById("questionContainer").innerHTML = html;
         loadStatus();
     };
@@ -136,70 +159,36 @@
 
     function checkAnswers() {
         const name = document.getElementById("studentName").value;
-        if(!name) return alert("이름을 입력해주세요!");
+        if(!name) return alert("이름을 꼭 입력해주세요!");
+        for(let i=1; i<=totalQ; i++) if(!document.querySelector('input[name="q'+i+'"]:checked')) return alert(i + "번 문제를 아직 안 풀었습니다!");
+
         attempt++;
-        let wrongCount = 0; let wrongList = [];
+        let wrongCount = 0; 
+        let wrongList = [];
+        
+        // 채점
+        const container = document.getElementById("questionContainer");
+        container.classList.remove("show-wrong"); // 일단 숨김
+
         for(let i=0; i<totalQ; i++) {
-            const userVal = document.getElementById('a'+(i+1)).value;
-            if(!userVal || parseInt(userVal) !== correctAnswers[i]) {
-                wrongCount++; wrongList.push((i+1)+"번");
-                document.getElementById('a'+(i+1)).style.backgroundColor = "#ffebee";
-            } else { document.getElementById('a'+(i+1)).style.backgroundColor = "#fff"; }
+            const userVal = document.querySelector('input[name="q'+(i+1)+'"]:checked').value;
+            const row = document.getElementById('qRow'+(i+1));
+            row.classList.remove("wrong-row");
+            if(parseInt(userVal) !== correctAnswers[i]) {
+                wrongCount++; 
+                wrongList.push((i+1)+"번");
+                row.classList.add("wrong-row");
+            } 
         }
+
+        // 저장
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: name, attempt: attempt, lastSubmitTime: new Date().getTime() }));
-        const res = document.getElementById("resultArea"); res.style.display = "block";
-        if(wrongCount <= passCriteria) {
-            res.className = "result-box pass";
-            res.innerHTML = "<h2>🎉 통과!</h2><p><b>"+name+"</b> 학생<br>하원하셔도 좋습니다!</p>";
-            document.getElementById("submitBtn").style.display = "none";
-        } else {
-            let msg = "<div style='font-weight:bold;font-size:1.2rem'>😱 "+wrongCount+"개 틀렸어요!</div><div style='margin-top:10px'><b>오답:</b><br>"+wrongList.join(", ")+"</div>";
-            if(MAX_ATTEMPTS > 0) {
-                if(MAX_ATTEMPTS - attempt <= 0) { disableForever(); msg += "<br><b style='color:red'>🚫 기회 소진! 선생님 호출.</b>"; }
-                else { msg += "<br>(남은 기회: "+(MAX_ATTEMPTS-attempt)+"번)"; if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES); }
-            } else if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES);
-            res.className = "result-box fail"; res.innerHTML = msg;
-        }
-    }
-    function lockSubmit(min) {
-        const btn = document.getElementById("submitBtn"); const msg = document.getElementById("timerMsg");
-        btn.disabled = true; msg.style.display = "block";
-        let sec = Math.ceil(min * 60);
-        const timer = setInterval(() => {
-            sec--;
-            if(sec <= 0) { clearInterval(timer); btn.disabled = false; btn.innerText = "채점하기"; msg.style.display = "none"; }
-            else { btn.innerText = "⏳ 대기 ("+Math.ceil(sec)+"초)"; msg.innerText = "⏳ "+Math.ceil(sec)+"초 후 재도전 가능"; }
-        }, 1000);
-    }
-    function disableForever() {
-        document.getElementById("submitBtn").disabled = true;
-        document.getElementById("submitBtn").innerText = "🚫 제출 불가";
-    }
-<\/script>
-</body>
-</html>`;
-        document.getElementById('resultCode').value = template;
-        document.getElementById('downloadBtn').style.display = "block";
-    }
 
-    function downloadFile() {
-        const content = document.getElementById('resultCode').value;
-        if(!content) return;
+        const isPass = wrongCount <= passCriteria;
+        const resultText = isPass ? "통과! 🎉" : "재시험 😱";
         
-        // 오늘 날짜로 파일명 자동 생성 (예: test_0110.html)
-        const today = new Date();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const filename = "test_" + month + day + ".html";
+        // [선생님용] 카톡: 항상 오답 문항 포함
+        const kakaoMsg = "[일일테스트 결과 Report]\\n\\n학생: " + name + " (" + attempt + "차 시도)\\n틀린 개수: " + wrongCount + "개\\n틀린 문항: " + (wrongList.length ? wrongList.join(", ") : "없음") + "\\n결과: " + resultText;
+        location.href = "kakaotalk://send?text=" + encodeURIComponent(kakaoMsg);
 
-        const blob = new Blob([content], { type: 'text/html' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.click();
-        
-        alert("파일이 다운로드 폴더에 저장되었습니다!\n파일명: " + filename + "\n\n이제 이 파일을 'kim-korean-homework' 폴더로 옮기고 GitHub Desktop에서 Push 하세요.");
-    }
-</script>
-</body>
-</html>
+        // [학생용] 결과 화면
