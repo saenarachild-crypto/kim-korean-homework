@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>김현석 선생님 강의실 관리자 (V2)</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 20px; max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; color: #2c3e50; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #333; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; font-size: 1rem; }
+        textarea { height: 100px; resize: none; }
+        .link-group { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .link-group input { margin-bottom: 0; }
+        .btn-add { background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 15px; }
+        .btn-create { background: #2196f3; color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        .highlight { background-color: #fff3e0; border: 2px solid #ffb74d; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>🏫 강의실 대문(Home) 만들기 V2</h1>
+
+<div class="card highlight">
+    <h3>0. 카톡 미리보기 설정 (NEW!)</h3>
+    <label>카톡에 뜰 큰 제목</label>
+    <input type="text" id="siteTitle" placeholder="예: 1월 1주차 과제 제출 링크" value="김현석 선생님 강의실">
+    <label>카톡에 뜰 설명 (작은 글씨)</label>
+    <input type="text" id="siteDesc" placeholder="예: 수요일까지 제출하세요." value="여기를 눌러 링크를 확인하세요.">
+</div>
+
+<div class="card">
+    <h3>1. 이번 주 공지사항</h3>
+    <label>공지 제목 (학생들이 들어와서 보는 제목)</label>
+    <input type="text" id="noticeTitle" placeholder="예: 1월 1주차 공지">
+    <label>공지 내용</label>
+    <textarea id="noticeContent" placeholder="- 과제 마감: 수요일 밤 10시&#13;&#10;- 모의고사는 시간 재고 풀기"></textarea>
+</div>
+
+<div class="card">
+    <h3>2. 과제 버튼 목록</h3>
+    <div id="linkContainer">
+        <div class="link-group">
+            <input type="text" placeholder="버튼 이름 (예: 3월 모의고사)" class="link-name">
+            <input type="text" placeholder="파일명 (예: test1.html)" class="link-url">
+        </div>
+        <div class="link-group">
+            <input type="text" placeholder="버튼 이름" class="link-name">
+            <input type="text" placeholder="파일명" class="link-url">
+        </div>
+    </div>
+    <button class="btn-add" onclick="addLinkField()">+ 버튼 추가하기</button>
+</div>
+
+<button class="btn-create" onclick="generateHome()">💾 대문 파일(index.html) 만들기</button>
+
+<script>
+    function addLinkField() {
+        const div = document.createElement('div');
+        div.className = 'link-group';
+        div.innerHTML = `<input type="text" placeholder="버튼 이름" class="link-name"><input type="text" placeholder="파일명" class="link-url">`;
+        document.getElementById('linkContainer').appendChild(div);
+    }
+
+    function generateHome() {
+        const siteTitle = document.getElementById('siteTitle').value;
+        const siteDesc = document.getElementById('siteDesc').value;
+        const title = document.getElementById('noticeTitle').value || "공지사항";
+        const content = document.getElementById('noticeContent').value.replace(/\n/g, '<br>');
+        
+        let linksHtml = '';
+        const names = document.querySelectorAll('.link-name');
+        const urls = document.querySelectorAll('.link-url');
+        
+        for(let i=0; i<names.length; i++) {
+            if(names[i].value.trim() && urls[i].value.trim()) {
+                linksHtml += `<a href="${urls[i].value.trim()}" class="exam-btn"><span class="btn-title">${names[i].value}</span><span class="btn-arrow">바로가기 →</span></a>`;
+            }
+        }
+
+        const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${siteTitle}</title>
+    <meta property="og:title" content="${siteTitle}">
+    <meta property="og:description" content="${siteDesc}">
+    <meta property="og:image" content="https://www.gstatic.com/images/branding/product/2x/forms_2020q4_48dp.png">
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f0f4f8; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 1.8rem; color: #2c3e50; margin: 0; }
+        .notice-card { background: #fff3e0; border: 1px solid #ffe0b2; padding: 20px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .notice-title { font-weight: bold; color: #e65100; margin-bottom: 10px; display: block; font-size: 1.1rem; }
+        .notice-content { line-height: 1.6; color: #5d4037; }
+        .exam-list { display: flex; flex-direction: column; gap: 15px; }
+        .exam-btn { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 15px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.2s; border: 1px solid #eef2f6; }
+        .exam-btn:active { transform: scale(0.98); background: #f8f9fa; }
+        .btn-title { font-weight: bold; font-size: 1.1rem; }
+        .btn-arrow { color: #2196f3; font-weight: bold; font-size: 0.9rem; }
+        .footer { text-align: center; margin-top: 40px; color: #999; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><h1>${siteTitle}</h1></div>
+        <div class="notice-card"><span class="notice-title">📢 ${title}</span><div class="notice-content">${content}</div></div>
+        <h3 style="margin-left:5px; margin-bottom:15px; color:#455a64;">📝 과제 목록</h3>
+        <div class="exam-list">${linksHtml}</div>
+        <div class="footer">© 2024 Kim Hyun Seok. All rights reserved.</div>
+    </div>
+</body>
+</html>`;
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'index.html';
+        link.click();
+    }
+</script>
+</body>
+</html>

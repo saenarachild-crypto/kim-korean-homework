@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2023년 3월 학력평가 모의고사 (2주차)</title>
+    <style>
+        body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
+        .container{max-width:700px;margin:0 auto;background:#fff;padding:20px;border-radius:15px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+        .logo-container { text-align: center; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #eee; }
+        .logo-img { max-width: 280px; width: 100%; height: auto; display: block; margin: 0 auto; }
+        .header-info{background:#f8f9fa;padding:15px;border-radius:10px;margin-bottom:20px;border:1px solid #e9ecef}
+        .notice-box{background:#fff8e1;border:1px solid #ffe0b2;padding:15px;border-radius:8px;margin-bottom:20px;color:#5d4037;font-size:0.95rem;line-height:1.5;white-space: pre-line;}
+        .notice-label { font-weight: bold; color: #e65100; display: block; margin-bottom: 5px; }
+        .btn-file { display: block; width: 100%; padding: 12px; background: #546e7a; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: bold; margin-bottom: 20px; box-sizing: border-box; }
+        
+        /* 선택 과목 스타일 */
+        .subject-select-box { background: #e3f2fd; padding: 15px; border-radius: 10px; border: 2px solid #2196f3; margin-bottom: 20px; text-align: center; }
+        .subject-select-box label { font-weight: bold; color: #1565c0; margin-right: 10px; font-size: 1.1rem; }
+        .subject-select-box select { padding: 8px; font-size: 1rem; border-radius: 5px; border: 1px solid #1565c0; }
+
+        .input-group{margin-bottom:10px} .input-group label{display:block;margin-bottom:5px;font-weight:bold;color:#555} .input-group input{width:100%;padding:10px;border:1px solid #ccc;border-radius:5px}
+        .question-item{padding:15px 0;border-bottom:1px solid #eee} .question-number{font-weight:bold;color:#2196f3;margin-bottom:10px;display:block}
+        .options{display:flex;justify-content:space-between;max-width:300px;margin:0 auto} 
+        .options label{display:flex;justify-content:center;align-items:center;width:45px;height:45px;border:2px solid #e0e0e0;border-radius:50%;font-weight:bold;color:#777;cursor:pointer} 
+        .options input{display:none} .options input:checked+label{background:#2196f3;color:#fff;border-color:#2196f3}
+        .btn-submit{display:block;width:100%;padding:15px;background:#2c3e50;color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:1.1rem;margin-top:20px;cursor:pointer; transition: background 0.3s;}
+        .btn-submit:disabled{background:#cfd8dc; color:#90a4ae; cursor:not-allowed;}
+        .timer-msg { text-align: center; color: #d32f2f; font-weight: bold; margin-top: 10px; font-size: 0.9rem; display: none; }
+        .result-section{display:none;margin-top:20px} .result-box{padding:20px;background:#e3f2fd;border-radius:10px;text-align:center;margin-top:20px} 
+        .wrong-answer{background:#ffebee;border-radius:5px} .wrong-answer .question-number{color:#d32f2f}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo-container"><img src="logo.png" alt="김현석 국어" class="logo-img" onerror="this.style.display='none'"></div>
+    <h2 style="text-align:center; margin-top:0;">2023년 3월 학력평가 모의고사 (2주차)</h2>
+    
+    <div class="notice-box"><span class="notice-label">📢 공지사항 및 유의사항</span>1. <b>선택 과목(화작/언매)</b>을 먼저 선택하고 문제를 푸세요.
+2. 35번부터 45번은 선택한 과목의 정답으로 자동 채점됩니다.
+3. 제출 후 <b>30분간</b> 재제출이 잠깁니다.
+4. <b>4회차 시도</b>부터 오답 번호가 공개됩니다.</div>
+
+    <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBaXrmStx-6SrvaY-XLYmKsAbdX0wQpR3Pzy8nfsztcVP8?e=MhiiPx" target="_blank" class="btn-file">📄 시험지(문제) 보러가기 (Click)</a>
+    
+    <div class="header-info">
+        <div class="input-group">
+            <label>학생 이름</label>
+            <input type="text" id="studentName" placeholder="이름을 입력하세요">
+        </div>
+        
+        <div class="subject-select-box">
+            <label>📝 선택 과목:</label>
+            <select id="subjectType" onchange="changeSubject()">
+                <option value="speech">화법과 작문 (35~45번)</option>
+                <option value="media">언어와 매체 (35~45번)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>과제명</label>
+            <input type="text" value="2023년 3월 학력평가 모의고사" readonly>
+        </div>
+    </div>
+
+    <div id="qList"></div>
+    <button class="btn-submit" id="submitBtn" onclick="submitAnswers()">답안 제출하기</button>
+    <div id="timerMsg" class="timer-msg">⏳ 다음 시도까지 30분 남았습니다.</div>
+    
+    <div id="resultSection" class="result-section">
+        <div class="result-box">
+            <div id="resultText"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // ✅ 정답 입력 완료 (사진 검증 완료)
+    // ============================================================
+    
+    // 1. 공통 과목 정답 (1~34번)
+    const answers_common = [
+        3, 5, 4, 4, 2,  // 1-5
+        5, 4, 1, 4, 1,  // 6-10
+        2, 5, 1, 2, 3,  // 11-15
+        5, 2, 4, 5, 3,  // 16-20
+        5, 1, 3, 3, 2,  // 21-25
+        1, 3, 1, 2, 5,  // 26-30
+        3, 4, 2, 3      // 31-34
+    ];
+
+    // 2. 화법과 작문 정답 (35~45번)
+    const answers_speech = [2, 5, 5, 3, 4, 4, 1, 1, 1, 2, 4]; 
+
+    // 3. 언어와 매체 정답 (35~45번)
+    const answers_media =  [4, 3, 1, 4, 5, 2, 4, 5, 1, 2, 3];
+
+    // ============================================================
+
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyM-8CmijrbV5PmgSebU_AP_lztEHlyNdXq7cRyfratLdj2y0BP9inAZJyING1oZiIt/exec";
+    const STORAGE_KEY = "kim_korean_mock_march_2023_v5"; 
+    const COOLDOWN_MINUTES = 30;
+    
+    const totalQ = 45;
+    let attempt = 0;
+
+    window.onload = function(){
+        const c = document.getElementById("qList");
+        for(let i=1; i<=totalQ; i++){
+            let h = '<div class="question-item" id="qBox'+i+'"><span class="question-number">'+i+'번</span><div class="options">';
+            for(let j=1; j<=5; j++){
+                h += '<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'"><label for="q'+i+'_'+j+'">'+j+'</label>';
+            }
+            h += '</div></div>';
+            c.innerHTML += h;
+        }
+        loadStatus();
+    };
+
+    function changeSubject() {
+        const type = document.getElementById("subjectType").value;
+        const typeName = (type === "speech") ? "화법과 작문" : "언어와 매체";
+        alert("선택 과목이 [" + typeName + "]으로 변경되었습니다.\n35번부터 45번은 " + typeName + " 정답으로 채점됩니다.");
+    }
+
+    function loadStatus() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if(saved) {
+            const data = JSON.parse(saved);
+            attempt = data.attempt || 0;
+            if(data.name) document.getElementById("studentName").value = data.name;
+            if(data.subject) document.getElementById("subjectType").value = data.subject; 
+            if(data.lastSubmitTime) {
+                const passed = (new Date().getTime() - data.lastSubmitTime) / 1000 / 60;
+                if(passed < COOLDOWN_MINUTES) lockSubmit(COOLDOWN_MINUTES - passed);
+            }
+        }
+    }
+
+    function lockSubmit(remainMinutes) {
+        const btn = document.getElementById("submitBtn");
+        const msg = document.getElementById("timerMsg");
+        btn.disabled = true;
+        btn.innerText = "⏳ 제출 대기 중...";
+        msg.style.display = "block";
+        msg.innerText = "⏳ 다음 제출까지 " + Math.ceil(remainMinutes) + "분 남았습니다.";
+        setTimeout(() => {
+            if(remainMinutes > 1) lockSubmit(remainMinutes - 1);
+            else { btn.disabled = false; btn.innerText = "답안 제출하기"; msg.style.display = "none"; }
+        }, 60000); 
+    }
+
+    function submitAnswers(){
+        const name = document.getElementById("studentName").value;
+        const subject = document.getElementById("subjectType").value;
+        
+        if(!name) return alert("이름을 입력해주세요!");
+        
+        let currentAnswers = [...answers_common];
+        if(subject === "speech") currentAnswers = currentAnswers.concat(answers_speech); 
+        else currentAnswers = currentAnswers.concat(answers_media); 
+        
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerText = "⏳ 채점 및 저장 중...";
+
+        attempt++;
+        let wrong = 0;
+        let wrongList = [];
+
+        for(let i=1; i<=totalQ; i++){
+            const r = document.querySelector('input[name="q'+i+'"]:checked');
+            if(!r || r.value != currentAnswers[i-1]){
+                wrong++;
+                wrongList.push(i+"번");
+            }
+        }
+        
+        const now = new Date().getTime();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
+            name: name, 
+            attempt: attempt, 
+            lastSubmitTime: now,
+            subject: subject 
+        }));
+
+        const subjectName = (subject === "speech") ? "화작" : "언매";
+        const titleFull = "2023년 3월 학력평가 모의고사 (" + subjectName + ")";
+
+        const data = { name: name, title: titleFull, wrongCount: wrong, wrongList: wrongList.join(", ") };
+        
+        fetch(scriptUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
+        .then(() => { showResult(wrong, name, currentAnswers); lockSubmit(COOLDOWN_MINUTES); })
+        .catch(err => { showResult(wrong, name, currentAnswers); lockSubmit(COOLDOWN_MINUTES); });
+    }
+
+    function showResult(wrong, name, currentAnswers){
+        document.getElementById("resultSection").style.display = "block";
+        document.getElementById("resultSection").scrollIntoView({behavior:"smooth"});
+        const txt = document.getElementById("resultText");
+        let msg = "<h3>"+name+" 학생 (" + attempt + "회차 제출)</h3>";
+        
+        if(wrong === 0) msg += "<h3 style='color:green'>🎉 축하합니다! 만점입니다!</h3>";
+        else {
+            msg += "<br><b>" + wrong + "개</b> 틀렸습니다.<br>";
+            if(attempt < 4) msg += "<br><span style='color:#e65100; font-weight:bold;'>🔒 오답 문항은 4번째 시도부터 공개됩니다.</span><br>(현재 " + attempt + "번째 시도 / 30분 후 재시도 가능)";
+            else {
+                msg += "<br><span style='color:#d32f2f; font-weight:bold;'>🔓 틀린 문항:</span><br>" + ((wrongList.length>0)? wrongList.join(", ") : "없음");
+                for(let i=1; i<=totalQ; i++){
+                    const r = document.querySelector('input[name="q'+i+'"]:checked');
+                    const box = document.getElementById("qBox"+i);
+                    box.classList.remove("wrong-answer");
+                    if(!r || r.value != currentAnswers[i-1]) box.classList.add("wrong-answer");
+                }
+            }
+        }
+        txt.innerHTML = msg;
+    }
+</script>
+</body>
+</html>
