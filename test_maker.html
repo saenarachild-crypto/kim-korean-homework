@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일일 테스트 생성기 V2</title>
+    <title>일일 테스트 생성기 V3</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 20px; max-width: 800px; margin: 0 auto; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -13,51 +13,50 @@
         input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
         .help-text { font-size: 0.85rem; color: #888; margin-top: 5px; }
         
-        button { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #1976d2; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; }
+        .btn-gen { background: #2196f3; } .btn-gen:hover { background: #1976d2; }
+        .btn-down { background: #4caf50; display: none; } .btn-down:hover { background: #388e3c; }
         
-        textarea { width: 100%; height: 300px; margin-top: 20px; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-family: monospace; font-size: 0.9rem; display: none; }
-        .copy-btn { background: #4caf50; margin-top: 10px; display: none; }
-        .copy-btn:hover { background: #388e3c; }
+        textarea { width: 100%; height: 200px; margin-top: 20px; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-family: monospace; font-size: 0.9rem; display: none; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🛠️ 일일 테스트 생성기 V2</h2>
+    <h2>🏭 일일 테스트 공장 (V3)</h2>
     
     <div class="input-group">
-        <label>1. 시험 제목 (수업명)</label>
-        <input type="text" id="title" placeholder="예: 화작 심화반 3회차 테스트">
+        <label>1. 시험 제목</label>
+        <input type="text" id="title" placeholder="예: 1월 12일 문학 쪽지시험">
     </div>
 
     <div class="input-group">
-        <label>2. 정답 입력 (숫자만 연속으로)</label>
-        <input type="text" id="answers" placeholder="예: 12345 (5문제인 경우)">
+        <label>2. 정답 (숫자만 연속 입력)</label>
+        <input type="text" id="answers" placeholder="예: 12345">
     </div>
 
     <div class="input-group">
-        <label>3. 통과 기준 (몇 개 틀린 것까지 봐줄까요?)</label>
-        <input type="number" id="cutline" value="0" placeholder="0">
-        <div class="help-text">※ 0이면 '다 맞아야 통과'</div>
+        <label>3. 통과 기준 (틀려도 되는 개수)</label>
+        <input type="number" id="cutline" value="0">
     </div>
 
     <div class="input-group">
-        <label>4. 재도전 대기 시간 (분 단위)</label>
-        <input type="number" id="cooldown" value="0" placeholder="0">
-        <div class="help-text">※ 0이면 '대기 없음(바로 재도전)', 0.5면 '30초'</div>
+        <label>4. 재도전 대기 (분)</label>
+        <input type="number" id="cooldown" value="0">
     </div>
 
     <div class="input-group">
-        <label>5. 최대 도전 횟수 (기회)</label>
-        <input type="number" id="maxAttempts" value="0" placeholder="0">
-        <div class="help-text">※ 0이면 '무제한', 3이면 '3번 안에 통과 못하면 선생님 호출'</div>
+        <label>5. 최대 도전 횟수 (0=무제한)</label>
+        <input type="number" id="maxAttempts" value="0">
     </div>
 
-    <button onclick="generateCode()">코드 생성하기 ✨</button>
+    <div class="btn-group">
+        <button class="btn-gen" onclick="generateCode()">1. 코드 생성하기</button>
+        <button id="downloadBtn" class="btn-down" onclick="downloadFile()">2. 파일로 저장하기 (Click)</button>
+    </div>
     
     <textarea id="resultCode" readonly></textarea>
-    <button id="copyBtn" class="copy-btn" onclick="copyCode()">코드 복사하기 📋</button>
 </div>
 
 <script>
@@ -68,20 +67,11 @@
         const cooldown = document.getElementById('cooldown').value || 0;
         const maxAttempts = document.getElementById('maxAttempts').value || 0;
 
-        if(!title || !answersStr) {
-            alert("제목과 정답을 모두 입력해주세요!");
-            return;
-        }
-
+        if(!title || !answersStr) { alert("제목과 정답을 입력하세요!"); return; }
         const answersArr = answersStr.split('').map(Number);
-        if(answersArr.some(isNaN)) {
-            alert("정답에는 숫자만 입력해주세요!");
-            return;
-        }
+        if(answersArr.some(isNaN)) { alert("정답은 숫자만!"); return; }
 
-        // 고유 ID 생성 (캐시 꼬임 방지)
-        const uniqueId = "daily_test_" + Date.now();
-
+        const uniqueId = "daily_" + Date.now();
         const template = `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -93,9 +83,6 @@
         .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
         .title { text-align: center; color: #333; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #444; }
-        .input-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
         .q-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
         .q-item { text-align: center; }
         .q-num { font-size: 0.8rem; color: #888; margin-bottom: 3px; display: block; }
@@ -112,10 +99,7 @@
 <div class="container">
     <h2 class="title">${title}</h2>
     <p class="subtitle">총 ${answersArr.length}문항 / ${cutline}개까지 통과</p>
-    <div class="input-group">
-        <label>이름</label>
-        <input type="text" id="studentName" placeholder="이름을 입력하세요">
-    </div>
+    <div style="margin-bottom:15px"><label style="font-weight:bold">이름</label><input type="text" id="studentName" style="width:100%;padding:10px;margin-top:5px;border:1px solid #ccc;border-radius:5px"></div>
     <div id="questionContainer" class="q-list"></div>
     <button id="submitBtn" class="btn-submit" onclick="checkAnswers()">채점하기</button>
     <div id="timerMsg" class="timer-msg"></div>
@@ -127,18 +111,12 @@
     const COOLDOWN_MINUTES = ${cooldown};
     const MAX_ATTEMPTS = ${maxAttempts};
     const STORAGE_KEY = "${uniqueId}";
-    
-    let attempt = 0;
-    const totalQ = correctAnswers.length;
+    let attempt = 0; const totalQ = correctAnswers.length;
 
     window.onload = function() {
-        // 문제 생성
-        const container = document.getElementById("questionContainer");
         let html = "";
-        for(let i=1; i<=totalQ; i++) {
-            html += '<div class="q-item"><span class="q-num">'+i+'번</span><input type="tel" class="q-input" id="a'+i+'" maxlength="1"></div>';
-        }
-        container.innerHTML = html;
+        for(let i=1; i<=totalQ; i++) html += '<div class="q-item"><span class="q-num">'+i+'번</span><input type="tel" class="q-input" id="a'+i+'" maxlength="1"></div>';
+        document.getElementById("questionContainer").innerHTML = html;
         loadStatus();
     };
 
@@ -148,16 +126,9 @@
             const data = JSON.parse(saved);
             attempt = data.attempt || 0;
             if(data.name) document.getElementById("studentName").value = data.name;
-            
-            // 도전 횟수 초과 체크
-            if(MAX_ATTEMPTS > 0 && attempt >= MAX_ATTEMPTS) {
-                disableForever();
-                return;
-            }
-
-            // 대기 시간 체크
+            if(MAX_ATTEMPTS > 0 && attempt >= MAX_ATTEMPTS) { disableForever(); return; }
             if(COOLDOWN_MINUTES > 0 && data.lastSubmitTime) {
-                const passed = (new Date().getTime() - data.lastSubmitTime) / 1000 / 60;
+                const passed = (new Date().getTime() - data.lastSubmitTime)/1000/60;
                 if(passed < COOLDOWN_MINUTES) lockSubmit(COOLDOWN_MINUTES - passed);
             }
         }
@@ -166,103 +137,68 @@
     function checkAnswers() {
         const name = document.getElementById("studentName").value;
         if(!name) return alert("이름을 입력해주세요!");
-        
         attempt++;
-        let wrongCount = 0;
-        let wrongList = [];
-        
+        let wrongCount = 0; let wrongList = [];
         for(let i=0; i<totalQ; i++) {
             const userVal = document.getElementById('a'+(i+1)).value;
             if(!userVal || parseInt(userVal) !== correctAnswers[i]) {
-                wrongCount++;
-                wrongList.push((i+1) + "번");
+                wrongCount++; wrongList.push((i+1)+"번");
                 document.getElementById('a'+(i+1)).style.backgroundColor = "#ffebee";
-            } else {
-                document.getElementById('a'+(i+1)).style.backgroundColor = "#fff";
-            }
+            } else { document.getElementById('a'+(i+1)).style.backgroundColor = "#fff"; }
         }
-
-        // 저장
-        const now = new Date().getTime();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: name, attempt: attempt, lastSubmitTime: now }));
-
-        const resultDiv = document.getElementById("resultArea");
-        resultDiv.style.display = "block";
-
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: name, attempt: attempt, lastSubmitTime: new Date().getTime() }));
+        const res = document.getElementById("resultArea"); res.style.display = "block";
         if(wrongCount <= passCriteria) {
-            // 통과
-            resultDiv.className = "result-box pass";
-            resultDiv.innerHTML = "<h2>🎉 통과!</h2><p><b>"+name+"</b> 학생<br>하원하셔도 좋습니다! 👋</p>";
-            document.getElementById("submitBtn").style.display = "none"; // 버튼 숨김
+            res.className = "result-box pass";
+            res.innerHTML = "<h2>🎉 통과!</h2><p><b>"+name+"</b> 학생<br>하원하셔도 좋습니다!</p>";
+            document.getElementById("submitBtn").style.display = "none";
         } else {
-            // 실패
-            let msg = "<div style='font-weight:bold;font-size:1.2rem'>😱 "+wrongCount+"개 틀렸어요!</div>";
-            msg += "<div style='margin-top:10px;font-size:0.9rem'><b>오답:</b><br>"+wrongList.join(", ")+"</div>";
-            
-            // 최대 횟수 체크
+            let msg = "<div style='font-weight:bold;font-size:1.2rem'>😱 "+wrongCount+"개 틀렸어요!</div><div style='margin-top:10px'><b>오답:</b><br>"+wrongList.join(", ")+"</div>";
             if(MAX_ATTEMPTS > 0) {
-                const remain = MAX_ATTEMPTS - attempt;
-                if(remain <= 0) {
-                    disableForever();
-                    msg += "<br><b style='color:red'>🚫 도전 횟수 초과! 선생님께 문의하세요.</b>";
-                } else {
-                    msg += "<br>(남은 기회: "+remain+"번)";
-                    if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES);
-                }
-            } else {
-                // 무제한인 경우 대기 시간만 체크
-                if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES);
-            }
-            
-            resultDiv.className = "result-box fail";
-            resultDiv.innerHTML = msg;
+                if(MAX_ATTEMPTS - attempt <= 0) { disableForever(); msg += "<br><b style='color:red'>🚫 기회 소진! 선생님 호출.</b>"; }
+                else { msg += "<br>(남은 기회: "+(MAX_ATTEMPTS-attempt)+"번)"; if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES); }
+            } else if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES);
+            res.className = "result-box fail"; res.innerHTML = msg;
         }
     }
-
-    function lockSubmit(remainMinutes) {
-        const btn = document.getElementById("submitBtn");
-        const msg = document.getElementById("timerMsg");
-        btn.disabled = true;
-        msg.style.display = "block";
-        
-        let seconds = Math.ceil(remainMinutes * 60);
-        
-        const interval = setInterval(() => {
-            seconds--;
-            if(seconds <= 0) {
-                clearInterval(interval);
-                btn.disabled = false;
-                btn.innerText = "채점하기";
-                msg.style.display = "none";
-            } else {
-                btn.innerText = "⏳ 대기 중 (" + Math.ceil(seconds) + "초)";
-                msg.innerText = "⏳ " + Math.ceil(seconds) + "초 뒤에 다시 채점할 수 있습니다.";
-            }
+    function lockSubmit(min) {
+        const btn = document.getElementById("submitBtn"); const msg = document.getElementById("timerMsg");
+        btn.disabled = true; msg.style.display = "block";
+        let sec = Math.ceil(min * 60);
+        const timer = setInterval(() => {
+            sec--;
+            if(sec <= 0) { clearInterval(timer); btn.disabled = false; btn.innerText = "채점하기"; msg.style.display = "none"; }
+            else { btn.innerText = "⏳ 대기 ("+Math.ceil(sec)+"초)"; msg.innerText = "⏳ "+Math.ceil(sec)+"초 후 재도전 가능"; }
         }, 1000);
     }
-
     function disableForever() {
-        const btn = document.getElementById("submitBtn");
-        btn.disabled = true;
-        btn.innerText = "🚫 제출 불가";
-        const msg = document.getElementById("timerMsg");
-        msg.style.display = "block";
-        msg.innerHTML = "<b style='color:red'>더 이상 도전할 수 없습니다.<br>선생님께 확인을 받으세요.</b>";
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("submitBtn").innerText = "🚫 제출 불가";
     }
 <\/script>
 </body>
 </html>`;
-
         document.getElementById('resultCode').value = template;
-        document.getElementById('resultCode').style.display = "block";
-        document.getElementById('copyBtn').style.display = "block";
+        document.getElementById('downloadBtn').style.display = "block";
     }
 
-    function copyCode() {
-        const copyText = document.getElementById("resultCode");
-        copyText.select();
-        document.execCommand("copy");
-        alert("코드가 복사되었습니다!");
+    function downloadFile() {
+        const content = document.getElementById('resultCode').value;
+        if(!content) return;
+        
+        // 오늘 날짜로 파일명 자동 생성 (예: test_0110.html)
+        const today = new Date();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const filename = "test_" + month + day + ".html";
+
+        const blob = new Blob([content], { type: 'text/html' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        
+        alert("파일이 다운로드 폴더에 저장되었습니다!\n파일명: " + filename + "\n\n이제 이 파일을 'kim-korean-homework' 폴더로 옮기고 GitHub Desktop에서 Push 하세요.");
     }
 </script>
 </body>
