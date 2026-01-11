@@ -3,282 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일일 테스트 생성기 V10</title>
+    <title>일일 테스트 제작 가이드 (V13.1)</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 20px; max-width: 800px; margin: 0 auto; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { margin-top: 0; color: #2c3e50; text-align: center; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
-        input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        textarea { height: 80px; resize: vertical; }
-        .help-text { font-size: 0.85rem; color: #888; margin-top: 5px; }
-        
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; min-width: 150px; }
-        .btn-gen { background: #2196f3; } .btn-gen:hover { background: #1976d2; }
-        .btn-down { background: #4caf50; } .btn-down:hover { background: #388e3c; }
-        
-        #resultCode { width: 100%; height: 150px; margin-top: 20px; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-family: monospace; font-size: 0.9rem; display: none; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: #f0f2f5; padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.6; color: #333; }
+        h1 { text-align: center; color: #d63031; border-bottom: 3px solid #d63031; padding-bottom: 15px; }
+        h2 { margin-top: 35px; border-left: 5px solid #ff6b6b; padding-left: 12px; color: #c0392b; font-size: 1.4rem; }
+        .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .btn { display: inline-block; padding: 12px 25px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 5px; transition: 0.2s; font-size: 1.1rem; }
+        .btn:hover { background: #ee5253; transform: translateY(-2px); }
+        .highlight { background: #ffebee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #c62828; }
+        code { background: #eee; padding: 3px 6px; border-radius: 4px; font-family: monospace; color: #d32f2f; font-weight: bold; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        .step { font-weight: bold; color: #d63031; font-size: 1.1rem; }
+        .check-point { background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3; font-size: 0.95rem; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>🏭 일일 테스트 공장 (V10)</h2>
+<h1>🏭 일일 테스트 제작 가이드 (V13.1)</h1>
+
+<div class="box" style="text-align:center; background:#fff5f5;">
+    <p><b>👇 시험지 공장 가동하기 👇</b></p>
+    <a href="test_maker.html" class="btn" target="_blank">🚀 일일 테스트 생성기 실행</a>
+</div>
+
+<h2>Step 1. 기본 준비</h2>
+<div class="box">
+    <ul>
+        <li><b>작업 폴더:</b> 바탕화면의 <span class="highlight">kim-korean-homework</span> 폴더</li>
+        <li><b>필수 프로그램:</b> GitHub Desktop (배포용)</li>
+        <li><b>PDF 파일:</b> 시험지 파일이 있다면 미리 폴더에 넣어두세요. (예: <code>daily_0114.pdf</code>)</li>
+    </ul>
+</div>
+
+<h2>Step 2. 생성기 입력 (중요!)</h2>
+<div class="box">
+    <p><span class="step">1. 정보 입력:</span>
+        <ul>
+            <li><b>시험 제목:</b> <span class="highlight">엑셀 1행에 적을 제목과 똑같이</span> 적으세요. (예: <code>1월 14일 어휘 테스트</code>)</li>
+            <li><b>시험지 링크:</b> 같은 폴더에 있는 파일명이면 <code>파일명.pdf</code>만 입력.</li>
+            <li><b>정답:</b> <code>12345</code> 처럼 숫자만 쭉 입력.</li>
+        </ul>
+    </p>
     
-    <div class="input-group">
-        <label>1. 학생 이름 / 학원명</label>
-        <input type="text" id="academyName" placeholder="예: 홍길동 / 김선생 국어학원">
+    <div class="check-point">
+        <b>💡 학원 선택은 어디 갔나요?</b><br>
+        V13.1부터는 선생님이 학원을 선택하지 않습니다.<br>
+        <b>학생이 시험 칠 때 직접 입력</b>하게 바뀌었으니, 선생님은 문제만 내시면 됩니다! 👍
     </div>
 
-    <div class="input-group">
-        <label>2. 시험 제목</label>
-        <input type="text" id="title" placeholder="예: 1월 14일 비문학 실전 테스트">
-    </div>
+    <p><span class="step">2. 파일 생성:</span> <b>[1. 코드 생성]</b> 누르고 <b>[2. 파일로 저장]</b> 클릭.</p>
+    <p><span class="step">3. 이동:</span> 다운로드된 HTML 파일을 작업 폴더로 옮깁니다.</p>
+</div>
 
-    <div class="input-group">
-        <label>3. 공지사항</label>
-        <textarea id="notice" placeholder="예: 상단 버튼을 눌러 시험지를 보고 푸세요."></textarea>
-    </div>
+<h2>Step 3. 엑셀(상황판) 세팅</h2>
+<div class="box">
+    <p><b>이 과정을 안 하면 점수가 안 들어옵니다! 🚨</b></p>
+    <ol>
+        <li>구글 스프레드시트(숙제 관리표)를 켭니다.</li>
+        <li><b>시트1 (데이터 창고)</b> 말고, <b>시트2 (종합상황판)</b>으로 갑니다.</li>
+        <li>1행(제목줄)의 빈칸에 방금 만든 <b>[시험 제목]</b>을 적습니다.</li>
+        <li>이전 테스트의 점수 칸 수식을 복사해서, 새 테스트 칸으로 드래그합니다.</li>
+    </ol>
+</div>
 
-    <div class="input-group">
-        <label>4. 시험지 링크 (파일명 또는 URL)</label>
-        <input type="text" id="testLink" placeholder="예: test.pdf 또는 https://...">
-        <div class="help-text">※ 같은 폴더에 넣은 파일명이면 'test.pdf', 외부 링크면 주소 전체 입력</div>
-    </div>
-
-    <div class="input-group">
-        <label>5. 정답 및 해설지 링크 (통과/종료 후 공개됨)</label>
-        <input type="text" id="answerLink" placeholder="예: answer_0114.html 또는 https://...">
-        <div class="help-text">※ 학생이 시험을 통과하거나 기회를 다 쓰면 다운로드 버튼이 나타납니다.</div>
-    </div>
-
-    <div class="input-group">
-        <label>6. 정답 입력 (숫자만)</label>
-        <input type="text" id="answers" placeholder="예: 12345">
-    </div>
-
-    <div class="input-group">
-        <label>7. 설정 (통과기준 / 대기분 / 기회)</label>
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="cutline" value="0" placeholder="통과기준">
-            <input type="number" id="cooldown" value="0" placeholder="대기(분)">
-            <input type="number" id="maxAttempts" value="3" placeholder="기회(회)">
+<h2>Step 4. 배포 및 전송</h2>
+<div class="box">
+    <p><span class="step">1. GitHub Desktop:</span>
+        <ul>
+            <li>새 파일이 <b style="color:green">+ 초록색</b>으로 떴는지 확인.</li>
+            <li><b>Summary</b> 작성 후 <b>[Commit to main]</b> → <b>[Push origin]</b> 클릭.</li>
+        </ul>
+    </p>
+    <p><span class="step">2. 링크 만들기:</span>
+        <div style="background:#333; color:white; padding:10px; border-radius:5px; text-align:center;">
+            https://kim-korean.netlify.app/<b>파일명.html</b>
         </div>
-    </div>
-
-    <div class="btn-group">
-        <button class="btn-gen" onclick="generateCode()">1. 코드 생성하기</button>
-        <button id="downloadBtn" class="btn-down" onclick="downloadFile()" style="display:none;">2. 파일로 저장하기</button>
-    </div>
-    
-    <textarea id="resultCode" readonly></textarea>
+    </p>
+    <p><span class="step">3. 학생 공지:</span><br>
+    "얘들아 링크 보낸다. <b>학원 이름(러셀분당/시대인재 등)</b> 정확하게 입력하고 풀어라!"</p>
 </div>
 
-<script>
-    function generateCode() {
-        const academy = document.getElementById('academyName').value;
-        const title = document.getElementById('title').value;
-        const notice = document.getElementById('notice').value.replace(/\n/g, '<br>');
-        const testLink = document.getElementById('testLink').value.trim();
-        const answerLink = document.getElementById('answerLink').value.trim();
-        const answersStr = document.getElementById('answers').value.trim();
-        const cutline = document.getElementById('cutline').value;
-        const cooldown = document.getElementById('cooldown').value || 0;
-        const maxAttempts = document.getElementById('maxAttempts').value || 0;
-
-        if(!title || !answersStr) { alert("제목과 정답은 필수입니다!"); return; }
-        const cleanAnswers = answersStr.replace(/[^0-9]/g, "");
-        if(cleanAnswers.length === 0) { alert("정답은 숫자만!"); return; }
-        const answersArr = cleanAnswers.split('').map(Number);
-        const uniqueId = "daily_" + Date.now();
-
-        const template = `<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>${title}</title>
-    <style>
-        body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
-        .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; }
-        .academy { font-size: 0.9rem; color: #2196f3; font-weight: bold; margin-bottom: 5px; }
-        .title { margin: 5px 0; color: #333; }
-        .notice-box { background: #fff3e0; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; color: #5d4037; }
-        
-        .link-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 10px; transition: 0.2s; box-sizing: border-box; }
-        .btn-test { background: #607d8b; color: white; } .btn-test:hover { background: #455a64; }
-        .btn-ans { background: #4caf50; color: white; margin-top: 15px; animation: popUp 0.5s ease-out; } .btn-ans:hover { background: #388e3c; }
-        
-        .q-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
-        .q-num { font-weight: bold; color: #2196f3; width: 40px; }
-        .omr-group { display: flex; gap: 8px; flex: 1; justify-content: space-around; }
-        .omr-input { display: none; }
-        .omr-label { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #999; cursor: pointer; transition: 0.2s; }
-        .omr-input:checked + .omr-label { background: #2196f3; border-color: #2196f3; color: white; }
-        .show-wrong .wrong-row .omr-input:checked + .omr-label { background: #ef5350; border-color: #ef5350; }
-        .show-wrong .wrong-row .q-num { color: #d32f2f; }
-
-        .btn-submit { display: block; width: 100%; padding: 15px; background: #fee500; color: #3c1e1e; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top:20px; }
-        .result-box { display: none; margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; background: #e3f2fd; }
-        .pass { background: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32; }
-        .fail { background: #ffebee; border: 2px solid #ef5350; color: #c62828; }
-        .timer-msg { text-align: center; color: #d32f2f; font-weight: bold; margin-top: 10px; display: none; }
-        @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="header">
-        <div class="academy">${academy}</div>
-        <h2 class="title">${title}</h2>
-        <div style="font-size:0.9rem; color:#666">총 ${answersArr.length}문항 (통과기준: ${cutline}개 오답 허용)</div>
-    </div>
+<h2>💡 문제 해결 (Troubleshooting)</h2>
+<div class="box">
+    <p><b>Q. 학생들이 제출했는데 엑셀에 안 떠요.</b><br>
+    A. 엑셀 1행에 적은 <b>[제목]</b>과 생성기에서 만든 <b>[제목]</b>이 토씨 하나라도 다르면 안 뜹니다. 띄어쓰기까지 확인하세요!</p>
     
-    ${testLink ? `<a href="${testLink}" class="link-btn btn-test" target="_blank">📄 시험지 보러가기 (Click)</a>` : ''}
-    ${notice ? `<div class="notice-box">📢 <b>공지사항</b><br>${notice}</div>` : ''}
-
-    <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
-        <label style="font-weight:bold">학생 이름</label>
-        <input type="text" id="studentName" style="width:100%;padding:10px;margin-top:5px;border:1px solid #ccc;border-radius:5px" placeholder="이름을 입력하세요">
-    </div>
-    <div id="questionContainer"></div>
-    <button id="submitBtn" class="btn-submit" onclick="checkAnswers()">🟡 채점하고 선생님께 카톡 보내기</button>
-    <div id="timerMsg" class="timer-msg"></div>
-    <div id="resultArea" class="result-box"></div>
+    <p><b>Q. 점수가 0점이고 흰색 줄이 생겨요.</b><br>
+    A. 학생이 학원 이름 뒤에 <b>공백(스페이스바)</b>을 넣었을 확률이 높습니다. 엑셀 '시트1'에서 공백을 지워주세요.</p>
 </div>
-<script>
-    const correctAnswers = [${answersArr.join(', ')}];
-    const passCriteria = ${cutline};
-    const COOLDOWN_MINUTES = ${cooldown};
-    const MAX_ATTEMPTS = ${maxAttempts};
-    const ANSWER_LINK = "${answerLink}"; 
-    const STORAGE_KEY = "${uniqueId}";
-    let attempt = 0; const totalQ = correctAnswers.length;
 
-    window.onload = function() {
-        let html = "";
-        for(let i=1; i<=totalQ; i++) {
-            html += '<div class="q-item" id="qRow'+i+'"><span class="q-num">'+i+'번</span><div class="omr-group">';
-            for(let j=1; j<=5; j++) {
-                html += '<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" class="omr-input"><label for="q'+i+'_'+j+'" class="omr-label">'+j+'</label>';
-            }
-            html += '</div></div>';
-        }
-        document.getElementById("questionContainer").innerHTML = html;
-        loadStatus();
-    };
-
-    function loadStatus() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if(saved) {
-            const data = JSON.parse(saved);
-            attempt = data.attempt || 0;
-            if(data.name) document.getElementById("studentName").value = data.name;
-            if(MAX_ATTEMPTS > 0 && attempt >= MAX_ATTEMPTS) { disableForever(); return; }
-            if(COOLDOWN_MINUTES > 0 && data.lastSubmitTime) {
-                const passed = (new Date().getTime() - data.lastSubmitTime)/1000/60;
-                if(passed < COOLDOWN_MINUTES) lockSubmit(COOLDOWN_MINUTES - passed);
-            }
-        }
-    }
-    
-    function checkAnswers() {
-        const name = document.getElementById("studentName").value;
-        if(!name) return alert("이름을 입력해주세요!");
-        for(let i=1; i<=totalQ; i++) if(!document.querySelector('input[name="q'+i+'"]:checked')) return alert(i + "번 문제를 아직 안 풀었습니다!");
-
-        attempt++;
-        let wrongCount = 0; let wrongList = [];
-        const container = document.getElementById("questionContainer");
-        container.classList.remove("show-wrong");
-
-        for(let i=0; i<totalQ; i++) {
-            const userVal = document.querySelector('input[name="q'+(i+1)+'"]:checked').value;
-            const row = document.getElementById('qRow'+(i+1));
-            row.classList.remove("wrong-row");
-            if(parseInt(userVal) !== correctAnswers[i]) {
-                wrongCount++; wrongList.push((i+1)+"번");
-                row.classList.add("wrong-row");
-            } 
-        }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: name, attempt: attempt, lastSubmitTime: new Date().getTime() }));
-
-        const isPass = wrongCount <= passCriteria;
-        const resultText = isPass ? "통과! 🎉" : "재시험 😱";
-        const kakaoMsg = "[일일테스트 결과 Report]\\n\\n학생: " + name + " (" + attempt + "차 시도)\\n틀린 개수: " + wrongCount + "개\\n틀린 문항: " + (wrongList.length ? wrongList.join(", ") : "없음") + "\\n결과: " + resultText;
-        location.href = "kakaotalk://send?text=" + encodeURIComponent(kakaoMsg);
-
-        const res = document.getElementById("resultArea"); res.style.display = "block";
-        
-        let showAnswerBtn = false; 
-
-        if(isPass) {
-            res.className = "result-box pass";
-            res.innerHTML = "<h2>🎉 " + name + " 학생 통과!</h2><p>선생님께 카톡 전송 완료!<br>수고했습니다! 👋</p>";
-            document.getElementById("submitBtn").style.display = "none";
-            showAnswerBtn = true; 
-        } else {
-            let msg = "<div style='font-weight:bold;font-size:1.2rem'>😱 " + wrongCount + "개 틀렸어요!</div>";
-            const showDetail = (MAX_ATTEMPTS === 0) || (attempt >= MAX_ATTEMPTS - 1);
-            if(showDetail) {
-                container.classList.add("show-wrong"); 
-                msg += "<div style='margin-top:10px; color:#d32f2f; background:#fff; padding:10px; border-radius:5px; border:1px solid #ef5350;'><b>💡 힌트 (오답 문항):</b><br>"+wrongList.join(", ")+"</div>";
-            } else {
-                msg += "<div style='margin-top:10px; color:#f57c00; background:#fff; padding:10px; border-radius:5px; border:1px solid #ffb74d;'><b>🔒 오답 비공개</b><br>틀린 개수만 확인하고 다시 풀어보세요!</div>";
-            }
-            if(MAX_ATTEMPTS > 0) {
-                if(MAX_ATTEMPTS - attempt <= 0) { 
-                    disableForever(); 
-                    msg += "<br><b style='color:red'>🚫 기회 소진! (최종 제출 완료)</b>";
-                    showAnswerBtn = true; 
-                } else { 
-                    msg += "<br>(남은 기회: "+(MAX_ATTEMPTS-attempt)+"번)"; 
-                    if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES); 
-                }
-            } else if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES);
-            
-            res.className = "result-box fail"; 
-            res.innerHTML = msg + "<p style='font-size:0.8rem; color:#666'>선생님께 점수가 전송되었습니다.</p>";
-        }
-
-        if(showAnswerBtn && ANSWER_LINK) {
-            res.innerHTML += '<a href="' + ANSWER_LINK + '" class="link-btn btn-ans" target="_blank">📘 정답 및 해설 다운로드 (Click)</a>';
-        }
-    }
-    function lockSubmit(min) {
-        const btn = document.getElementById("submitBtn"); const msg = document.getElementById("timerMsg");
-        btn.disabled = true; msg.style.display = "block";
-        let sec = Math.ceil(min * 60);
-        const timer = setInterval(() => {
-            sec--;
-            if(sec <= 0) { clearInterval(timer); btn.disabled = false; btn.innerText = "🟡 채점하고 선생님께 카톡 보내기"; msg.style.display = "none"; }
-            else { btn.innerText = "⏳ 대기 ("+Math.ceil(sec)+"초)"; msg.innerText = "⏳ "+Math.ceil(sec)+"초 후 재도전 가능"; }
-        }, 1000);
-    }
-    function disableForever() { document.getElementById("submitBtn").disabled = true; document.getElementById("submitBtn").innerText = "🚫 제출 불가"; }
-<\/script>
-</body>
-</html>`;
-        document.getElementById('resultCode').value = template;
-        document.getElementById('resultCode').style.display = "block";
-        document.getElementById('downloadBtn').style.display = "block";
-    }
-
-    function downloadFile() {
-        const content = document.getElementById('resultCode').value;
-        if(!content) { alert("먼저 코드를 생성해주세요!"); return; }
-        const today = new Date();
-        const filename = "test_" + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0') + ".html";
-        const blob = new Blob([content], { type: 'text/html' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.click();
-        alert("파일이 다운로드 되었습니다! ("+filename+")");
-    }
-</script>
 </body>
 </html>

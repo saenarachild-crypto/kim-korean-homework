@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>주간 과제 생성기 V13.1 (자유 입력형)</title>
+    <title>주간 과제 생성기 V13.1 (엑셀 연동형)</title>
     <script>
-        // 🚨 [필수] 선생님의 구글 스크립트 주소가 유지되어야 합니다!
+        // 🚨 선생님의 구글 스크립트 주소 (자동으로 심어드렸습니다!)
         const MY_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUKboETdm3mXl2PgJiL1EzbyWEijF4juH4u_xry0oDKZLsPYeHkS4V1wlrP-0R5Sk/exec";
     </script>
     <style>
@@ -25,10 +25,10 @@
 </head>
 <body>
     <div class="container">
-        <h2>📅 주간 과제 공장 (V13.1 자유 입력)</h2>
+        <h2>📅 주간 과제 공장 (V13.1 통합형)</h2>
         
         <div class="input-group">
-            <label>1. 과제 제목</label>
+            <label>1. 과제 제목 (엑셀 제목과 똑같이!)</label>
             <input type="text" id="assignTitle" placeholder="예: 1월 2주차 과제">
         </div>
 
@@ -74,6 +74,7 @@
         .btn-submit{width:100%;padding:15px;background:#4a90e2;color:white;border:none;border-radius:10px;font-size:1.1rem;font-weight:bold;cursor:pointer;margin-top:20px}
         .btn-submit:hover{background:#357abd}
         .success-msg{display:none;text-align:center;margin-top:20px;padding:20px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-weight:bold}
+        .academy-alert { font-size: 12px; color: #d32f2f; margin-top: -10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -82,7 +83,8 @@
         
         <div style="background:#fff3e0;padding:15px;border-radius:8px;margin-bottom:20px;border:1px solid #ffe0b2;">
             <label style="font-weight:bold;color:#e65100">🏫 학원 이름 입력 (필수)</label>
-            <input type="text" id="academySelect" placeholder="예: 러셀분당, 대치명인 (정확하게 입력)">
+            <input type="text" id="academySelect" placeholder="예: 러셀분당, 시대인재 (정확히 입력)">
+            <div class="academy-alert">※ 선생님이 공지한 학원명을 띄어쓰기까지 정확하게 입력하세요!</div>
             
             <label style="font-weight:bold;display:block;margin-top:10px">👤 학생 이름</label>
             <input type="text" id="studentName" placeholder="이름을 입력하세요">
@@ -125,7 +127,7 @@
             const finalUrl = SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(sendData))));
             fetch(finalUrl, { mode: 'no-cors' })
                 .then(() => {
-                    document.getElementById("successMsg").innerHTML = "<h2>🎉 제출 완료!</h2><p>선생님께 확인 처리가 전송되었습니다.<br>수고했어요!</p>";
+                    document.getElementById("successMsg").innerHTML = "<h2>🎉 제출 완료!</h2><p>선생님 엑셀에 제출 확인이 전송되었습니다.<br>수고했어요!</p>";
                     document.getElementById("successMsg").style.display = "block";
                     btn.style.display = "none";
                 })
