@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>1월 2주차 독서 수업 교재</title>
+    <style>
+        body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
+        .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; }
+        .title { margin: 5px 0; color: #333; }
+        .notice-box { background: #fff3e0; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; color: #5d4037; }
+        .link-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 10px; transition: 0.2s; box-sizing: border-box; }
+        .btn-test { background: #607d8b; color: white; }
+        .btn-ans { background: #4caf50; color: white; margin-top: 15px; }
+        .q-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+        .q-num { font-weight: bold; color: #2196f3; width: 40px; }
+        .omr-group { display: flex; gap: 8px; flex: 1; justify-content: space-around; }
+        .omr-input { display: none; }
+        .omr-label { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #999; cursor: pointer; transition: 0.2s; }
+        .omr-input:checked + .omr-label { background: #2196f3; border-color: #2196f3; color: white; }
+        .show-wrong .wrong-row .omr-input:checked + .omr-label { background: #ef5350; border-color: #ef5350; }
+        .btn-submit { display: block; width: 100%; padding: 15px; background: #ff6b6b; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top:20px; }
+        .result-box { display: none; margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; background: #e3f2fd; }
+        .pass { background: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32; }
+        .fail { background: #ffebee; border: 2px solid #ef5350; color: #c62828; }
+        input[type=text] { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2 class="title">1월 2주차 독서 수업 교재</h2>
+        <div style="font-size:0.9rem; color:#666">총 29문항 (통과기준: 0개 오답 허용)</div>
+    </div>
+    
+    <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBVwOJZiRQgS6_ugDNnoVYoAZMB_ebihxSBPKNw-Rl8GAY?e=j9iOvA" class="link-btn btn-test" target="_blank">📄 시험지 보러가기 (Click)</a>
+    <div class="notice-box">📢 <b>공지사항</b><br>상단 버튼을 눌러 답안을 입력하세요. <br>반드시 학원명을 선생님이 알려주는 대로 입력하세요.<br>이름은 띄어쓰기 없이 본인의 이름을 '김현석'과 같이 입력하세요.</div>
+
+    <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
+        <label style="font-weight:bold; color:#d63031;">🏫 학원 이름 (필수)</label>
+        <input type="text" id="academySelect" placeholder="예: 러셀분당, 시대인재 (정확히 입력)">
+        
+        <label style="font-weight:bold; margin-top:10px; display:block;">👤 학생 이름</label>
+        <input type="text" id="studentName" placeholder="이름을 입력하세요">
+    </div>
+
+    <div id="questionContainer"></div>
+    <button id="submitBtn" class="btn-submit" onclick="checkAnswers()">📝 제출하고 채점하기</button>
+    <div id="timerMsg" style="text-align:center; color:#d32f2f; margin-top:10px;"></div>
+    <div id="resultArea" class="result-box"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUKboETdm3mXl2PgJiL1EzbyWEijF4juH4u_xry0oDKZLsPYeHkS4V1wlrP-0R5Sk/exec"; 
+    const correctAnswers = [1, 2, 4, 4, 1, 2, 5, 3, 5, 3, 5, 4, 3, 1, 2, 1, 1, 2, 5, 4, 1, 1, 1, 3, 4, 3, 1, 3, 2];
+    const passCriteria = 0;
+    const COOLDOWN_MINUTES = 3;
+    const MAX_ATTEMPTS = 3;
+    const ANSWER_LINK = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQA3sl-2anvxR4EbouLfFbiTAZziHwR59bTxnjZbnBE06XU?e=kpAH4M"; 
+    const STORAGE_KEY = "daily_1768117115469";
+    let attempt = 0; const totalQ = correctAnswers.length;
+
+    window.onload = function() {
+        let html = "";
+        for(let i=1; i<=totalQ; i++) {
+            html += '<div class="q-item" id="qRow'+i+'"><span class="q-num">'+i+'번</span><div class="omr-group">';
+            for(let j=1; j<=5; j++) {
+                html += '<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" class="omr-input"><label for="q'+i+'_'+j+'" class="omr-label">'+j+'</label>';
+            }
+            html += '</div></div>';
+        }
+        document.getElementById("questionContainer").innerHTML = html;
+        loadStatus();
+    };
+
+    function loadStatus() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if(saved) {
+            const data = JSON.parse(saved);
+            attempt = data.attempt || 0;
+            if(data.name) document.getElementById("studentName").value = data.name;
+            if(data.academy) document.getElementById("academySelect").value = data.academy;
+            if(MAX_ATTEMPTS > 0 && attempt >= MAX_ATTEMPTS) { disableForever(); return; }
+            if(COOLDOWN_MINUTES > 0 && data.lastSubmitTime) {
+                const passed = (new Date().getTime() - data.lastSubmitTime)/1000/60;
+                if(passed < COOLDOWN_MINUTES) lockSubmit(COOLDOWN_MINUTES - passed);
+            }
+        }
+    }
+    
+    function checkAnswers() {
+        const name = document.getElementById("studentName").value.trim();
+        const academy = document.getElementById("academySelect").value.trim(); 
+        
+        if(!academy) return alert("학원 이름을 입력해주세요!");
+        if(!name) return alert("이름을 입력해주세요!");
+        for(let i=1; i<=totalQ; i++) if(!document.querySelector('input[name="q'+i+'"]:checked')) return alert(i + "번 문제를 아직 안 풀었습니다!");
+
+        attempt++;
+        let wrongCount = 0; let wrongList = [];
+        const container = document.getElementById("questionContainer");
+        container.classList.remove("show-wrong");
+
+        for(let i=0; i<totalQ; i++) {
+            const userVal = document.querySelector('input[name="q'+(i+1)+'"]:checked').value;
+            const row = document.getElementById('qRow'+(i+1));
+            row.classList.remove("wrong-row");
+            if(parseInt(userVal) !== correctAnswers[i]) {
+                wrongCount++; wrongList.push((i+1)+"번");
+                row.classList.add("wrong-row");
+            } 
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: name, academy: academy, attempt: attempt, lastSubmitTime: new Date().getTime() }));
+
+        // 엑셀로 데이터 전송 (V13.1 핵심)
+        const score = totalQ - wrongCount;
+        const sendData = {
+            type: "daily_test",
+            title: document.title,
+            academy: academy,
+            name: name,
+            score: score,
+            total: totalQ,
+            wrongCount: wrongCount
+        };
+        
+        const finalUrl = SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(sendData))));
+        fetch(finalUrl, { mode: 'no-cors' }).catch(e => console.log(e));
+
+        const isPass = wrongCount <= passCriteria;
+        const resultText = isPass ? "통과! 🎉" : "재시험 😱";
+        
+        const kakaoMsg = "[일일테스트 결과 Report]\n\n학원: " + academy + "\n학생: " + name + "\n틀린 개수: " + wrongCount + "개\n결과: " + resultText;
+        // 모바일이면 카톡 실행
+        if(/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+             location.href = "kakaotalk://send?text=" + encodeURIComponent(kakaoMsg);
+        }
+
+        const res = document.getElementById("resultArea"); res.style.display = "block";
+        let showAnswerBtn = false; 
+
+        if(isPass) {
+            res.className = "result-box pass";
+            res.innerHTML = "<h2>🎉 " + name + " 학생 통과!</h2><p>엑셀 저장 완료 + 카톡 전송 완료!<br>수고했습니다! 👋</p>";
+            document.getElementById("submitBtn").style.display = "none";
+            showAnswerBtn = true; 
+        } else {
+            let msg = "<div style='font-weight:bold;font-size:1.2rem'>😱 " + wrongCount + "개 틀렸어요!</div>";
+            const showDetail = (MAX_ATTEMPTS === 0) || (attempt >= MAX_ATTEMPTS - 1);
+            if(showDetail) {
+                container.classList.add("show-wrong"); 
+                msg += "<div style='margin-top:10px; color:#d32f2f; background:#fff; padding:10px; border-radius:5px; border:1px solid #ef5350;'><b>💡 힌트 (오답 문항):</b><br>"+wrongList.join(", ")+"</div>";
+            } else {
+                msg += "<div style='margin-top:10px; color:#f57c00; background:#fff; padding:10px; border-radius:5px; border:1px solid #ffb74d;'><b>🔒 오답 비공개</b><br>틀린 개수만 확인하고 다시 풀어보세요!</div>";
+            }
+            if(MAX_ATTEMPTS > 0) {
+                if(MAX_ATTEMPTS - attempt <= 0) { 
+                    disableForever(); 
+                    msg += "<br><b style='color:red'>🚫 기회 소진! (최종 제출)</b>";
+                    showAnswerBtn = true; 
+                } else { 
+                    msg += "<br>(남은 기회: "+(MAX_ATTEMPTS-attempt)+"번)"; 
+                    if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES); 
+                }
+            } else if(COOLDOWN_MINUTES > 0) lockSubmit(COOLDOWN_MINUTES);
+            
+            res.className = "result-box fail"; 
+            res.innerHTML = msg;
+        }
+
+        if(showAnswerBtn && ANSWER_LINK) {
+            res.innerHTML += '<a href="' + ANSWER_LINK + '" class="link-btn btn-ans" target="_blank">📘 정답 및 해설 다운로드 (Click)</a>';
+        }
+    }
+    
+    function lockSubmit(min) {
+        const btn = document.getElementById("submitBtn"); const msg = document.getElementById("timerMsg");
+        btn.disabled = true; msg.style.display = "block";
+        let sec = Math.ceil(min * 60);
+        const timer = setInterval(() => {
+            sec--;
+            if(sec <= 0) { clearInterval(timer); btn.disabled = false; btn.innerText = "📝 제출하고 채점하기"; msg.style.display = "none"; }
+            else { btn.innerText = "⏳ 대기 ("+Math.ceil(sec)+"초)"; msg.innerText = "⏳ "+Math.ceil(sec)+"초 후 재도전 가능"; }
+        }, 1000);
+    }
+    function disableForever() { document.getElementById("submitBtn").disabled = true; document.getElementById("submitBtn").innerText = "🚫 제출 불가"; }
+</script>
+</body>
+</html>
