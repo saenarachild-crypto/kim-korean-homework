@@ -3,99 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>김현석 선생님 자동채점 매뉴얼</title>
+    <title>김선생님 작업 매뉴얼 (V13.1)</title>
     <style>
-        body { font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif; line-height: 1.6; color: #333; background: #f4f6f8; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
-        .badge { background: #2196f3; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; vertical-align: middle; margin-left: 10px; }
-        h2 { color: #1565c0; margin-top: 30px; font-size: 1.3rem; display: flex; align-items: center; }
-        h2 .step { background: #e3f2fd; color: #1565c0; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; margin-right: 10px; font-size: 1rem; border: 2px solid #bbdefb; }
-        .box { background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin: 10px 0; }
-        .box ul, .box ol { margin: 0; padding-left: 20px; }
-        .box li { margin-bottom: 5px; }
-        .highlight { color: #d32f2f; font-weight: bold; background: #ffebee; padding: 2px 5px; border-radius: 3px; }
-        .link-text { color: #2e7d32; font-weight: bold; background: #e8f5e9; padding: 5px; border-radius: 5px; display: inline-block; margin-top: 5px; }
-        .tip-box { background: #fff8e1; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .tip-title { font-weight: bold; color: #e65100; display: block; margin-bottom: 5px; }
-        footer { text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem; }
-        .btn-print { display: block; width: 100%; padding: 15px; background: #546e7a; color: white; text-align: center; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-top: 30px; }
-        .btn-print:hover { background: #455a64; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: #f4f6f8; padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.6; color: #333; }
+        h1 { text-align: center; color: #1565c0; border-bottom: 3px solid #1565c0; padding-bottom: 15px; }
+        h2 { margin-top: 35px; border-left: 5px solid #2196f3; padding-left: 12px; color: #2c3e50; font-size: 1.4rem; }
+        .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .btn { display: inline-block; padding: 10px 20px; background: #2196f3; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 5px; transition: 0.2s; }
+        .btn:hover { background: #1976d2; transform: translateY(-2px); }
+        .btn-green { background: #43a047; } .btn-green:hover { background: #2e7d32; }
+        .highlight { background: #fff3e0; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #e65100; }
+        code { background: #eee; padding: 3px 6px; border-radius: 4px; font-family: monospace; color: #d32f2f; font-weight: bold; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        .step { font-weight: bold; color: #1565c0; font-size: 1.1rem; }
+        .note { background: #fff9c4; padding: 15px; border-radius: 8px; border-left: 4px solid #fbc02d; font-size: 0.95rem; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📘 김현석 선생님 운영 매뉴얼</h1>
+<h1>📘 김선생님 디지털 작업실 (V13.1)</h1>
 
-    <div class="tip-box" style="background:#e3f2fd; border-color:#90caf9;">
-        <span class="tip-title" style="color:#1565c0;">📌 기본 원칙 (제일 중요!)</span>
-        1. 작업은 무조건 바탕화면 <b>homework 폴더</b> 안에서 합니다.<br>
-        2. 지난주에 만든 파일(week1.html 등)은 <span class="highlight">절대 지우지 말고</span> 계속 쌓아둡니다.
-    </div>
-
-    <h2><span class="step">1</span> 시험지 만들기 (내용물)</h2>
-    <div class="box">
-        <p><b>방법 A. AI에게 맡기기 (추천)</b></p>
-        <ol>
-            <li>채팅창에 <b>정답표 사진</b>이나 <b>PDF</b>를 올립니다.</li>
-            <li>"학생용 파일로 만들어줘"라고 말합니다.</li>
-            <li>만들어진 코드를 복사해서 <b>homework 폴더</b>에 저장합니다.</li>
-        </ol>
-        <p style="margin-top:10px; font-size:0.9rem; color:#666;">※ 파일명 규칙: <b>영어+숫자</b> (예: <code>mock-test-3.html</code>)</p>
-    </div>
-
-    <h2><span class="step">2</span> 대문 갈아끼우기 (메뉴판)</h2>
-    <div class="box">
-        <p><b>도구: home_maker.html</b></p>
-        <ol>
-            <li><code>home_maker.html</code>을 실행합니다.</li>
-            <li><b>[0. 카톡 설정]</b>에 이번 주 제목을 적습니다. (예: 1월 2주차 과제)</li>
-            <li><b>[2. 버튼 목록]</b>에 1단계에서 만든 <b>새 파일명</b>을 정확히 적습니다.</li>
-            <li><b>[대문 파일 만들기]</b> 버튼을 누릅니다.</li>
-            <li>다운로드된 <code>index.html</code> 파일을 폴더에 <b>덮어쓰기</b> 합니다.</li>
-        </ol>
-    </div>
-
-    <h2><span class="step">3</span> 배포하기 (서버 업로드)</h2>
-    <div class="box">
-        <p><b>사이트: Netlify</b> <span class="highlight">⚠️ 순서 중요!</span></p>
-        <ol>
-            <li>Netlify 로그인 후, 목록에서 <b>선생님 사이트 글자(예: kim-korean)를 클릭</b>해서 들어갑니다.</li>
-            <li>상단 메뉴의 <b>[Deploys]</b> 탭을 누릅니다.</li>
-            <li>화면 점선 박스에 <b>homework 폴더를 통째로 드래그</b>합니다.</li>
-            <li><b>"Published"</b>가 뜨면 성공입니다.</li>
-        </ol>
-    </div>
-
-    <h2><span class="step">4</span> 학생에게 보내기 (카톡)</h2>
-    <div class="box">
-        <p>아래 주소 뒤에 <code>/?v=숫자</code>를 붙여서 보냅니다.</p>
-        <div class="link-text">👉 https://kim-korean.netlify.app/?v=102</div>
-        <p style="font-size:0.9rem; margin-top:5px;">(숫자를 매주 바꾸면 카톡 제목이 새롭게 갱신되어 보입니다.)</p>
-    </div>
-
-    <h2><span class="step">5</span> 결과 확인 (엑셀)</h2>
-    <div class="box">
-        <ul>
-            <li>즐겨찾기 해둔 <b>구글 스프레드시트</b>를 확인합니다.</li>
-            <li><b>[데이터] - [필터 만들기]</b>를 쓰면 과제별로 모아볼 수 있습니다.</li>
-        </ul>
-    </div>
-
-    <div class="tip-box">
-        <span class="tip-title">💡 선생님을 위한 3계명</span>
-        1. <b>지우지 않는다:</b> 폴더 안의 파일은 계속 모으세요.<br>
-        2. <b>영어 이름을 쓴다:</b> 파일명은 영어로! (한글 X)<br>
-        3. <b>대문은 index.html:</b> 첫 화면 파일 이름은 무조건 index.html 입니다.
-    </div>
-
-    <button class="btn-print" onclick="window.print()">🖨️ 이 매뉴얼 인쇄하기</button>
+<div class="box" style="text-align:center; background:#e3f2fd;">
+    <h3>👇 작업 도구 바로가기 👇</h3>
+    <a href="test_maker.html" class="btn" target="_blank">🏭 일일 테스트 생성기 실행</a>
+    <a href="weekly_maker.html" class="btn btn-green" target="_blank">📅 주간 과제 생성기 실행</a>
 </div>
 
-<footer>
-    Designed for Kim Hyun Seok Teacher
-</footer>
+<h2>Step 1. 준비물 챙기기</h2>
+<div class="box">
+    <ul>
+        <li><b>작업 폴더:</b> 바탕화면의 <span class="highlight">kim-korean-homework</span> 폴더</li>
+        <li><b>필수 프로그램:</b> GitHub Desktop (배포 트럭)</li>
+        <li><b>파일 준비:</b> 테스트용 PDF나 지문 자료가 있다면 미리 폴더에 넣어두세요.</li>
+    </ul>
+</div>
+
+<h2>Step 2. 파일 만들기 (루틴)</h2>
+<div class="box">
+    <p><span class="step">1. 생성기 접속:</span> 위 버튼 중 필요한 생성기를 누릅니다.</p>
+    <p><span class="step">2. 정보 입력 (V13.1 핵심):</span>
+        <ul>
+            <li><b>제목:</b> 정확하게 입력 (엑셀 시트 제목이 됩니다!)</li>
+            <li><b>학원명:</b> 이제 입력할 필요 없음 (학생이 입력함)</li>
+            <li><b>문제/정답:</b> <code>12345</code> 처럼 정답만 입력</li>
+        </ul>
+    </p>
+    <div class="note">
+        <b>📢 중요 변경점 (V13.1):</b><br>
+        더 이상 생성기에서 '학원'을 선택하지 않아도 됩니다.<br>
+        만들어진 파일을 열면 <b>학생이 직접 학원 이름을 입력</b>하게 되어 있습니다.
+    </div>
+    <p><span class="step">3. 저장:</span> <b>[코드 생성]</b> → <b>[파일로 저장]</b> 버튼 클릭!</p>
+    <p><span class="step">4. 이동:</span> 다운로드된 파일(예: <code>test_0114.html</code>)을 작업 폴더로 옮기세요.</p>
+</div>
+
+<h2>Step 3. 배포하기 (GitHub Desktop)</h2>
+<div class="box">
+    <p>1. <b>GitHub Desktop</b>을 켭니다.</p>
+    <p>2. 왼쪽 목록에 방금 넣은 파일들이 <b style="color:green">+ 초록색</b>으로 떴는지 확인합니다.</p>
+    <p>3. 왼쪽 아래 <b>Summary</b> 칸에 간단히 메모(예: 1월 14일 테스트)를 씁니다.</p>
+    <p>4. 파란색 <b>[Commit to main]</b> 버튼 클릭!</p>
+    <p>5. 오른쪽 위 <b>[Push origin]</b> 버튼 클릭! (로딩 바가 사라지면 배포 완료)</p>
+</div>
+
+<h2>Step 4. 링크 보내기 & 확인</h2>
+<div class="box">
+    <p>학생들에게 줄 주소 규칙은 변함없습니다.</p>
+    <div style="background:#333; color:white; padding:15px; border-radius:8px; text-align:center; font-size:1.1rem; margin-bottom:15px;">
+        https://kim-korean.netlify.app/<b>파일명.html</b>
+    </div>
+    <p><b>[선생님이 할 일]</b></p>
+    <ul>
+        <li>엑셀(구글 시트)을 켜고, <b>새로운 과제 제목을 '1행'에 추가</b>합니다.</li>
+        <li>학생들에게 공지합니다: <span class="highlight">"학원명 띄어쓰기 틀리지 말고 정확히 적어라!"</span></li>
+    </ul>
+</div>
+
+<h2>💡 자주 묻는 질문 (FAQ)</h2>
+<div class="box">
+    <p><b>Q. 점수가 엑셀에 안 들어와요.</b><br>
+    A. 생성기 코드(HTML) 안에 선생님의 <b>'구글 스크립트 주소'</b>가 들어있는지 확인하세요.<br>
+    또는 엑셀의 과제 제목(1행)과 생성할 때 적은 제목이 <b>토씨 하나라도 다르면</b> 안 들어옵니다.</p>
+    
+    <p><b>Q. 학원 이름이 자꾸 늘어나요.</b><br>
+    A. 걱정 마세요! V13.1 버전부터는 학생이 <b>'시대인재', '강남대성'</b> 등 무엇을 입력하든 엑셀에 그대로 찍힙니다.</p>
+    
+    <p><b>Q. 수정했는데 학생들은 그대로래요.</b><br>
+    A. 인터넷 브라우저 캐시 때문입니다. 학생들에게 <b>"새로고침(F5) 하거나 창을 껐다 켜라"</b>고 하세요.</p>
+</div>
 
 </body>
 </html>
