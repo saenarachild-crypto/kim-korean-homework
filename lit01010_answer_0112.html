@@ -28,12 +28,12 @@
 <div class="container">
     <div class="header">
         <h2 class="title">1월 1주차 과제 [문학]</h2>
-        <div style="font-size:0.9rem; color:#666">총 34문항 (제외 문항 없음)</div>
+        <div style="font-size:0.9rem; color:#666">총 33문항 (제외 문항 없음)</div>
     </div>
     
     <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQAIYWBZgMIwS77MZq3A52QaAWNiPgGzGx1bGhMOHCqNxB8?e=6mwjLq" class="link-btn btn-test" target="_blank">📄 시험지 보러가기 (Click)</a>
     
-    <div class="notice-box">📢 <b>공지사항</b><br>문학은 모든 문항(1~34번)을 풀이해야 합니다. 제출 후 정답 버튼을 누르면 해설지가 열립니다.</div>
+    <div class="notice-box">📢 <b>공지사항</b><br>문학 정답이 최종 수정되었습니다. 제출 후 정답 버튼을 누르면 해설지가 열립니다.</div>
 
     <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
         <label style="font-weight:bold; color:#d63031;">🏫 학원 이름 (필수)</label>
@@ -48,9 +48,11 @@
 </div>
 
 <script>
-    // ✅ 전달받은 새로운 구글 앱스 스크립트 URL 반영
+    // ✅ 최신 구글 앱스 스크립트 URL 반영
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec"; 
-    const correctAnswers = [4,4,1,2,1, 4,1,4,2,1, 1,2,4,2,4, 3,2,4,2,1, 1,2,2,1,4, 2,3,2,2,3, 1,1,4,4];
+    
+    // ✅ 직접 알려주신 33문항 정답 번호 반영
+    const correctAnswers = [4, 4, 1, 3, 1, 4, 5, 5, 4, 3, 1, 2, 4, 1, 3, 2, 1, 2, 1, 4, 4, 2, 3, 4, 1, 2, 1, 2, 5, 3, 4, 5, 3];
     
     const ANSWER_LINK = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDUUc4rqZ_RT6bgeuhwPI1BASHfjwXGlvnHfUoob0rMR40?e=NLxDAS"; 
     
@@ -92,7 +94,7 @@
             } 
         }
 
-        // ✅ 구글 시트로 데이터 전송 (GET 방식 최적화)
+        // ✅ 구글 시트로 데이터 전송 (암호화 로직 반영)
         const sendData = {
             title: document.title,
             academy: academy,
@@ -106,10 +108,9 @@
         const payload = btoa(unescape(encodeURIComponent(JSON.stringify(sendData))));
         fetch(SCRIPT_URL + "?data=" + payload, { mode: 'no-cors' });
 
-        // 결과 표시
         const res = document.getElementById("resultArea");
         res.style.display = "block";
-        res.innerHTML = `<h3>채점 완료</h3><p>${name} 학생, 34문항 중 총 ${wrongCount}개 틀렸습니다.</p>`;
+        res.innerHTML = `<h3>채점 완료</h3><p>${name} 학생, ${totalQ}문항 중 총 ${wrongCount}개 틀렸습니다.</p>`;
         res.innerHTML += `<a href="${ANSWER_LINK}" class="link-btn btn-ans" target="_blank">📘 문학 해설지 보기 (Click)</a>`;
         
         document.getElementById("submitBtn").style.display = "none";
