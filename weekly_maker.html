@@ -3,160 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>주간 과제 생성기 V13.1 (엑셀 연동형)</title>
+    <title>주간 과제 생성기 V13.1 (객관식형)</title>
     <script>
-        // 🚨 선생님의 구글 스크립트 주소 (자동으로 심어드렸습니다!)
-        const MY_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUKboETdm3mXl2PgJiL1EzbyWEijF4juH4u_xry0oDKZLsPYeHkS4V1wlrP-0R5Sk/exec";
+        // 선생님의 구글 엑셀 주소 (기존 test_maker와 동일) 
+        const MY_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUKboETdm3mXl2PgJiL1EzbyWEijF4juH4u_xry0oDKZLsPYeHkS4V1wlrP-0R5Sk/exec"; [cite: 5]
     </script>
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f4f9; padding: 20px; display: flex; justify-content: center; }
-        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; border-top: 5px solid #4a90e2; }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        textarea { height: 100px; resize: vertical; }
+        /* 바탕색을 파란색 계열로 변경 */
+        body { font-family: -apple-system, sans-serif; background: #e3f2fd; padding: 20px; max-width: 800px; margin: 0 auto; }
+        /* 테두리 포인트를 파란색으로 변경 */
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #2196f3; }
+        h2 { margin-top: 0; color: #1976d2; text-align: center; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        textarea { height: 80px; resize: vertical; }
+        .help-text { font-size: 0.85rem; color: #888; margin-top: 5px; }
+        
         .btn-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; min-width: 150px; }
-        .btn-gen { background: #4a90e2; } .btn-gen:hover { background: #357abd; }
-        .btn-down { background: #28a745; } .btn-down:hover { background: #218838; }
+        /* 버튼 색상을 파란색으로 변경 */
+        .btn-gen { background: #2196f3; } .btn-gen:hover { background: #1976d2; }
+        .btn-down { background: #636e72; } .btn-down:hover { background: #2d3436; }
+        
         #resultCode { width: 100%; height: 150px; margin-top: 20px; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-family: monospace; font-size: 0.9rem; display: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>📅 주간 과제 공장 (V13.1 통합형)</h2>
-        
-        <div class="input-group">
-            <label>1. 과제 제목 (엑셀 제목과 똑같이!)</label>
-            <input type="text" id="assignTitle" placeholder="예: 1월 2주차 과제">
-        </div>
 
-        <div class="input-group">
-            <label>2. 지문 / 보기 (내용 입력)</label>
-            <textarea id="passage" placeholder="지문이나 <보기> 내용을 입력하세요."></textarea>
-        </div>
-
-        <div class="input-group">
-            <label>3. 문제 내용</label>
-            <textarea id="questions" placeholder="1. 문제 내용...&#10;2. 문제 내용..." style="height: 150px;"></textarea>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn-gen" onclick="generateCode()">1. 코드 생성하기</button>
-            <button id="downloadBtn" class="btn-down" onclick="downloadFile()" style="display:none;">2. 파일로 저장하기</button>
-        </div>
-
-        <textarea id="resultCode" readonly></textarea>
+<div class="card">
+    <h2>📘 주간 과제 공장 (V13.1 통합형)</h2>
+    
+    <div class="input-group">
+        <label>1. 과제 제목</label>
+        <input type="text" id="title" placeholder="예: 1월 2주차 주간 과제 [독서]">
     </div>
 
-    <script>
-        function generateCode() {
-            const title = document.getElementById('assignTitle').value.trim();
-            const passage = document.getElementById('passage').value.replace(/\n/g, '<br>');
-            const questions = document.getElementById('questions').value.replace(/\n/g, '<br>');
+    <div class="input-group">
+        <label>2. 공지사항</label>
+        <textarea id="notice" placeholder="예: 상단 버튼을 눌러 과제물을 보고 푸세요."></textarea>
+    </div>
 
-            if (!title) { alert("과제 제목을 입력해주세요!"); return; }
+    <div class="input-group">
+        <label>3. 과제물 링크 (파일명 또는 URL)</label>
+        <input type="text" id="testLink" placeholder="예: homework.pdf 또는 https://...">
+        <div class="help-text">※ 같은 폴더 파일이면 파일명만, 아니면 주소 전체 입력</div>
+    </div>
 
-            const template = `<!DOCTYPE html>
+    <div class="input-group">
+        <label>4. 정답 및 해설지 링크 (통과 시 공개)</label>
+        <input type="text" id="answerLink" placeholder="예: answer.pdf 또는 https://...">
+    </div>
+
+    <div class="input-group">
+        <label>5. 정답 입력 (숫자만 연속 입력)</label>
+        <input type="text" id="answers" placeholder="예: 12345">
+    </div>
+
+    <div class="input-group">
+        <label>6. 설정 (통과기준 / 대기분 / 기회)</label>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="cutline" value="0" placeholder="오답허용">
+            <input type="number" id="cooldown" value="0" placeholder="대기(분)">
+            <input type="number" id="maxAttempts" value="3" placeholder="기회(회)">
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-gen" onclick="generateCode()">1. 코드 생성하기</button>
+        <button id="downloadBtn" class="btn-down" onclick="downloadFile()" style="display:none;">2. 파일로 저장하기</button>
+    </div>
+    
+    <textarea id="resultCode" readonly></textarea>
+</div>
+
+<script>
+    // 기존 test_maker.html의 모든 로직을 그대로 사용합니다 
+    function generateCode() {
+        const title = document.getElementById('title').value; 
+        const notice = document.getElementById('notice').value.replace(/\n/g, '<br>'); 
+        const testLink = document.getElementById('testLink').value.trim(); 
+        const answerLink = document.getElementById('answerLink').value.trim(); 
+        const answersStr = document.getElementById('answers').value.trim(); 
+        const cutline = document.getElementById('cutline').value || 0; 
+        const cooldown = document.getElementById('cooldown').value || 0; 
+        const maxAttempts = document.getElementById('maxAttempts').value || 3; 
+
+        if(!title || !answersStr) { alert("제목과 정답은 필수입니다!"); return; } 
+
+        const cleanAnswers = answersStr.replace(/[^0-9]/g, ""); 
+        const answersArr = cleanAnswers.split('').map(Number); 
+        const uniqueId = "weekly_" + Date.now(); 
+
+        const template = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>\${title}</title>
     <style>
-        body{font-family:'Noto Sans KR',sans-serif;background:#f0f2f5;padding:20px;margin:0;line-height:1.6}
-        .container{max-width:700px;margin:0 auto;background:#fff;padding:30px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
-        h2{text-align:center;color:#333;margin-bottom:20px;border-bottom:2px solid #eee;padding-bottom:15px}
-        .content-box{background:#fafafa;padding:20px;border-radius:10px;border:1px solid #eee;margin-bottom:20px}
-        .question-box{white-space:pre-line;margin-bottom:20px;font-weight:500;color:#2c3e50}
-        input[type=text]{width:100%;padding:12px;margin-top:5px;margin-bottom:15px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box}
-        .btn-submit{width:100%;padding:15px;background:#4a90e2;color:white;border:none;border-radius:10px;font-size:1.1rem;font-weight:bold;cursor:pointer;margin-top:20px}
-        .btn-submit:hover{background:#357abd}
-        .success-msg{display:none;text-align:center;margin-top:20px;padding:20px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-weight:bold}
-        .academy-alert { font-size: 12px; color: #d32f2f; margin-top: -10px; margin-bottom: 10px; }
+        body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
+        .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; }
+        .title { margin: 5px 0; color: #333; }
+        .notice-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; color: #0d47a1; }
+        .link-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 10px; transition: 0.2s; box-sizing: border-box; }
+        .btn-test { background: #1976d2; color: white; }
+        .btn-ans { background: #4caf50; color: white; margin-top: 15px; }
+        .q-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+        .q-num { font-weight: bold; color: #1976d2; width: 40px; }
+        .omr-group { display: flex; gap: 8px; flex: 1; justify-content: space-around; }
+        .omr-input { display: none; }
+        .omr-label { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #999; cursor: pointer; transition: 0.2s; }
+        .omr-input:checked + .omr-label { background: #1976d2; border-color: #1976d2; color: white; }
+        .btn-submit { display: block; width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top:20px; }
+        .result-box { display: none; margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; background: #e3f2fd; }
+        input[type=text] { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>${title}</h2>
-        
-        <div style="background:#fff3e0;padding:15px;border-radius:8px;margin-bottom:20px;border:1px solid #ffe0b2;">
-            <label style="font-weight:bold;color:#e65100">🏫 학원 이름 입력 (필수)</label>
-            <input type="text" id="academySelect" placeholder="예: 러셀분당, 시대인재 (정확히 입력)">
-            <div class="academy-alert">※ 선생님이 공지한 학원명을 띄어쓰기까지 정확하게 입력하세요!</div>
-            
-            <label style="font-weight:bold;display:block;margin-top:10px">👤 학생 이름</label>
-            <input type="text" id="studentName" placeholder="이름을 입력하세요">
-        </div>
-
-        ${passage ? `<div class="content-box"><strong>[지문 / 보기]</strong><br>${passage}</div>` : ''}
-        ${questions ? `<div class="question-box">${questions}</div>` : ''}
-
-        <button id="submitBtn" class="btn-submit" onclick="submitHomework()">✅ 과제 확인 및 제출하기</button>
-        <div id="successMsg" class="success-msg"></div>
+<div class="container">
+    <div class="header"><h2 class="title">\${title}</h2></div>
+    \${testLink ? \`<a href="\${testLink}" class="link-btn btn-test" target="_blank">📄 주간 과제물 보기 (Click)</a>\` : ''}
+    \${notice ? \`<div class="notice-box">📢 <b>안내사항</b><br>\${notice}</div>\` : ''}
+    <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
+        <label style="font-weight:bold; color:#1976d2;">🏫 학원 이름 (필수)</label>
+        <input type="text" id="academySelect" placeholder="예: 러셀분당, 시대인재 (정확히 입력)">
+        <label style="font-weight:bold; margin-top:10px; display:block;">👤 학생 이름</label>
+        <input type="text" id="studentName" placeholder="이름을 입력하세요">
     </div>
+    <div id="questionContainer"></div>
+    <button id="submitBtn" class="btn-submit" onclick="checkAnswers()">📝 과제 제출 및 채점</button>
+    <div id="resultArea" class="result-box"></div>
+</div>
+<script>
+    const SCRIPT_URL = "${MY_SCRIPT_URL}"; [cite: 5]
+    const correctAnswers = [\${answersArr.join(', ')}]; [cite: 5]
+    const passCriteria = \${cutline}; [cite: 5]
+    const ANSWER_LINK = "\${answerLink}"; [cite: 5]
+    const totalQ = correctAnswers.length; [cite: 5]
 
-    <script>
-        const SCRIPT_URL = "${MY_SCRIPT_URL}";
-
-        function submitHomework() {
-            const name = document.getElementById("studentName").value.trim();
-            const academy = document.getElementById("academySelect").value.trim();
-
-            if(!academy) return alert("학원 이름을 입력해주세요!");
-            if(!name) return alert("학생 이름을 입력해주세요!");
-
-            // 버튼 비활성화 (중복 제출 방지)
-            const btn = document.getElementById("submitBtn");
-            btn.disabled = true;
-            btn.innerText = "⏳ 제출 중입니다...";
-
-            // 엑셀로 전송 데이터 준비
-            const sendData = {
-                type: "weekly",  // 주간 과제 타입
-                title: document.title,
-                academy: academy,
-                name: name,
-                score: 100, // 과제는 제출하면 100점(완료) 처리
-                total: 1,
-                wrongCount: 0
-            };
-
-            // 전송 (no-cors 모드)
-            const finalUrl = SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(sendData))));
-            fetch(finalUrl, { mode: 'no-cors' })
-                .then(() => {
-                    document.getElementById("successMsg").innerHTML = "<h2>🎉 제출 완료!</h2><p>선생님 엑셀에 제출 확인이 전송되었습니다.<br>수고했어요!</p>";
-                    document.getElementById("successMsg").style.display = "block";
-                    btn.style.display = "none";
-                })
-                .catch(err => {
-                    alert("전송 실패! 인터넷 연결을 확인하세요.");
-                    btn.disabled = false;
-                    btn.innerText = "✅ 과제 확인 및 제출하기";
-                });
+    window.onload = function() {
+        let html = "";
+        for(let i=1; i<=totalQ; i++) {
+            html += '<div class="q-item"><span class="q-num">'+i+'번</span><div class="omr-group">';
+            for(let j=1; j<=5; j++) {
+                html += '<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" class="omr-input"><label for="q'+i+'_'+j+'" class="omr-label">'+j+'</label>';
+            }
+            html += '</div></div>';
         }
-    <\/script>
+        document.getElementById("questionContainer").innerHTML = html;
+    };
+
+    function checkAnswers() {
+        const name = document.getElementById("studentName").value.trim(); [cite: 5]
+        const academy = document.getElementById("academySelect").value.trim(); [cite: 5]
+        if(!name || !academy) return alert("이름과 학원명을 입력하세요!"); [cite: 5]
+        
+        let wrong = 0; [cite: 5]
+        for(let i=1; i<=totalQ; i++) {
+            const r = document.querySelector('input[name="q'+i+'"]:checked'); [cite: 5]
+            if(!r || parseInt(r.value) !== correctAnswers[i-1]) wrong++; [cite: 5]
+        }
+
+        const data = { type: "weekly", title: document.title, academy: academy, name: name, score: totalQ-wrong, total: totalQ, wrongCount: wrong }; [cite: 5]
+        fetch(SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(data)))), { mode: 'no-cors' }); [cite: 5]
+
+        const res = document.getElementById("resultArea"); [cite: 5]
+        res.style.display = "block"; [cite: 5]
+        res.innerHTML = "<h3>🎉 과제 제출 완료!</h3><p>틀린 개수: \" + wrong + \"개</p>"; [cite: 5]
+        if(wrong <= passCriteria && ANSWER_LINK) { [cite: 5]
+            res.innerHTML += '<a href="' + ANSWER_LINK + '" class="link-btn btn-ans" target="_blank">📘 정답 및 해설 보러가기</a>'; [cite: 5]
+        }
+    }
+<\\/script>
 </body>
-</html>`;
-            document.getElementById('resultCode').value = template;
-            document.getElementById('resultCode').style.display = "block";
-            document.getElementById('downloadBtn').style.display = "block";
-        }
+</html>\`;
 
-        function downloadFile() {
-            const content = document.getElementById('resultCode').value;
-            if(!content) { alert("먼저 코드를 생성해주세요!"); return; }
-            const today = new Date();
-            const filename = "Homework_" + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0') + ".html";
-            const blob = new Blob([content], { type: 'text/html' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            link.click();
-            alert("파일이 다운로드 되었습니다! ("+filename+")");
-        }
-    </script>
+        document.getElementById('resultCode').value = template; 
+        document.getElementById('resultCode').style.display = "block"; 
+        document.getElementById('downloadBtn').style.display = "block"; 
+        alert("코드가 생성되었습니다! 아래 '2. 파일로 저장하기' 버튼을 눌러주세요.");
+    }
+
+    function downloadFile() {
+        const content = document.getElementById('resultCode').value; 
+        const today = new Date(); 
+        const filename = "Weekly_" + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0') + ".html"; 
+        const blob = new Blob([content], { type: 'text/html' }); 
+        const link = document.createElement('a'); 
+        link.href = URL.createObjectURL(blob); 
+        link.download = filename; 
+        link.click(); 
+    }
+</script>
 </body>
 </html>
