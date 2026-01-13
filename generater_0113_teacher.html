@@ -2,75 +2,62 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>과제 페이지 생성기 v2.1 (오류 수정판)</title>
+    <title>과제 페이지 생성기 v2.3 (선생님 전용)</title>
     <style>
         body { font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; background: #f0f2f5; line-height: 1.6; }
         .box { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { border-left: 5px solid #ff6b6b; padding-left: 15px; color: #333; margin-bottom: 25px; }
+        h2 { border-left: 5px solid #2196f3; padding-left: 15px; color: #333; margin-bottom: 25px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         label { display: block; margin-top: 15px; font-weight: bold; color: #444; }
         input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        textarea { height: 100px; resize: none; font-family: monospace; }
-        button { width: 100%; padding: 15px; background: #ff6b6b; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 25px; }
-        button:hover { background: #ee5253; }
-        #output { width: 100%; height: 300px; margin-top: 20px; font-family: 'Consolas', monospace; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-size: 12px; }
-        .section-title { background: #feca57; padding: 10px; border-radius: 5px; margin-top: 20px; font-weight: bold; color: #333; }
+        textarea { height: 80px; resize: none; }
+        button { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 25px; }
+        #output { width: 100%; height: 350px; margin-top: 20px; font-family: 'Consolas', monospace; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-size: 12px; }
+        .section-title { background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 20px; font-weight: bold; color: #1976d2; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🚀 과제 페이지 생성기 v2.1</h2>
-    
+    <h2>🚀 과제 페이지 생성기 v2.3</h2>
     <div class="section-title">📅 과제 기본 설정</div>
-    <label>1. 과제 제목</label>
-    <input type="text" id="title" placeholder="예: 1월 3주차 독서 수업 교재" value="1월 3주차 과제">
-    
-    <label>2. 정답 번호 (숫자만 쭉 입력하세요)</label>
+    <label>과제 제목</label>
+    <input type="text" id="title" value="1월 3주차 과제">
+    <label>정답 번호 (숫자만 쭉 입력)</label>
     <textarea id="answers" placeholder="예: 3114541454..."></textarea>
-    
     <div class="grid">
-        <div><label>3. 시험지 PDF 링크</label><input type="text" id="testLink" placeholder="SharePoint 링크"></div>
-        <div><label>4. 해설지 PDF 링크</label><input type="text" id="ansLink" placeholder="SharePoint 링크"></div>
+        <div><label>시험지 PDF 링크</label><input type="text" id="testLink"></div>
+        <div><label>해설지 PDF 링크</label><input type="text" id="ansLink"></div>
     </div>
-
-    <div class="section-title">⚙️ 시험 규칙 (제출 횟수 및 시간)</div>
+    <div class="section-title">⚙️ 시험 규칙</div>
     <div class="grid">
-        <div><label>최대 도전 횟수 (기본: 3회)</label><input type="number" id="maxAttempts" value="3" min="1"></div>
-        <div><label>재제출 대기 시간 (기본: 3분)</label><input type="number" id="cooldown" value="3" min="0"></div>
+        <div><label>최대 도전 횟수 (회)</label><input type="number" id="maxAttempts" value="3"></div>
+        <div><label>재제출 대기 시간 (분)</label><input type="number" id="cooldown" value="3"></div>
     </div>
-
     <button onclick="generateCode()">✨ 맞춤형 HTML 코드 생성하기</button>
-
-    <label>📋 생성된 코드 (아래 상자를 클릭하면 자동 복사됩니다)</label>
-    <textarea id="output" readonly onclick="copyToClipboard()" placeholder="버튼을 누르면 코드가 여기에 생성됩니다."></textarea>
+    <label>📋 결과 코드 (클릭하면 자동 선택 및 복사)</label>
+    <textarea id="output" readonly onclick="copyCode()"></textarea>
 </div>
 
 <script>
 function generateCode() {
-    try {
-        const title = document.getElementById('title').value || "주차별 과제";
-        const rawAns = document.getElementById('answers').value.replace(/[^1-5]/g, '');
-        const ansArray = rawAns.split('').map(Number);
-        
-        if (ansArray.length === 0) {
-            alert("정답 번호에 숫자를 입력해주세요!");
-            return;
-        }
+    const title = document.getElementById('title').value;
+    const rawAns = document.getElementById('answers').value.replace(/[^1-5]/g, '');
+    const ansArray = rawAns.split('').map(Number);
+    if(ansArray.length === 0) return alert("정답 번호를 입력해주세요!");
 
-        const testLink = document.getElementById('testLink').value || "#";
-        const ansLink = document.getElementById('ansLink').value || "#";
-        const maxAttempts = document.getElementById('maxAttempts').value || 3;
-        const cooldown = document.getElementById('cooldown').value || 3;
-        const qCount = ansArray.length;
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec";
+    const testLink = document.getElementById('testLink').value || "#";
+    const ansLink = document.getElementById('ansLink').value || "#";
+    const maxAttempts = document.getElementById('maxAttempts').value || 3;
+    const cooldown = document.getElementById('cooldown').value || 3;
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec";
 
-        // HTML 템플릿 생성
-        const template = `<!DOCTYPE html>
+    // ✅ 충돌 방지를 위해 특수 기호를 텍스트로 치환하여 생성
+    let code = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>\${title}</title>
+    <title>${title}</title>
     <style>
         body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
         .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
@@ -97,9 +84,9 @@ function generateCode() {
 </head>
 <body>
 <div class="container">
-    <div class="header"><h2>\${title}</h2><div style="font-size:0.9rem; color:#666">총 \${qCount}문항 (제한: \${maxAttempts}회 / 대기: \${cooldown}분)</div></div>
-    <a href="\${testLink}" class="link-btn btn-test" target="_blank">📄 시험지 보러가기</a>
-    <div class="notice-box">📢 <b>필독</b>: 전송까지 마쳐야 채점이 됩니다. (오답 시 \${cooldown}분 대기)</div>
+    <div class="header"><h2>${title}</h2><div style="font-size:0.9rem; color:#666">총 ${ansArray.length}문항 (제한: ${maxAttempts}회 / 대기: ${cooldown}분)</div></div>
+    <a href="${testLink}" class="link-btn btn-test" target="_blank">📄 시험지 보러가기</a>
+    <div class="notice-box">📢 <b>필독</b>: 전송까지 마쳐야 채점이 됩니다. (오답 시 ${cooldown}분 대기)</div>
     <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
         <label>🏫 학원 이름</label><input type="text" id="academySelect" placeholder="학원명 입력">
         <label>👤 학생 이름</label><input type="text" id="studentName" placeholder="본인 이름 입력">
@@ -111,12 +98,12 @@ function generateCode() {
     <div id="resultArea" class="result-box"></div>
 </div>
 <script>
-    const SCRIPT_URL = "\${scriptUrl}"; 
-    const correctAnswers = [\${ansArray.join(',')}];
-    const ANSWER_LINK = "\${ansLink}"; 
-    const MAX_ATTEMPTS = \${maxAttempts};
-    const COOLDOWN_MINUTES = \${cooldown};
-    const STORAGE_KEY = "test_" + "\${title}".replace(/\\s/g,'') + "_\${Date.now()}";
+    const SCRIPT_URL = "${scriptUrl}"; 
+    const correctAnswers = [${ansArray.join(',')}];
+    const ANSWER_LINK = "${ansLink}"; 
+    const MAX_ATTEMPTS = ${maxAttempts};
+    const COOLDOWN_MINUTES = ${cooldown};
+    const STORAGE_KEY = "test_" + "${title.replace(/\s/g,'')}" + "_" + Date.now();
 
     let attempt = 0; let lastSubmitTime = 0; let finalWrongCount = 0; let finalShareData = {};
 
@@ -157,12 +144,12 @@ function generateCode() {
             if(parseInt(val) !== correctAnswers[i]) { wrongCount++; wrongList.push((i+1)+"번"); }
         }
         finalWrongCount = wrongCount;
-        finalShareData = { title: "과제 결과", text: "[\${title}]\\n학원: "+academy+"\\n학생: "+name+"\\n틀린 개수: "+wrongCount+"개" };
+        finalShareData = { title: "과제 결과", text: "[${title}]\\n학원: "+academy+"\\n학생: "+name+"\\n틀린 개수: "+wrongCount+"개" };
         const sendData = { title: document.title, academy: academy, name: name, score: correctAnswers.length-wrongCount, total: correctAnswers.length, wrongCount: wrongCount, wrongList: wrongList.join(", "), attempt: attempt+1 };
         fetch(SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(sendData)))), { mode: 'no-cors' });
         document.getElementById("submitBtn").style.display = "none";
         document.getElementById("kakaoBtn").style.display = "block";
-        alert("저장 완료! 카톡 전송을 마쳐야 결과가 보옵니다.");
+        alert("저장 완료! 카톡 전송을 마쳐야 결과가 보입니다.");
     }
 
     async function handleShare() {
@@ -175,7 +162,7 @@ function generateCode() {
 
     function finalizeAttempt() {
         attempt++; lastSubmitTime = Date.now();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ attempt: attempt, lastTime: lastSubmitTime }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ attempt: attempt, lastTime: lastSubmitTime, name: document.getElementById("studentName").value, academy: document.getElementById("academySelect").value }));
         const res = document.getElementById("resultArea");
         res.style.display = "block";
         res.className = finalWrongCount === 0 ? "result-box pass" : "result-box fail";
@@ -185,6 +172,7 @@ function generateCode() {
         res.innerHTML = resHtml;
         document.getElementById("kakaoBtn").style.display = "none";
         document.getElementById("submitBtn").style.display = "block";
+        res.scrollIntoView({behavior:"smooth"});
     }
 
     function startCooldown(sec) {
@@ -206,18 +194,15 @@ function generateCode() {
 </body>
 </html>`;
 
-        document.getElementById('output').value = template;
-        alert("코드가 하단 상자에 생성되었습니다! 클릭하여 복사하세요.");
-    } catch (e) {
-        alert("오류 발생: " + e.message);
-    }
+    document.getElementById('output').value = code;
+    alert("코드가 생성되었습니다! 클릭하여 복사하세요.");
 }
 
-function copyToClipboard() {
-    const copyText = document.getElementById("output");
-    copyText.select();
-    document.execCommand("copy");
-    alert("코드가 클립보드에 복사되었습니다! HTML 파일에 붙여넣으세요.");
+function copyCode() {
+    const output = document.getElementById('output');
+    output.select();
+    document.execCommand('copy');
+    alert("코드가 클립보드에 복사되었습니다!");
 }
 </script>
 </body>
