@@ -13,7 +13,7 @@
         .link-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 10px; transition: 0.2s; box-sizing: border-box; }
         .btn-test { background: #607d8b; color: white; }
         .btn-ans { background: #4caf50; color: white; margin-top: 15px; }
-        .btn-kakao { background: #fee500; color: #3c1e1e; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-kakao { background: #fee500; color: #3c1e1e; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin: 20px 0; display: none; }
         .q-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
         .q-num { font-weight: bold; color: #2196f3; width: 40px; }
         .omr-group { display: flex; gap: 8px; flex: 1; justify-content: space-around; }
@@ -33,16 +33,16 @@
 <div class="container">
     <div class="header">
         <h2 class="title">1월 2주차 독서 수업 교재</h2>
-        <div style="font-size:0.9rem; color:#666">총 31문항 (통과기준: 0개 오답)</div>
+        <div id="infoMsg" style="font-size:0.9rem; color:#666">총 31문항 (통과기준: 0개 오답)</div>
     </div>
     
     <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBVwOJZiRQgS6_ugDNnoVYoAZMB_ebihxSBPKNw-Rl8GAY?e=j9iOvA" class="link-btn btn-test" target="_blank">📄 시험지 보러가기 (Click)</a>
     
     <div class="notice-box">
-        📢 <b>필독 안내</b><br>
-        1. 제출 후 <b>카톡 전송까지 완료</b>해야 채점이 됩니다.<br>
+        📢 <b>필독 공지</b><br>
+        1. 제출 후 <b>공유 창에서 전송까지 완료</b>해야 채점이 진행됩니다.<br>
         2. 오답 시 <b>3분간 재제출이 불가</b>합니다.<br>
-        3. 도전 기회는 총 <b>3회</b>입니다.
+        3. 도전 기회는 총 <b>3회</b>로 제한됩니다.
     </div>
 
     <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
@@ -53,12 +53,9 @@
     </div>
 
     <div id="questionContainer"></div>
-    
     <button id="submitBtn" class="btn-submit" onclick="processSubmission()">📝 답안 제출하기</button>
     <div id="timerMsg">⏳ 다음 제출까지 대기 중...</div>
-    
-    <button id="kakaoBtn" class="btn-kakao" style="display:none;" onclick="handleShare()">🟡 카톡으로 선생님께 결과 전송 (필수)</button>
-
+    <button id="kakaoBtn" class="btn-kakao" onclick="handleShare()">🟡 카톡으로 선생님께 결과 전송 (필수)</button>
     <div id="resultArea" class="result-box"></div>
 </div>
 
@@ -68,9 +65,10 @@
     const ANSWER_LINK = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQA3sl-2anvxR4EbouLfFbiTAZziHwR59bTxnjZbnBE06XU?e=kpAH4M"; 
     const MAX_ATTEMPTS = 3;
     const COOLDOWN_MINUTES = 3;
-    const STORAGE_KEY = "reading_test_01_week2";
+    const STORAGE_KEY = "reading_test_01_week2_v2";
 
     let attempt = 0;
+    let lastSubmitTime = 0;
     let finalWrongCount = 0;
     let finalShareData = {};
 
@@ -92,9 +90,21 @@
         if(saved) {
             const data = JSON.parse(saved);
             attempt = data.attempt || 0;
+            lastSubmitTime = data.lastSubmitTime || 0;
+            if(data.name) document.getElementById("studentName").value = data.name;
+            if(data.academy) document.getElementById("academySelect").value = data.academy;
+            
+            // 횟수 초과 체크
             if(attempt >= MAX_ATTEMPTS) {
-                document.getElementById("submitBtn").disabled = true;
-                document.getElementById("submitBtn").innerText = "🚫 모든 기회 소진";
+                disableSubmit("🚫 모든 기회 소진 (제출 불가)");
+                return;
+            }
+
+            // 쿨타임 체크
+            const now = Date.now();
+            const elapsed = (now - lastSubmitTime) / 1000 / 60;
+            if(elapsed < COOLDOWN_MINUTES) {
+                startCooldown(Math.ceil((COOLDOWN_MINUTES - elapsed) * 60));
             }
         }
     }
@@ -102,12 +112,11 @@
     function processSubmission() {
         const name = document.getElementById("studentName").value.trim();
         const academy = document.getElementById("academySelect").value.trim(); 
-        if(!academy || !name) return alert("이름과 학원명을 입력해주세요!");
+        if(!academy || !name) return alert("학원명과 이름을 모두 입력해주세요!");
         for(let i=1; i<=correctAnswers.length; i++) {
             if(!document.querySelector(`input[name="q${i}"]:checked`)) return alert(i + "번을 마킹해주세요!");
         }
 
-        attempt++;
         let wrongCount = 0;
         let wrongList = [];
         for(let i=0; i<correctAnswers.length; i++) {
@@ -120,41 +129,53 @@
 
         finalWrongCount = wrongCount;
         finalShareData = {
-            title: "독서 과제 결과",
-            text: `[독서 과제 Report]\n학원: ${academy}\n학생: ${name}\n틀린 개수: ${wrongCount}개\n도전: ${attempt}회차`
+            title: "독서 과제 제출",
+            text: `[독서 과제 결과]\n학원: ${academy}\n학생: ${name}\n틀린 개수: ${wrongCount}개\n회차: ${attempt + 1}/${MAX_ATTEMPTS}`
         };
 
-        // 엑셀 전송
+        // 엑셀 전송 (비동기)
         const sendData = {
             title: document.title, academy: academy, name: name,
             score: correctAnswers.length - wrongCount, total: correctAnswers.length,
-            wrongCount: wrongCount, wrongList: wrongList.join(", "), attempt: attempt
+            wrongCount: wrongCount, wrongList: wrongList.join(", "), attempt: attempt + 1
         };
         fetch(SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(sendData)))), { mode: 'no-cors' });
 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({attempt: attempt}));
-
-        // 버튼 전환
+        // 버튼 교체
         document.getElementById("submitBtn").style.display = "none";
         document.getElementById("kakaoBtn").style.display = "block";
-        alert("제출 성공! 이제 카톡 전송 버튼을 눌러주세요.");
+        alert("데이터 저장 완료! 노란색 카톡 버튼을 눌러 전송을 마치면 채점 결과가 나옵니다.");
     }
 
     async function handleShare() {
-        if (navigator.share) {
-            try {
+        const shareAction = async () => {
+            if (navigator.share) {
                 await navigator.share(finalShareData);
-                showFinalResult();
-            } catch (err) {
-                alert("결과 전송을 완료해야 채점 결과가 보입니다.");
+            } else {
+                location.href = "kakaotalk://send?text=" + encodeURIComponent(finalShareData.text);
+                await new Promise(r => setTimeout(r, 1000));
             }
-        } else {
-            location.href = "kakaotalk://send?text=" + encodeURIComponent(finalShareData.text);
-            setTimeout(showFinalResult, 2000);
+            return true;
+        };
+
+        try {
+            const success = await shareAction();
+            if(success) finalizeProcess();
+        } catch (err) {
+            alert("전송을 완료해야 채점이 됩니다.");
         }
     }
 
-    function showFinalResult() {
+    function finalizeProcess() {
+        attempt++;
+        lastSubmitTime = Date.now();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            attempt: attempt,
+            lastSubmitTime: lastSubmitTime,
+            name: document.getElementById("studentName").value,
+            academy: document.getElementById("academySelect").value
+        }));
+
         const res = document.getElementById("resultArea");
         res.style.display = "block";
         const isPass = finalWrongCount === 0;
@@ -164,22 +185,24 @@
         
         if(isPass || attempt >= MAX_ATTEMPTS) {
             resultHtml += `<a href="${ANSWER_LINK}" class="link-btn btn-ans" target="_blank">📘 정답 및 해설지 보기</a>`;
+            disableSubmit(attempt >= MAX_ATTEMPTS ? "🚫 모든 기회 소진" : "✅ 통과 완료");
         } else {
             resultHtml += `<p>오답이 있습니다. ${COOLDOWN_MINUTES}분 후 재도전 가능합니다.</p>`;
-            startCooldown();
+            startCooldown(COOLDOWN_MINUTES * 60);
         }
         
         res.innerHTML = resultHtml;
         document.getElementById("kakaoBtn").style.display = "none";
         document.getElementById("submitBtn").style.display = "block";
+        res.scrollIntoView({behavior:"smooth"});
     }
 
-    function startCooldown() {
+    function startCooldown(seconds) {
         const btn = document.getElementById("submitBtn");
         const msg = document.getElementById("timerMsg");
         btn.disabled = true;
         msg.style.display = "block";
-        let sec = COOLDOWN_MINUTES * 60;
+        let sec = seconds;
         
         const timer = setInterval(() => {
             sec--;
@@ -192,6 +215,14 @@
                 btn.innerText = `⏳ 대기 (${sec}초)`;
             }
         }, 1000);
+    }
+
+    function disableSubmit(text) {
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.style.display = "block";
+        btn.innerText = text;
+        document.getElementById("kakaoBtn").style.display = "none";
     }
 </script>
 </body>
