@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>${title}</title>
+    <title>1월 2주차 문학 수업 교재</title>
     <style>
         body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
         .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
@@ -30,9 +30,9 @@
 </head>
 <body>
 <div class="container">
-    <div class="header"><h2>${title}</h2><div style="font-size:0.9rem; color:#666">총 ${qCount}문항 (제한: ${maxAttempts}회 / 대기: ${cooldown}분)</div></div>
-    <a href="${testLink}" class="link-btn btn-test" target="_blank">📄 시험지 보러가기</a>
-    <div class="notice-box">📢 <b>필독</b>: 전송까지 마쳐야 채점이 됩니다. (오답 시 ${cooldown}분 대기)</div>
+    <div class="header"><h2>1월 2주차 문학 수업 교재</h2><div style="font-size:0.9rem; color:#666">총 11문항 (제한: 0회 / 대기: 3분)</div></div>
+    <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQCuaqn1jdeNRqr0SAlFrAn7Afe5diGnwqqrc3Crohb5f7k?e=P08NyM" class="link-btn btn-test" target="_blank">📄 시험지 보러가기</a>
+    <div class="notice-box">📢 <b>필독</b>: 전송까지 마쳐야 채점이 됩니다. (오답 시 3분 대기)</div>
     <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
         <label>🏫 학원 이름</label><input type="text" id="academySelect" placeholder="학원명 입력">
         <label>👤 학생 이름</label><input type="text" id="studentName" placeholder="본인 이름 입력">
@@ -44,12 +44,12 @@
     <div id="resultArea" class="result-box"></div>
 </div>
 <script>
-    const SCRIPT_URL = "${scriptUrl}"; 
-    const correctAnswers = [${ansArray.join(',')}];
-    const ANSWER_LINK = "${ansLink}"; 
-    const MAX_ATTEMPTS = ${maxAttempts};
-    const COOLDOWN_MINUTES = ${cooldown};
-    const STORAGE_KEY = "test_" + "${title}".replace(/\s/g,'') + "_${Date.now()}";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec"; 
+    const correctAnswers = [5,4,2,3,3,5,5,5,5,2,3];
+    const ANSWER_LINK = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQAyxkoGv6eNRrfHbsvw58yOAQHad5NIsB0WVRottLWZhMc?e=COs94r"; 
+    const MAX_ATTEMPTS = 0;
+    const COOLDOWN_MINUTES = 3;
+    const STORAGE_KEY = "test_" + "1월2주차문학수업교재" + "_" + Date.now();
 
     let attempt = 0; let lastSubmitTime = 0; let finalWrongCount = 0; let finalShareData = {};
 
@@ -90,12 +90,12 @@
             if(parseInt(val) !== correctAnswers[i]) { wrongCount++; wrongList.push((i+1)+"번"); }
         }
         finalWrongCount = wrongCount;
-        finalShareData = { title: "과제 결과", text: "[${title}]\n학원: "+academy+"\n학생: "+name+"\n틀린 개수: "+wrongCount+"개" };
+        finalShareData = { title: "과제 결과", text: "[1월 2주차 문학 수업 교재]\n학원: "+academy+"\n학생: "+name+"\n틀린 개수: "+wrongCount+"개" };
         const sendData = { title: document.title, academy: academy, name: name, score: correctAnswers.length-wrongCount, total: correctAnswers.length, wrongCount: wrongCount, wrongList: wrongList.join(", "), attempt: attempt+1 };
         fetch(SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(sendData)))), { mode: 'no-cors' });
         document.getElementById("submitBtn").style.display = "none";
         document.getElementById("kakaoBtn").style.display = "block";
-        alert("저장 완료! 카톡 전송을 마쳐야 결과가 보옵니다.");
+        alert("저장 완료! 카톡 전송을 마쳐야 결과가 보입니다.");
     }
 
     async function handleShare() {
@@ -108,7 +108,7 @@
 
     function finalizeAttempt() {
         attempt++; lastSubmitTime = Date.now();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ attempt: attempt, lastTime: lastSubmitTime }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ attempt: attempt, lastTime: lastSubmitTime, name: document.getElementById("studentName").value, academy: document.getElementById("academySelect").value }));
         const res = document.getElementById("resultArea");
         res.style.display = "block";
         res.className = finalWrongCount === 0 ? "result-box pass" : "result-box fail";
@@ -118,6 +118,7 @@
         res.innerHTML = resHtml;
         document.getElementById("kakaoBtn").style.display = "none";
         document.getElementById("submitBtn").style.display = "block";
+        res.scrollIntoView({behavior:"smooth"});
     }
 
     function startCooldown(sec) {
