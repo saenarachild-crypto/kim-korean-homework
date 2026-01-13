@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>과제 페이지 생성기 v2.0 (선생님 전용)</title>
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; background: #f0f2f5; line-height: 1.6; }
+        .box { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { border-left: 5px solid #2196f3; padding-left: 15px; color: #333; margin-bottom: 25px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #444; }
+        input, textarea, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        textarea { height: 80px; resize: none; }
+        .btn-group { margin-top: 25px; }
+        button { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #1976d2; }
+        #output { width: 100%; height: 350px; margin-top: 20px; font-family: 'Consolas', monospace; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-size: 13px; }
+        .section-title { background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 20px; font-weight: bold; color: #1976d2; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>🚀 과제 페이지 생성기 v2.0</h2>
+    
+    <div class="section-title">📅 기본 정보 설정</div>
+    <label>과제 제목</label>
+    <input type="text" id="title" placeholder="예: 1월 3주차 독서 수업 교재">
+    
+    <label>정답 번호 (공백/기호 없이 숫자만 나열)</label>
+    <textarea id="answers" placeholder="예: 3114541454..."></textarea>
+    
+    <div class="grid">
+        <div>
+            <label>시험지 PDF 링크</label>
+            <input type="text" id="testLink" placeholder="SharePoint 링크">
+        </div>
+        <div>
+            <label>해설지 PDF 링크</label>
+            <input type="text" id="ansLink" placeholder="SharePoint 링크">
+        </div>
+    </div>
+
+    <div class="section-title">⚙️ 시험 규칙 설정 (선생님 제어)</div>
+    <div class="grid">
+        <div>
+            <label>최대 도전 횟수 (회)</label>
+            <input type="number" id="maxAttempts" value="3" min="1">
+        </div>
+        <div>
+            <label>재제출 대기 시간 (분)</label>
+            <input type="number" id="cooldown" value="3" min="0">
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <button onclick="generateCode()">✨ 맞춤형 HTML 코드 생성</button>
+    </div>
+
+    <label>📋 결과 코드 복사</label>
+    <textarea id="output" readonly onclick="this.select()" placeholder="여기에 생성된 코드가 나타납니다."></textarea>
+    <p style="font-size: 12px; color: #666; text-align: center;">위 상자를 클릭하면 전체 선택됩니다. 복사해서 HTML 파일에 붙여넣으세요.</p>
+</div>
+
+<script>
+function generateCode() {
+    const title = document.getElementById('title').value || "주차별 과제";
+    const rawAns = document.getElementById('answers').value.replace(/[^1-5]/g, '');
+    const ansArray = rawAns.split('').map(Number);
+    const testLink = document.getElementById('testLink').value || "#";
+    const ansLink = document.getElementById('ansLink').value || "#";
+    const maxAttempts = document.getElementById('maxAttempts').value || 3;
+    const cooldown = document.getElementById('cooldown').value || 3;
+    const qCount = ansArray.length;
+
+    if(qCount === 0) return alert("정답을 숫자로 입력해주세요!");
+
+    // 선생님 전용 고정 SCRIPT_URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec";
+
+    const template = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>${title}</title>
+    <style>
+        body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
+        .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; }
+        .title { margin: 5px 0; color: #333; }
+        .notice-box { background: #fff3e0; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; color: #5d4037; }
+        .link-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 10px; transition: 0.2s; box-sizing: border-box; }
+        .btn-test { background: #607d8b; color: white; }
+        .btn-ans { background: #4caf50; color: white; margin-top: 15px; }
+        .btn-kakao { background: #fee500; color: #3c1e1e; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin: 20px 0; display: none; }
+        .q-item { margin-bottom: 15px; padding-bottom
