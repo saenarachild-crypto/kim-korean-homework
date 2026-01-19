@@ -1,146 +1,27 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1월 2주차 문학 수업 교재</title>
-    <style>
-        body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}
-        .container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; }
-        .notice-box { background: #fff3e0; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; color: #5d4037; }
-        .link-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 10px; box-sizing: border-box; }
-        .btn-test { background: #607d8b; color: white; }
-        .btn-ans { background: #4caf50; color: white; margin-top: 15px; }
-        .btn-kakao { background: #fee500; color: #3c1e1e; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin: 20px 0; display: none; }
-        .q-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
-        .skipped-item { background: #f5f5f5; opacity: 0.5; pointer-events: none; }
-        .q-num { font-weight: bold; color: #2196f3; width: 60px; }
-        .omr-group { display: flex; gap: 8px; flex: 1; justify-content: space-around; }
-        .omr-input { display: none; }
-        .omr-label { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #999; cursor: pointer; }
-        .omr-input:checked + .omr-label { background: #2196f3; border-color: #2196f3; color: white; }
-        .btn-submit { display: block; width: 100%; padding: 15px; background: #ff6b6b; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top:20px; }
-        .btn-submit:disabled { background: #ccc !important; cursor: not-allowed; }
-        .result-box { display: none; margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; background: #e3f2fd; }
-        .pass { background: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32; }
-        .fail { background: #ffebee; border: 2px solid #ef5350; color: #c62828; }
-        input[type=text] { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        #timerMsg { text-align: center; color: #d32f2f; font-weight: bold; margin: 10px 0; display: none; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="header"><h2>1월 2주차 문학 수업 교재</h2><div style="font-size:0.9rem; color:#666">총 11문항 중 활성 문항만 마킹 가능</div></div>
-    <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQCuaqn1jdeNRqr0SAlFrAn7Afe5diGnwqqrc3Crohb5f7k?e=OIMRCz" class="link-btn btn-test" target="_blank">📄 시험지 보러가기</a>
-    <div class="notice-box">📢 <b>필독</b>: 지정된 문항만 과제입니다. 전송 완료 시 결과가 공개됩니다.</div>
-    <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px;">
-        <label>🏫 학원 이름</label><input type="text" id="academySelect" placeholder="학원명 입력">
-        <label>👤 학생 이름</label><input type="text" id="studentName" placeholder="본인 이름 입력">
-    </div>
-    <div id="questionContainer"></div>
-    <div id="timerMsg">⏳ 대기 시간이 남았습니다.</div>
-    <button id="submitBtn" class="btn-submit" onclick="processSubmission()">📝 답안 제출하기</button>
-    <button id="kakaoBtn" class="btn-kakao" onclick="handleShare()">🟡 카톡으로 선생님께 결과 전송</button>
-    <div id="resultArea" class="result-box"></div>
-</div>
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec"; 
-    const correctAnswers = [5,4,2,3,2,5,5,5,5,2,3];
-    const activeQuestions = [1,2,3,4,5,6,7,8,9,10,11];
-    const ANSWER_LINK = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQAyxkoGv6eNRrfHbsvw58yOAQHad5NIsB0WVRottLWZhMc?e=ufl5mp"; 
-    const MAX_ATTEMPTS = 3;
-    const COOLDOWN_MINUTES = 3;
-    const STORAGE_KEY = "test_" + "1월2주차문학수업교재" + "_" + Date.now();
-
-    let attempt = 0; let lastSubmitTime = 0; let finalWrongCount = 0; let finalShareData = {};
-
-    window.onload = function() {
-        let html = "";
-        for(let i=1; i<=correctAnswers.length; i++) {
-            let isActive = activeQuestions.includes(i);
-            html += '<div class="q-item ' + (isActive ? '' : 'skipped-item') + '"><span class="q-num">'+i+'번' + (isActive ? '' : ' (제외)') + '</span><div class="omr-group">';
-            if(isActive) {
-                for(let j=1; j<=5; j++) {
-                    html += '<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" class="omr-input"><label for="q'+i+'_'+j+'" class="omr-label">'+j+'</label>';
-                }
-            }
-            html += '</div></div>';
-        }
-        document.getElementById("questionContainer").innerHTML = html;
-        loadStatus();
-    };
-
-    function loadStatus() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if(saved) {
-            const data = JSON.parse(saved);
-            attempt = data.attempt || 0; lastSubmitTime = data.lastTime || 0;
-            if(attempt >= MAX_ATTEMPTS) { disableSubmit("🚫 모든 기회 소진"); return; }
-            const diff = (Date.now() - lastSubmitTime) / 1000;
-            if(diff < COOLDOWN_MINUTES * 60) startCooldown(Math.ceil(COOLDOWN_MINUTES * 60 - diff));
-        }
-    }
-
-    function processSubmission() {
-        const name = document.getElementById("studentName").value.trim();
-        const academy = document.getElementById("academySelect").value.trim(); 
-        if(!academy || !name) return alert("정보를 입력해주세요!");
-        for(let i of activeQuestions) {
-            if(!document.querySelector('input[name="q'+i+'"]:checked')) return alert(i + "번을 마킹해주세요!");
-        }
-        let wrongCount = 0; let wrongList = [];
-        for(let i of activeQuestions) {
-            const val = document.querySelector('input[name="q'+i+'"]:checked').value;
-            if(parseInt(val) !== correctAnswers[i-1]) { wrongCount++; wrongList.push(i+"번"); }
-        }
-        finalWrongCount = wrongCount;
-        finalShareData = { title: "과제 결과", text: "[1월 2주차 문학 수업 교재]\n학원: "+academy+"\n학생: "+name+"\n틀린 개수: "+wrongCount+"개" };
-        const sendData = { title: "1월 2주차 문학 수업 교재", academy: academy, name: name, score: activeQuestions.length-wrongCount, total: activeQuestions.length, wrongCount: wrongCount, wrongList: wrongList.join(", "), attempt: attempt+1 };
-        fetch(SCRIPT_URL + "?data=" + btoa(unescape(encodeURIComponent(JSON.stringify(sendData)))), { mode: 'no-cors' });
-        document.getElementById("submitBtn").style.display = "none";
-        document.getElementById("kakaoBtn").style.display = "block";
-        alert("저장 완료! 카톡 전송을 마쳐야 결과가 보입니다.");
-    }
-
-    async function handleShare() {
-        try {
-            if (navigator.share) { await navigator.share(finalShareData); } 
-            else { location.href = "kakaotalk://send?text=" + encodeURIComponent(finalShareData.text); await new Promise(r => setTimeout(r, 1500)); }
-            finalizeAttempt();
-        } catch (err) { alert("전송을 완료해야 채점이 됩니다."); }
-    }
-
-    function finalizeAttempt() {
-        attempt++; lastSubmitTime = Date.now();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ attempt: attempt, lastTime: lastSubmitTime, name: document.getElementById("studentName").value, academy: document.getElementById("academySelect").value }));
-        const res = document.getElementById("resultArea");
-        res.style.display = "block";
-        res.className = finalWrongCount === 0 ? "result-box pass" : "result-box fail";
-        let resHtml = "<h3>채점 완료</h3><p>총 <b>"+finalWrongCount+"</b>개 틀렸습니다.</p>";
-        if(finalWrongCount === 0 || attempt >= MAX_ATTEMPTS) { resHtml += '<a href="'+ANSWER_LINK+'" class="link-btn btn-ans" target="_blank">📘 정답 및 해설지 보기</a>'; disableSubmit(attempt >= MAX_ATTEMPTS ? "🚫 기회 소진" : "✅ 통과 완료"); }
-        else { resHtml += "<p>오답이 있습니다. "+COOLDOWN_MINUTES+"분 후 재도전 가능합니다.</p>"; startCooldown(COOLDOWN_MINUTES * 60); }
-        res.innerHTML = resHtml;
-        document.getElementById("kakaoBtn").style.display = "none";
-        document.getElementById("submitBtn").style.display = "block";
-        res.scrollIntoView({behavior:"smooth"});
-    }
-
-    function startCooldown(sec) {
-        const btn = document.getElementById("submitBtn"); const msg = document.getElementById("timerMsg");
-        btn.disabled = true; msg.style.display = "block";
-        let remain = sec;
-        const timer = setInterval(() => {
-            remain--;
-            if(remain <= 0) { clearInterval(timer); btn.disabled = false; btn.innerText = "📝 다시 제출하기"; msg.style.display = "none"; }
-            else { btn.innerText = "⏳ 대기 ("+remain+"초)"; }
-        }, 1000);
-    }
-
-    function disableSubmit(txt) {
-        const btn = document.getElementById("submitBtn"); btn.disabled = true; btn.style.display = "block";
-        btn.innerText = txt; document.getElementById("kakaoBtn").style.display = "none";
-    }
-</script>
-</body>
-</html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>1월 2주차 문학 수업 교재</title>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+<style>
+body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+.header{text-align:center;margin-bottom:20px;border-bottom:2px solid #f0f0f0;padding-bottom:15px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:8px;margin-bottom:20px;font-size:0.95rem;line-height:1.5;color:#5d4037}
+.link-btn{display:block;width:100%;text-align:center;padding:12px;border-radius:8px;text-decoration:none;font-weight:bold;margin-bottom:10px;box-sizing:border-box}.btn-test{background:#607d8b;color:white}.btn-ans{background:#4caf50;color:white;margin-top:15px}
+.btn-kakao{display:block;width:100%;text-align:center;background:#fee500;color:#3c1e1e;border:none;padding:15px;border-radius:10px;font-weight:bold;font-size:1.1rem;cursor:pointer;margin:20px 0;display:none;text-decoration:none}
+.q-item{margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between}.skipped-item{background:#f5f5f5;opacity:0.5;pointer-events:none}.q-num{font-weight:bold;color:#2196f3;width:60px}
+.omr-group{display:flex;gap:8px;flex:1;justify-content:space-around}.omr-input{display:none}.omr-label{width:35px;height:35px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#999;cursor:pointer}
+.omr-input:checked+.omr-label{background:#2196f3;border-color:#2196f3;color:white}.btn-submit{display:block;width:100%;padding:15px;background:#ff6b6b;color:white;border:none;border-radius:10px;font-weight:bold;font-size:1.1rem;cursor:pointer;margin-top:20px}.btn-submit:disabled{background:#ccc!important}
+.result-box{display:none;margin-top:25px;padding:20px;border-radius:10px;text-align:center;background:#e3f2fd}input[type=text]{width:100%;padding:10px;margin-top:5px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center}#timerMsg{text-align:center;color:#d32f2f;font-weight:bold;margin:10px 0;display:none}
+</style></head><body><div id="overlay"></div><div class="container"><div class="header"><h2>1월 2주차 문학 수업 교재</h2></div><a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQCuaqn1jdeNRqr0SAlFrAn7Afe5diGnwqqrc3Crohb5f7k?e=dGtREO" class="link-btn btn-test" target="_blank">📄 시험지 보러가기</a><div class="notice-box">📢 <b>필독</b>: <br>- 카톡 전송 완료시 틀린 개수가 공개됩니다. <br>- 다나와 현대시는 개인별로 공부하시고 정답 및 해설지는 개인적으로 요청하세요.</div><div style="margin-bottom:20px;background:#fafafa;padding:15px;border-radius:8px;"><label>🏫 학원 이름</label><input type="text" id="academySelect" placeholder="학원명 입력"><label>👤 학생 이름</label><input type="text" id="studentName" placeholder="본인 이름 입력"></div><div id="questionContainer"></div><div id="timerMsg">⏳ 대기 시간이 남았습니다.</div><button id="submitBtn" class="btn-submit" onclick="processSubmission()">📝 답안 제출하기</button><button id="kakaoBtn" class="btn-kakao" onclick="openKakao()">🟡 카톡으로 결과 전송</button><div id="resultArea" class="result-box"></div></div><script>
+try { if(!window.Kakao.isInitialized()){ window.Kakao.init("de4c158b009fb05f7f51d2243447511b"); } } catch(e){}
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec";const correctAnswers=[5,4,2,3,2,5,5,5,5,2,3];const activeQuestions=[1,2,3,4,5,6,7,8,9,10,11];const ANSWER_LINK="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQAyxkoGv6eNRrfHbsvw58yOAQHad5NIsB0WVRottLWZhMc?e=V98jlj";const MAX_ATTEMPTS=5;const COOLDOWN_MINUTES=5;const STORAGE_KEY="test_1월2주차문학수업교재";let attempt=0;let lastTime=0;let finalWrongCount=0;let finalShareText="";
+window.onload=function(){let h="";for(let i=1;i<=correctAnswers.length;i++){let a=activeQuestions.includes(i);h+='<div class="q-item '+(a?'':'skipped-item')+'"><span class="q-num">'+i+'번'+(a?'':' (제외)')+'</span><div class="omr-group">';if(a)for(let j=1;j<=5;j++)h+='<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" class="omr-input"><label for="q'+i+'_'+j+'" class="omr-label">'+j+'</label>';h+='</div></div>';}document.getElementById("questionContainer").innerHTML=h;loadStatus();};
+function loadStatus(){const s=localStorage.getItem(STORAGE_KEY);if(s){const d=JSON.parse(s);attempt=d.attempt||0;lastTime=d.lastTime||0;const diff=(Date.now()-lastTime)/1000;if(attempt>=MAX_ATTEMPTS)disableSubmit("🚫 기회 소진");else if(diff<COOLDOWN_MINUTES*60)startCooldown(Math.ceil(COOLDOWN_MINUTES*60-diff));}}
+function processSubmission(){const n=document.getElementById("studentName").value.trim();const a=document.getElementById("academySelect").value.trim();if(!a||!n)return alert("정보 입력 필수!");for(let i of activeQuestions)if(!document.querySelector('input[name="q'+i+'"]:checked')) return alert(i+"번 마킹 필수!");let w=0;for(let i of activeQuestions){if(parseInt(document.querySelector('input[name="q'+i+'"]:checked').value)!==correctAnswers[i-1])w++;}finalWrongCount=w;finalShareText="[1월 2주차 문학 수업 교재]\n학원: "+a+"\n학생: "+n+"\n틀린 개수: "+w+"개";document.getElementById("submitBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block";alert("답안 저장됨! 카톡 버튼을 누르세요.");}
+function openKakao(){window.Kakao.Share.sendDefault({ objectType: "text", text: finalShareText, link: { mobileWebUrl: location.href, webUrl: location.href } });setTimeout(function(){const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML='<div style="background:white;padding:30px;border-radius:15px;margin:20px;width:85%;max-width:350px;"><p style="font-weight:bold;color:#d32f2f;">⚠️ 전송 확인 중 (10초)</p><p style="font-size:0.85rem;color:#666;">카톡에서 선생님 이름을 눌러 전송 후 돌아오세요.</p><div id="waitTimer" style="font-size:1.5rem;font-weight:bold;margin:15px 0;">10</div><button id="realFinishBtn" disabled onclick="confirmFinish()" style="background:#fee500;border:none;padding:12px;width:100%;border-radius:8px;font-weight:bold;cursor:not-allowed;">기다려주세요</button></div>';let r=10;const it=setInterval(function(){r--;document.getElementById("waitTimer").innerText=r;if(r<=0){clearInterval(it);const b=document.getElementById("realFinishBtn");b.disabled=false;b.innerText="네, 전송 완료했습니다";b.style.background="#fee500";b.style.cursor="pointer";}},1000);},1500);}
+function confirmFinish(){const a=document.getElementById("academySelect").value.trim();const n=document.getElementById("studentName").value.trim();attempt++;lastTime=Date.now();localStorage.setItem(STORAGE_KEY,JSON.stringify({attempt:attempt,lastTime:lastTime}));const p=new URLSearchParams({title:"1월 2주차 문학 수업 교재",academy:a,name:n,score:activeQuestions.length-finalWrongCount,total:activeQuestions.length,wrongCount:finalWrongCount,attempt:attempt,timestamp:new Date().toLocaleString()});fetch(SCRIPT_URL+"?"+p.toString(),{mode:"no-cors"});document.getElementById("overlay").style.display="none";const r=document.getElementById("resultArea");r.style.display="block";r.innerHTML="<h3>채점 완료</h3><p>총 <b>"+finalWrongCount+"</b>개 틀렸습니다.</p>";if(finalWrongCount===0||attempt>=MAX_ATTEMPTS){r.innerHTML+='<a href="' + ANSWER_LINK + '" class="link-btn btn-ans" target="_blank">📘 해설지 보기</a>';disableSubmit(attempt>=MAX_ATTEMPTS?"🚫 기회 소진":"✅ 통과");}else{r.innerHTML+="<p>오답이 있습니다. "+COOLDOWN_MINUTES+"분 후 재도전 가능.</p>";startCooldown(COOLDOWN_MINUTES * 60);}document.getElementById("kakaoBtn").style.display="none";document.getElementById("submitBtn").style.display="block";}
+function startCooldown(s){const b=document.getElementById("submitBtn");const m=document.getElementById("timerMsg");b.disabled=true;m.style.display="block";let r=s;const t=setInterval(function(){r--;if(r<=0){clearInterval(t);b.disabled=false;b.innerText="📝 다시 제출하기";m.style.display="none";}else{b.innerText="⏳ 대기 ("+r+"초)";}},1000);}
+function disableSubmit(t){const b=document.getElementById("submitBtn");b.disabled=true;b.innerText=t;b.style.display="block";}
+</script></body></html>
