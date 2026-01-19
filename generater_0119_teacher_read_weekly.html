@@ -2,29 +2,30 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>과제 페이지 생성기 v4.6 (최종 안정화)</title>
+    <title>과제 페이지 생성기 v5.0 (최종 통합본)</title>
     <style>
         body { font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; background: #f0f2f5; line-height: 1.6; }
         .box { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         h2 { border-left: 5px solid #2196f3; padding-left: 15px; color: #333; margin-bottom: 25px; }
         label { display: block; margin-top: 15px; font-weight: bold; color: #444; }
         input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        textarea { height: 100px; resize: none; }
+        textarea { height: 80px; resize: none; }
         #genBtn { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 25px; }
         #output { width: 100%; height: 350px; margin-top: 20px; font-family: 'Consolas', monospace; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-size: 11px; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🚀 과제 페이지 생성기 v4.6</h2>
+    <h2>🚀 과제 페이지 생성기 v5.0 (최종)</h2>
     <label>과제 제목</label><input type="text" id="title" value="1월 3주차 과제">
-    <label>📢 학생 공지사항</label><textarea id="noticeMsg">전송 완료 시 결과가 공개됩니다.</textarea>
+    <label>📢 학생 공지사항</label><textarea id="noticeMsg">카톡 전송 완료 시 결과가 공개됩니다.</textarea>
     <label>전체 정답 번호 (숫자만)</label><textarea id="answers" placeholder="예: 311454..."></textarea>
-    <label>✅ 활성화할 문항 번호</label><input type="text" id="activeRange" placeholder="예: 6-13, 30-39">
-    <label>시험지 PDF 링크</label><input type="text" id="testLink">
-    <label>해설지 PDF 링크</label><input type="text" id="ansLink">
+    <label>✅ 활성화할 문항 번호</label><input type="text" id="activeRange" placeholder="예: 1-13, 30-45">
+    <label>시험지 PDF 링크</label><input type="text" id="testLink" placeholder="https://...">
+    <label>해설지 PDF 링크</label><input type="text" id="ansLink" placeholder="https://...">
+    
     <button type="button" id="genBtn" onclick="generateCode()">✨ 맞춤형 HTML 코드 생성하기</button>
-    <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('복사되었습니다!');" placeholder="생성된 코드가 여기에 나타납니다."></textarea>
+    <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('코드가 복사되었습니다!');" placeholder="생성된 코드가 여기에 나타납니다."></textarea>
 </div>
 
 <script>
@@ -47,12 +48,14 @@ function generateCode() {
     const testLink = document.getElementById('testLink').value || "#";
     const ansLink = document.getElementById('ansLink').value || "#";
     const scriptUrl = "https://script.google.com/macros/s/AKfycbyE8PE7KjrTiBVljInx24PqPBoFbQ5ga4oWqhMg90UFXjFvrmB0YWhNVreRCWYyeq8/exec";
-    const kakaoKey = "de4c158b009fb05f7f51d2243447511b"; //
+    const kakaoKey = "de4c158b009fb05f7f51d2243447511b";
 
     if(ansArray.length === 0) return alert("정답을 입력하세요!");
 
+    // 생성되는 코드 내부의 특수문자 충돌을 방지하기 위해 가장 안전한 구조로 작성
     let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">\n';
-    c += '<title>' + titleVal + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
+    c += '<title>' + titleVal + '</title>\n';
+    c += '<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-lLeSY9at9vX9GiBUvIq/AId9fS8+VvRyp6A+NfL+3m6XG5vO0fPz0P8fX0P8fX0" crossorigin="anonymous"><\/script>\n';
     c += '<style>\nbody{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}\n';
     c += '.header{text-align:center;margin-bottom:20px;border-bottom:2px solid #f0f0f0;padding-bottom:15px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:8px;margin-bottom:20px;font-size:0.95rem;line-height:1.5;color:#5d4037}\n';
     c += '.link-btn{display:block;width:100%;text-align:center;padding:12px;border-radius:8px;text-decoration:none;font-weight:bold;margin-bottom:10px;box-sizing:border-box}.btn-test{background:#607d8b;color:white}.btn-ans{background:#4caf50;color:white;margin-top:15px}\n';
@@ -67,7 +70,7 @@ function generateCode() {
     c += '<div id="questionContainer"></div><button id="submitBtn" class="btn-submit" onclick="processSubmission()">📝 답안 제출하기</button>';
     c += '<button id="kakaoBtn" class="btn-kakao" onclick="openKakao()">🟡 카톡으로 결과 전송</button><div id="resultArea" class="result-box"></div></div>';
     c += '<script>\n';
-    c += 'try { if(!window.Kakao.isInitialized()){ window.Kakao.init("' + kakaoKey + '"); } } catch(e){}\n';
+    c += 'try { Kakao.init("' + kakaoKey + '"); } catch(e){}\n';
     c += 'const SCRIPT_URL="' + scriptUrl + '";const correctAnswers=[' + ansArray.join(',') + '];const activeQuestions=[' + activeQuestions.join(',') + '];';
     c += 'const ANSWER_LINK="' + ansLink + '";let attempt=0;let finalWrongCount=0;let finalShareText="";\n';
     c += 'window.onload=function(){let h="";for(let i=1;i<=correctAnswers.length;i++){let a=activeQuestions.includes(i);h+=\'<div class="q-item \'+(a?\'\':\'skipped-item\')+\'"><span class="q-num">\'+i+\'번\'+(a?\'\':\' (제외)\')+\'</span><div class="omr-group">\';';
@@ -77,18 +80,18 @@ function generateCode() {
     c += 'finalShareText="[' + titleVal + ']\\n학원: "+a+"\\n학생: "+n+"\\n틀린 개수: "+w+"개";';
     c += 'document.getElementById("submitBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block";alert("답안 저장됨! 카톡 버튼을 누르세요.");}\n';
     c += 'function openKakao(){';
-    c += 'window.Kakao.Share.sendDefault({ objectType: "text", text: finalShareText, link: { mobileWebUrl: location.href, webUrl: location.href } });';
+    c += 'Kakao.Share.sendDefault({ objectType: "text", text: finalShareText, link: { mobileWebUrl: "https://saenarachild-crypto.github.io", webUrl: "https://saenarachild-crypto.github.io" } });';
     c += 'setTimeout(function(){const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;margin:20px;width:85%;max-width:350px;"><p style="font-weight:bold;color:#d32f2f;">⚠️ 전송 확인 중 (10초)</p><p style="font-size:0.85rem;color:#666;">카톡에서 선생님 이름을 눌러 전송 후 돌아오세요.</p><div id="waitTimer" style="font-size:1.5rem;font-weight:bold;margin:15px 0;">10</div><button id="realFinishBtn" disabled onclick="confirmFinish()" style="background:#fee500;color:#3c1e1e;border:none;padding:12px;width:100%;border-radius:8px;font-weight:bold;cursor:pointer;">네, 전송 완료했습니다</button></div>\';';
     c += 'let r=10;const it=setInterval(function(){r--;document.getElementById("waitTimer").innerText=r;if(r<=0){clearInterval(it);const b=document.getElementById("realFinishBtn");b.disabled=false;b.innerText="네, 전송 완료했습니다";b.style.background="#fee500";b.style.cursor="pointer";}},1000);},1500);}\n';
     c += 'function confirmFinish(){const a=document.getElementById("academySelect").value.trim();const n=document.getElementById("studentName").value.trim();attempt++;';
     c += 'const p=new URLSearchParams({title:"' + titleVal + '",academy:a,name:n,score:activeQuestions.length-finalWrongCount,total:activeQuestions.length,wrongCount:finalWrongCount,attempt:attempt,timestamp:new Date().toLocaleString()});fetch(SCRIPT_URL+"?"+p.toString(),{mode:"no-cors"});';
     c += 'document.getElementById("overlay").style.display="none";const r=document.getElementById("resultArea");r.style.display="block";r.innerHTML="<h3>채점 완료</h3><p>총 <b>"+finalWrongCount+"</b>개 틀렸습니다.</p>";';
-    c += 'r.innerHTML+=\'<a href="\' + ANSWER_LINK + \'" class="link-btn btn-ans" target="_blank">📘 해설지 보기</a>\';'; // 기회 제한 완전 삭제
+    c += 'r.innerHTML+=\'<a href="\' + ANSWER_LINK + \'" class="link-btn btn-ans" target="_blank">📘 해설지 보기</a>\';';
     c += 'document.getElementById("kakaoBtn").style.display="none";document.getElementById("submitBtn").style.display="block";document.getElementById("submitBtn").innerText="📝 다시 제출하기";}\n';
     c += '<\/script></body></html>';
 
     document.getElementById('output').value = c;
-    alert("코드 생성 완료! 기회 제한이 완전히 제거되었습니다.");
+    alert("최종 코드가 생성되었습니다! 하단 박스에서 복사하세요.");
 }
 </script>
 </body>
