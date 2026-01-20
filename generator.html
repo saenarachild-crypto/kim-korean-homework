@@ -1,23 +1,109 @@
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
-<script>
-    // [확인 완료] 선생님의 새로운 JavaScript 키
-    const KAKAO_KEY = "062fef389d952e20576f6b4c719f584e";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>국어 과제 생성기 v6.5 (오류 추적형)</title>
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; background: #f0f2f5; }
+        .box { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { border-left: 5px solid #2196f3; padding-left: 15px; color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        #genBtn { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 25px; }
+        #output { width: 100%; height: 350px; margin-top: 20px; font-family: 'Consolas', monospace; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-size: 11px; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>🚀 국어 과제 생성기 v6.5</h2>
+    <p style="color:#d32f2f; font-size:0.9rem;">✅ 이 생성기로 만든 과제는 전송 실패 시 에러 이유를 직접 알려줍니다.</p>
     
-    try {
-        if(!window.Kakao.isInitialized()){
-            window.Kakao.init(KAKAO_KEY);
-        }
-        console.log("카카오 준비 상태:", window.Kakao.isInitialized());
-    } catch(e) { console.error("초기화 실패"); }
+    <label>과제 제목</label><input type="text" id="title" value="1월 3주차 주간지">
+    <label>전체 정답 (숫자만)</label><textarea id="answers" placeholder="예: 311454..."></textarea>
+    <label>✅ 활성화 문항 번호</label><input type="text" id="activeRange" placeholder="예: 1-15, 30-45">
+    <label>시험지 PDF 링크</label><input type="text" id="testLink">
+    <label>해설지 PDF 링크</label><input type="text" id="ansLink">
+    
+    <button type="button" id="genBtn" onclick="generateCode()">✨ 정밀 진단용 코드 생성</button>
+    <textarea id="output" readonly onclick="this.select(); document.execCommand('copy');" placeholder="생성된 코드가 여기에 나타납니다."></textarea>
+</div>
 
-    function openKakao() {
-        // [검토 완료] 도메인 고정 (4019 완벽 방어)
-        const officialDomain = "https://saenarachild-crypto.github.io";
-        
-        window.Kakao.Share.sendDefault({
-            objectType: "text",
-            text: finalShareText,
-            link: { mobileWebUrl: officialDomain, webUrl: officialDomain }
-        });
+<script>
+function parseRange(str) {
+    const activeNums = new Set();
+    if(!str) return [];
+    str.split(',').forEach(part => {
+        const range = part.trim().split('-');
+        if (range.length === 2) { for (let i = parseInt(range[0]); i <= parseInt(range[1]); i++) activeNums.add(i); }
+        else { const num = parseInt(range[0]); if (!isNaN(num)) activeNums.add(num); }
+    });
+    return Array.from(activeNums).sort((a, b) => a - b);
+}
+
+function generateCode() {
+    const titleVal = document.getElementById('title').value;
+    const ansArray = document.getElementById('answers').value.replace(/[^1-5]/g, '').split('').map(Number);
+    const activeQuestions = parseRange(document.getElementById('activeRange').value);
+    const ansLink = document.getElementById('ansLink').value || "#";
+    
+    // [확인 완료] 선생님의 새로운 JavaScript 키
+    const kakaoKey = "062fef389d952e20576f6b4c719f584e"; 
+
+    let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">\n';
+    c += '<title>' + titleVal + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
+    c += '<style>\nbody{font-family:sans-serif;background:#f0f2f5;padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}\n';
+    c += '.btn-kakao{display:block;width:100%;text-align:center;background:#fee500;color:#3c1e1e;border:none;padding:15px;border-radius:10px;font-weight:bold;font-size:1.1rem;cursor:pointer;margin:20px 0;display:none;text-decoration:none}\n';
+    c += '.q-item{margin-bottom:15px;display:flex;align-items:center;justify-content:space-between}.omr-label{width:35px;height:35px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;cursor:pointer}\n';
+    c += '.omr-input:checked+.omr-label{background:#2196f3;border-color:#2196f3;color:white}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center}\n';
+    c += '</style></head><body><div id="overlay"></div><div class="container"><h2>' + titleVal + '</h2>';
+    c += '<div id="questionContainer"></div><button id="submitBtn" onclick="processSubmission()" style="width:100%;padding:15px;background:#ff6b6b;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">📝 답안 제출하기</button>';
+    c += '<button id="kakaoBtn" class="btn-kakao" onclick="openKakao()">🟡 카톡으로 결과 전송</button><div id="resultArea" style="display:none;margin-top:20px;text-align:center;"></div></div>';
+    c += '<script>\n';
+    c += 'try { if(!window.Kakao.isInitialized()){ window.Kakao.init("' + kakaoKey + '"); } } catch(e){}\n';
+    c += 'const correctAnswers=[' + ansArray.join(',') + '];const activeQuestions=[' + activeQuestions.join(',') + '];';
+    c += 'const ANSWER_LINK="' + ansLink + '";let finalWrongCount=0;let finalShareText="";\n';
+    
+    c += 'window.addEventListener("load", function(){\n';
+    c += '  let h="";for(let i=1;i<=correctAnswers.length;i++){\n';
+    c += '    if(activeQuestions.includes(i)){\n';
+    c += '      h+=\'<div class="q-item"><span>\'+i+\'번</span><div style="display:flex;gap:5px">\';\n';
+    c += '      for(let j=1;j<=5;j++) h+=\'<input type="radio" name="q\'+i+\'" id="q\'+i+\'_\'+j+\'" value="\'+j+\'" style="display:none" class="omr-input"><label for="q\'+i+\'_\'+j+\'" class="omr-label">\'+j+\'</label>\';\n';
+    c += '      h+=\'</div></div>\';\n';
+    c += '    }\n';
+    c += '  }document.getElementById("questionContainer").innerHTML=h;\n';
+    c += '});\n';
+
+    c += 'function processSubmission(){\n';
+    c += '  const a=prompt("학원 이름"), n=prompt("학생 이름"); if(!a||!n)return;\n';
+    c += '  let w=0; activeQuestions.forEach(i=>{\n';
+    c += '    const sel=document.querySelector(\'input[name="q\'+i+\'"]:checked\');\n';
+    if(c.includes('sel')) {
+        c += '    if(!sel||parseInt(sel.value)!==correctAnswers[i-1])w++;\n';
     }
+    c += '  }); finalWrongCount=w;\n';
+    c += '  finalShareText="[' + titleVal + ']\\n학원: "+a+"\\n학생: "+n+"\\n틀린 개수: "+w+"개";\n';
+    c += '  document.getElementById("submitBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block"; alert("답안 저장 완료! 카톡 버튼을 누르세요.");\n';
+    c += '}\n';
+
+    c += 'function openKakao(){\n';
+    c += '  const officialDomain = "https://saenarachild-crypto.github.io"; \n';
+    c += '  window.Kakao.Share.sendDefault({\n';
+    c += '    objectType: "text", text: finalShareText,\n';
+    c += '    link: { mobileWebUrl: officialDomain, webUrl: officialDomain },\n';
+    c += '    fail: function(err) { alert("인증 실패 사유: " + JSON.stringify(err)); }\n'; // [디버깅 코드 추가]
+    c += '  });\n';
+    c += '  setTimeout(function(){const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;"><p>전송을 완료했나요?</p><button onclick="confirmFinish()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>\';}, 1500);\n';
+    c += '}\n';
+
+    c += 'function confirmFinish(){\n';
+    c += '  document.getElementById("overlay").style.display="none";\n';
+    c += '  const r=document.getElementById("resultArea"); r.style.display="block";\n';
+    c += '  r.innerHTML="<h3>과제 완료</h3><p>오답: "+finalWrongCount+"개</p><a href=\'"+ANSWER_LINK+"\' target=\'_blank\' style=\'display:block;padding:12px;background:#4caf50;color:white;text-decoration:none;border-radius:8px;font-weight:bold;\'>📘 해설지 보기</a>";\n';
+    c += '}\n';
+    c += '<\/script></body></html>';
+
+    document.getElementById('output').value = c;
+}
 </script>
+</body>
+</html>
