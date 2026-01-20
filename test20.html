@@ -12,7 +12,7 @@ h2{text-align:center;color:#333;margin-bottom:20px}.btn-kakao{display:block;widt
 .omr-input:checked+.omr-label{background:#2196f3;border-color:#2196f3;color:white}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 </style></head><body><div id="overlay"></div><div class="container"><h2>1월 3주차 주간지</h2><div id="questionContainer"></div><button id="submitBtn" onclick="processSubmission()" style="width:100%;padding:15px;background:#ff6b6b;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:1.1rem;margin-top:20px;">📝 답안 제출하기</button><button id="kakaoBtn" class="btn-kakao" onclick="openKakao()">🟡 카톡으로 결과 전송</button><div id="resultArea" style="display:none;margin-top:20px;text-align:center;"></div></div><script>
 try { if(!window.Kakao.isInitialized()){ window.Kakao.init("062fef389d952e20576f6b4c719f584e"); } } catch(e){}
-const correctAnswers=[1,2,3];const activeQuestions=[1,2,3];const ANSWER_LINK="#";let finalWrongCount=0;let finalShareText="";
+const correctAnswers=[1,2];const activeQuestions=[1,2];const ANSWER_LINK="#";let finalWrongCount=0;let finalShareText="";
 window.addEventListener("load", function(){
   let h="";for(let i=1;i<=correctAnswers.length;i++){
     if(activeQuestions.includes(i)){
