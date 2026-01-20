@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>학생 시험</title>
+</head>
+<body>
+<h3 id="title"></h3>
+
+<select id="exam">
+<option>1회차</option>
+<option>2회차</option>
+<option>3회차</option>
+</select>
+
+<div id="omr"></div>
+<button onclick="submitExam()">제출</button>
+
+<script>
+const params = new URLSearchParams(location.search);
+const name = params.get("name");
+document.getElementById("title").innerText = name+" 학생 시험";
+
+const ANSWER = ["1","2","3","4","5"];
+
+for(let i=0;i<5;i++){
+  document.getElementById("omr").innerHTML+=`Q${i+1}
+  <input type=radio name=q${i} value=1>
+  <input type=radio name=q${i} value=2>
+  <input type=radio name=q${i} value=3>
+  <input type=radio name=q${i} value=4>
+  <input type=radio name=q${i} value=5><br>`;
+}
+
+function submitExam(){
+  let wrong=[];
+  for(let i=0;i<5;i++){
+    const v=document.querySelector(`input[name=q${i}]:checked`);
+    if(!v||v.value!==ANSWER[i]) wrong.push(i+1);
+  }
+
+  fetch("YOUR_SCRIPT_URL",{
+    method:"POST",
+    body:JSON.stringify({
+      exam:document.getElementById("exam").value,
+      class:"A반",
+      name:name,
+      attempt:1,
+      wrongCount:wrong.length,
+      wrongList:wrong.join(",")
+    })
+  }).then(()=>alert("제출 완료"));
+}
+</script>
+</body>
+</html>
