@@ -2,21 +2,22 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>국어 과제 생성기 v6.5 (오류 추적형)</title>
+    <title>국어 과제 생성기 v6.6 (최종 진단형)</title>
     <style>
-        body { font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; background: #f0f2f5; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; background: #f0f2f5; line-height: 1.6; }
         .box { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { border-left: 5px solid #2196f3; padding-left: 15px; color: #333; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        #genBtn { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 25px; }
+        h2 { border-left: 5px solid #2196f3; padding-left: 15px; color: #333; margin-bottom: 25px; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #444; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        textarea { height: 80px; resize: none; }
+        #genBtn { width: 100%; padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 25px; }
         #output { width: 100%; height: 350px; margin-top: 20px; font-family: 'Consolas', monospace; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-size: 11px; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🚀 국어 과제 생성기 v6.5</h2>
-    <p style="color:#d32f2f; font-size:0.9rem;">✅ 이 생성기로 만든 과제는 전송 실패 시 에러 이유를 직접 알려줍니다.</p>
+    <h2>🚀 국어 과제 생성기 v6.6</h2>
+    <p style="color:#d32f2f; font-size:0.9rem; font-weight:bold;">⚠️ 필독: 생성된 과제 버튼을 누를 때 "1번 알림창"이 뜨는지 꼭 확인해 주세요!</p>
     
     <label>과제 제목</label><input type="text" id="title" value="1월 3주차 주간지">
     <label>전체 정답 (숫자만)</label><textarea id="answers" placeholder="예: 311454..."></textarea>
@@ -24,8 +25,8 @@
     <label>시험지 PDF 링크</label><input type="text" id="testLink">
     <label>해설지 PDF 링크</label><input type="text" id="ansLink">
     
-    <button type="button" id="genBtn" onclick="generateCode()">✨ 정밀 진단용 코드 생성</button>
-    <textarea id="output" readonly onclick="this.select(); document.execCommand('copy');" placeholder="생성된 코드가 여기에 나타납니다."></textarea>
+    <button type="button" id="genBtn" onclick="generateCode()">✨ 진단용 과제 코드 생성</button>
+    <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('코드가 복사되었습니다!');" placeholder="생성된 코드가 여기에 나타납니다."></textarea>
 </div>
 
 <script>
@@ -45,9 +46,7 @@ function generateCode() {
     const ansArray = document.getElementById('answers').value.replace(/[^1-5]/g, '').split('').map(Number);
     const activeQuestions = parseRange(document.getElementById('activeRange').value);
     const ansLink = document.getElementById('ansLink').value || "#";
-    
-    // [확인 완료] 선생님의 새로운 JavaScript 키
-    const kakaoKey = "062fef389d952e20576f6b4c719f584e"; 
+    const kakaoKey = "062fef389d952e20576f6b4c719f584e"; // [새로운 JavaScript 키 적용]
 
     let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">\n';
     c += '<title>' + titleVal + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
@@ -77,22 +76,27 @@ function generateCode() {
     c += '  const a=prompt("학원 이름"), n=prompt("학생 이름"); if(!a||!n)return;\n';
     c += '  let w=0; activeQuestions.forEach(i=>{\n';
     c += '    const sel=document.querySelector(\'input[name="q\'+i+\'"]:checked\');\n';
-    if(c.includes('sel')) {
-        c += '    if(!sel||parseInt(sel.value)!==correctAnswers[i-1])w++;\n';
-    }
+    c += '    if(!sel||parseInt(sel.value)!==correctAnswers[i-1])w++;\n';
     c += '  }); finalWrongCount=w;\n';
     c += '  finalShareText="[' + titleVal + ']\\n학원: "+a+"\\n학생: "+n+"\\n틀린 개수: "+w+"개";\n';
     c += '  document.getElementById("submitBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block"; alert("답안 저장 완료! 카톡 버튼을 누르세요.");\n';
     c += '}\n';
 
+    // [v6.6 핵심 진단 로직]
     c += 'function openKakao(){\n';
-    c += '  const officialDomain = "https://saenarachild-crypto.github.io"; \n';
-    c += '  window.Kakao.Share.sendDefault({\n';
-    c += '    objectType: "text", text: finalShareText,\n';
-    c += '    link: { mobileWebUrl: officialDomain, webUrl: officialDomain },\n';
-    c += '    fail: function(err) { alert("인증 실패 사유: " + JSON.stringify(err)); }\n'; // [디버깅 코드 추가]
-    c += '  });\n';
-    c += '  setTimeout(function(){const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;"><p>전송을 완료했나요?</p><button onclick="confirmFinish()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>\';}, 1500);\n';
+    c += '  alert("1번: 버튼 클릭 인식됨");\n';
+    c += '  if (typeof Kakao === "undefined") { alert("에러: 카카오 SDK 로드 실패!"); return; }\n';
+    c += '  try {\n';
+    c += '    if (!window.Kakao.isInitialized()) { window.Kakao.init("' + kakaoKey + '"); }\n';
+    c += '    alert("2번: 초기화 상태 -> " + window.Kakao.isInitialized());\n';
+    c += '    window.Kakao.Share.sendDefault({\n';
+    c += '      objectType: "text", text: finalShareText || "테스트",\n';
+    c += '      link: { mobileWebUrl: "https://saenarachild-crypto.github.io", webUrl: "https://saenarachild-crypto.github.io" },\n';
+    c += '      fail: function(err) { alert("3-1번: 인증 실패(4019 등)! 사유 -> " + JSON.stringify(err)); },\n';
+    c += '      success: function() { alert("3-2번: 전송 성공!"); }\n';
+    c += '    });\n';
+    c += '  } catch (e) { alert("4번: 실행 에러 -> " + e.message); }\n';
+    c += '  setTimeout(function(){const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;"><p>전송을 완료했나요?</p><button onclick="confirmFinish()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>\';}, 2000);\n';
     c += '}\n';
 
     c += 'function confirmFinish(){\n';
