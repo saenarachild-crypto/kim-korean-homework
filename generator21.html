@@ -3,39 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v16.0</title>
+    <title>국어 과제 생성기 v16.5</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; line-height: 1.6; }
         .box { max-width: 900px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        h2 { color: var(--p); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        h2 { color: var(--p); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 30px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .full { grid-column: span 2; }
         label { font-weight: bold; font-size: 0.9rem; color: #636e72; }
         input, textarea, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; }
-        #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.3s; }
+        #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
         #output { width: 100%; height: 200px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #fff; padding: 15px; border-radius: 10px; font-size: 11px; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v16.0</h2>
+    <h2>🎯 국어 과제 생성기 v16.5 (안정화 버전)</h2>
     <div class="form-grid">
         <div class="full"><label>과제명 (시험명)</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
-        <div class="full"><label>공지사항 (HTML 가능)</label><textarea id="notice" rows="2">- 전송 완료 시 오답이 공개됩니다.</textarea></div>
-        
-        <div class="full"><label>풀이 문항 제한 (활성 문항)</label><input type="text" id="activeRange" placeholder="예: 1-15, 20, 25-30"></div>
-
+        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 전송 완료 시 오답이 공개됩니다.</textarea></div>
+        <div class="full"><label>풀이 문항 제한 (활성 문항)</label><input type="text" id="activeRange" placeholder="예: 1-15, 20"></div>
         <div><label>제출 시작일</label><input type="date" id="startDate"></div>
         <div><label>제출 종료일</label><input type="date" id="endDate"></div>
-
         <div><label>문제지 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
         <div><label>해설지 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
         <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
-        <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="1"></div>
-        
+        <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
         <div class="full"><label>정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="예: 12345..."></textarea></div>
-        
         <button id="genBtn" onclick="generate()">🔮 학생용 맞춤 과제 페이지 생성</button>
         <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('복사되었습니다!');" placeholder="생성된 코드가 여기에 나타납니다."></textarea>
     </div>
@@ -78,7 +73,7 @@ function generate() {
     c += '<div class="header"><h2>' + week + '</h2></div>';
     c += '<div class="notice-box"><b>[공지사항]</b><br>' + notice + '<br>⏱ ' + time + '분 / 🔄 ' + tries + '회 / 📅 제출기한: ' + startD + '~' + endD + '</div>';
     
-    // '학원명/반' -> '학원명'으로 수정된 부분
+    // 학원명만 남김
     c += '<div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름"></div>';
     
     c += '<div class="info-row"><select id="sD"><option value="">제출일 선택</option>';
@@ -99,24 +94,16 @@ function generate() {
     c += '  h+=\'<div class="q-item"><span>\'+n+\'번</span><div style="display:flex;gap:6px">\';\n';
     c += '  for(let j=1;j<=5;j++) h+=\'<input type="radio" name="q\'+n+\'" id="q\'+n+\'_\'+j+\'" value="\'+j+\'" style="display:none" class="opt-input"><label for="q\'+n+\'_\'+j+\'" class="opt-label">\'+j+\'</label>\';\n';
     c += '  h+=\'</div></div>\';}); document.getElementById("qC").innerHTML=h;};\n';
+    
+    // 버튼 활성화 로직 수정
     c += 'function submit(){\n';
     c += '  const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value, sD=document.getElementById("sD").value;\n';
-    c += '  if(!cN||!sN||!sD){alert("정보를 모두 입력하세요.");return;}\n';
+    c += '  if(!cN||!sN||!sD){alert("학원명, 이름, 제출일을 모두 입력해주세요.");return;}\n';
     c += '  w=0; let d=[]; active.forEach(n=>{const sel=document.querySelector(\'input[name="q\'+n+\'"]:checked\'); if(!sel||parseInt(sel.value)!==correct[n-1]){w++; d.push(n);}});\n';
-    // 전송 텍스트의 '소속' -> '학원'으로 수정
     c += '  resT="[' + week + ']\\n학원: "+cN+"\\n이름: "+sN+"\\n제출일: "+sD+"\\n오답: "+w+"개";\n';
     c += '  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",class:cN,name:sN,date:sD,wrongCount:w,wrongList:d.join(",")})});\n';
-    c += '  document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block"; alert("제출 완료! 카톡 버튼을 눌러주세요.");\n}\n';
+    c += '  document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block"; alert("제출 완료! 아래 노란색 버튼을 눌러주세요.");\n}\n';
+    
     c += 'function share(){\n';
     c += '  Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:domain,webUrl:domain}});\n';
-    c += '  setTimeout(function(){const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;text-align:center;"><p style="font-weight:bold">전송을 완료하셨나요?</p><button onclick="done()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>\';},1500);\n}\n';
-    c += 'function done(){\n';
-    c += '  document.getElementById("overlay").style.display="none"; const r=document.getElementById("resArea"); r.style.display="block";\n';
-    c += '  r.innerHTML="<div style=\'padding:20px;background:#eeebff;border-radius:15px\'><h3>📊 결과: "+w+"개 틀림</h3><a href=\'' + ansL + '\' target=\'_blank\' style=\'display:block;padding:12px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:10px\'>📘 해설지 보기</a></div>"; document.getElementById("kakaoBtn").style.display="none";\n}\n';
-    c += '<\/script></body></html>';
-
-    document.getElementById('output').value = c;
-}
-</script>
-</body>
-</html>
+    c += '  setTimeout(function(){const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;text-align:center;"><p style="font-weight:bold">전송을 완료하셨나요?</p><button onclick="done()" style="width:100%;padding:10
