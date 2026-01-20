@@ -22,11 +22,12 @@ function submit(){
   alert("제출 완료! 아래 노란색 버튼을 눌러주세요."); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
 }
 function share(){
+  // 4011 에러 방지를 위해 등록된 도메인을 강제로 매칭합니다.
   Kakao.Share.sendDefault({ objectType:"text", text:resT, link:{ mobileWebUrl:domain, webUrl:domain } });
   setTimeout(function(){ document.getElementById("overlay").style.display="flex"; document.getElementById("overlay").innerHTML='<div style="background:#fff;padding:30px;border-radius:20px;text-align:center;width:80%"><p style="font-weight:bold">전송을 완료하셨나요?</p><button onclick="done()" style="padding:15px;background:#fee500;border:none;border-radius:15px;font-weight:bold;width:100%">네, 완료했습니다</button></div>'; }, 2000);
 }
 function done(){
   document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none";
-  document.getElementById("resArea").style.display="block"; document.getElementById("resArea").innerHTML="<div style='padding:20px;background:#eeebff;border-radius:20px'><h3>🎊 과제 완료!</h3><div style='font-size:2rem;font-weight:bold'>오답 "+w+"개</div><br><a href='#' target='_blank' class='btn' style='background:var(--p);color:#fff'>📘 해설지 보기</a></div>";
+  document.getElementById("resArea").style.display="block"; document.getElementById("resArea").innerHTML="<div style='padding:20px;background:#eeebff;border-radius:20px'><h3>🎊 과제 완료!</h3><div style='font-size:2rem;font-weight:bold'>오답 "+w+"개</div><br><a href='#' target='_blank' class='btn' style='background:var(--p);color:#fff;display:block;text-align:center;padding:15px;border-radius:15px;text-decoration:none;font-weight:bold;'>📘 해설지 보기</a></div>";
 }
 </script></body></html>
