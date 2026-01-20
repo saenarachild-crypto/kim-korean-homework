@@ -2,85 +2,88 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>국어 과제 생성기 v14.1</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>국어 과제 생성기 v15.0</title>
     <style>
-        :root { --p: #6c5ce7; --p-light: #a29bfe; --bg: #f9f9fb; }
-        body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
-        .box { max-width: 850px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 25px; box-shadow: 0 20px 40px rgba(108, 92, 231, 0.1); border: 1px solid #eeebff; }
-        h2 { color: var(--p); display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-        .info-badge { display: inline-block; background: #f0edff; color: var(--p); padding: 8px 15px; border-radius: 10px; font-size: 0.85rem; font-weight: bold; margin-bottom: 20px; }
+        :root { --p: #6c5ce7; --bg: #f9f9fb; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; line-height: 1.6; }
+        .box { max-width: 900px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h2 { color: var(--p); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 30px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9rem; color: #636e72; }
-        input, textarea { width: 100%; padding: 14px; margin-top: 8px; border: 2px solid #edf2f7; border-radius: 12px; box-sizing: border-box; outline: none; }
-        #genBtn { grid-column: span 2; padding: 20px; background: linear-gradient(135deg, var(--p), var(--p-light)); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3); }
-        #output { grid-column: span 2; width: 100%; height: 250px; margin-top: 25px; font-family: 'Consolas', monospace; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 12px; font-size: 11px; border: none; cursor: pointer; }
+        .full { grid-column: span 2; }
+        label { font-weight: bold; font-size: 0.9rem; color: #636e72; }
+        input, textarea, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; }
+        #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
+        #output { width: 100%; height: 200px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #fff; padding: 15px; border-radius: 10px; font-size: 11px; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v14.1</h2>
-    <div class="info-badge">✅ 학생용 페이지 생성 모드 (카톡 4011 에러 방지형)</div>
-    
+    <h2>🎯 국어 과제 생성기 v15.0 (Full Option)</h2>
     <div class="form-grid">
-        <div><label>과제 회차 (ex. 1월 3주차)</label><input type="text" id="weekTitle" value="1월 3주차"></div>
-        <div><label>과제 대제목 (ex. 주간지 고2 문학)</label><input type="text" id="mainTitle" value="주간지 고2 문학"></div>
-        <div style="grid-column:span 2;"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="3" placeholder="예: 311454..."></textarea></div>
-        <div><label>활성화 범위</label><input type="text" id="activeRange" placeholder="예: 1-15"></div>
-        <div><label>해설지 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
-        <button id="genBtn" onclick="generateStudentCode()">🔮 학생용 답안 제출 페이지 코드 생성</button>
-        <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('학생용 페이지 코드가 복사되었습니다!');" placeholder="여기에 생성된 코드가 나타납니다."></textarea>
+        <div class="full"><label>과제명 (시험명)</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
+        <div class="full"><label>공지사항 (HTML 사용 가능)</label><textarea id="notice" rows="3">- 전송 완료 시 오답이 공개됩니다.<br>- 제한 시간 내에 풀이를 완료하세요.</textarea></div>
+        <div><label>문제지 보기 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
+        <div><label>해설지 보기 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
+        <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
+        <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="1"></div>
+        <div class="full"><label>정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="예: 12345..."></textarea></div>
+        <button id="genBtn" onclick="generate()">🔮 학생용 전문 과제 페이지 생성</button>
+        <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('복사되었습니다!');" placeholder="생성된 코드가 여기에 나타납니다."></textarea>
     </div>
 </div>
 
 <script>
-// [최종 인증 데이터] 선생님의 JavaScript 키와 도메인
 const S_URL = "https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec";
-const K_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001"; 
-const DOMAIN = "https://saenarachild-crypto.github.io"; 
+const K_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001";
+const DOMAIN = "https://saenarachild-crypto.github.io";
 
-function parseRange(str, total) {
-    const activeNums = new Set();
-    if(!str) { for(let i=1; i<=total; i++) activeNums.add(i); return Array.from(activeNums); }
-    str.split(',').forEach(part => {
-        const range = part.trim().split('-');
-        if (range.length === 2) { for (let i = parseInt(range[0]); i <= parseInt(range[1]); i++) activeNums.add(i); }
-        else { const num = parseInt(range[0]); if (!isNaN(num)) activeNums.add(num); }
-    });
-    return Array.from(activeNums).sort((a, b) => a - b);
-}
-
-function generateStudentCode() {
+function generate() {
     const week = document.getElementById('weekTitle').value;
-    const title = document.getElementById('mainTitle').value;
-    const ansArray = document.getElementById('answers').value.replace(/[^1-5]/g, '').split('').map(Number);
-    const activeQs = parseRange(document.getElementById('activeRange').value, ansArray.length);
+    const notice = document.getElementById('notice').value.replace(/\n/g, '<br>');
+    const pdf = document.getElementById('pdfLink').value || "#";
     const ansL = document.getElementById('ansLink').value || "#";
+    const time = document.getElementById('timeLimit').value;
+    const tries = document.getElementById('maxTry').value;
+    const ansArr = document.getElementById('answers').value.replace(/[^1-5]/g, '').split('').map(Number);
 
-    let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">\n';
-    c += '<title>' + week + ' 과제</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
-    c += '<style>\n:root{--p:#6c5ce7;--bg:#f0f2f5}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:8px;margin-bottom:20px;font-size:0.95rem;line-height:1.5;color:#5d4037}.q-item{margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f9f9f9;padding-bottom:10px}.omr-label{width:35px;height:35px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;cursor:pointer}.omr-input:checked+.omr-label{background:var(--p);border-color:var(--p);color:white}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}\n</style></head><body><div id="overlay"></div><div class="container"><h2>' + week + '</h2><div class="notice-box">📢 ' + title + '<br>- 카톡 전송 완료 시 틀린 개수가 공개됩니다.<br>- 정보를 정확히 입력해야 기록이 인정됩니다.</div>';
-    c += '<input type="text" id="cN" placeholder="학원/반 (예: 평일A)" style="width:100%;padding:10px;margin-bottom:10px;box-sizing:border-box;"><input type="text" id="sN" placeholder="이름" style="width:100%;padding:10px;margin-bottom:20px;box-sizing:border-box;">';
-    c += '<div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:15px;background:#ff6b6b;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:20px;">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;text-align:center;background:#fee500;color:#3c1e1e;border:none;padding:15px;border-radius:10px;font-weight:bold;cursor:pointer;margin:20px 0;text-decoration:none">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px;"></div></div>';
+    let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n';
+    c += '<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
+    c += '<style>\n:root{--p:#6c5ce7;--bg:#f0f2f5}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px} .notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f2f2f2}.omr-label{width:34px;height:34px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:bold;font-size:0.9rem}.omr-input:checked+.omr-label{background:var(--p);border-color:var(--p);color:white}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center} input, select{padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;width:100%}\n</style></head><body><div id="overlay"></div><div class="container">';
+    c += '<div class="header"><h2>' + week + '</h2></div>';
+    c += '<div class="notice-box"><b>[공지사항]</b><br>' + notice + '<br>⏱ 제한시간: ' + time + '분 / 🔄 도전횟수: ' + tries + '회</div>';
+    c += '<div class="info-row"><input type="text" id="cN" placeholder="학원명/반"> <input type="text" id="sN" placeholder="학생 이름"></div>';
+    c += '<div class="info-row"><select id="sD"><option value="">제출일 선택</option>';
+    const today = new Date();
+    for(let i=0; i<7; i++) { 
+        let d = new Date(); d.setDate(today.getDate() - i); 
+        let s = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+        c += '<option value="'+s+'">'+s+'</option>';
+    }
+    c += '</select><a href="' + pdf + '" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:8px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div>';
+    c += '<div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1rem">📝 답안 제출하기</button>';
+    c += '<button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div>';
+    
     c += '<script>\n';
     c += 'try{if(!Kakao.isInitialized())Kakao.init("' + K_KEY + '");}catch(e){}\n';
-    c += 'const correct=[' + ansArray.join(',') + '], active=[' + activeQs.join(',') + '], sUrl="' + S_URL + '", domain="' + DOMAIN + '"; let resT="", w=0;\n';
-    c += 'window.onload=function(){let h="";active.forEach(n=>{\n';
-    c += '  h+=\'<div class="q-item"><span>\'+n+\'번</span><div style="display:flex;gap:5px">\';\n';
-    c += '  for(let j=1;j<=5;j++) h+=\'<input type="radio" name="q\'+n+\'" id="q\'+n+\'_\'+j+\'" value="\'+j+\'" style="display:none" class="omr-input"><label for="q\'+n+\'_\'+j+\'" class="omr-label">\'+j+\'</label>\';\n';
-    c += '  h+=\'</div></div>\';});document.getElementById("qC").innerHTML=h;};\n';
+    c += 'const correct=[' + ansArr.join(',') + '], sUrl="' + S_URL + '", domain="' + DOMAIN + '"; let resT="", w=0;\n';
+    c += 'window.onload=function(){let h="";for(let i=1;i<=correct.length;i++){\n';
+    c += '  h+=\'<div class="q-item"><span>\'+i+\'번</span><div style="display:flex;gap:6px">\';\n';
+    c += '  for(let j=1;j<=5;j++) h+=\'<input type="radio" name="q\'+i+\'" id="q\'+i+\'_\'+j+\'" value="\'+j+\'" style="display:none" class="omr-input"><label for="q\'+i+\'_\'+j+\'" class="omr-label">\'+j+\'</label>\';\n';
+    c += '  h+=\'</div></div>\';}document.getElementById("qC").innerHTML=h;};\n';
     c += 'function submit(){\n';
-    c += '  const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value; if(!cN||!sN)return;\n';
-    c += '  w=0; let d=[]; active.forEach(n=>{const sel=document.querySelector(\'input[name="q\'+n+\'"]:checked\'); if(!sel||parseInt(sel.value)!==correct[n-1]){w++; d.push(n);}});\n';
-    c += '  resT="[' + week + ']\\n학원: "+cN+"\\n학생: "+sN+"\\n틀린 개수: "+w+"개";\n';
-    c += '  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",class:cN,name:sN,wrongCount:w,wrongList:d.join(",")})});\n';
-    c += '  document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block"; alert("저장 완료! 카톡 버튼을 눌러주세요.");\n}\n';
+    c += '  const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value, sD=document.getElementById("sD").value;\n';
+    c += '  if(!cN||!sN||!sD){alert("정보를 모두 입력하세요.");return;}\n';
+    c += '  w=0; let d=[]; correct.forEach((ans,i)=>{const sel=document.querySelector(\'input[name="q\'+(i+1)+\'"]:checked\'); if(!sel||parseInt(sel.value)!==ans){w++; d.push(i+1);}});\n';
+    c += '  resT="[' + week + ']\\n소속: "+cN+"\\n이름: "+sN+"\\n제출일: "+sD+"\\n오답: "+w+"개";\n';
+    c += '  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",class:cN,name:sN,date:sD,wrongCount:w,wrongList:d.join(",")})});\n';
+    c += '  document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block"; alert("제출 완료! 카톡 버튼을 눌러주세요.");\n}\n';
     c += 'function share(){\n';
     c += '  Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:domain,webUrl:domain}});\n';
-    c += '  setTimeout(function(){const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;text-align:center;"><p>전송 완료 후 버튼을 눌러주세요.</p><button onclick="done()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>\';},1500);\n}\n';
+    c += '  setTimeout(function(){const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML=\'<div style="background:white;padding:30px;border-radius:15px;text-align:center;"><p style="font-weight:bold">전송을 완료하셨나요?</p><button onclick="done()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>\';},1500);\n}\n';
     c += 'function done(){\n';
     c += '  document.getElementById("overlay").style.display="none"; const r=document.getElementById("resArea"); r.style.display="block";\n';
-    c += '  r.innerHTML="<h3>결과: "+w+"개 틀림</h3><a href=\'' + ansL + '\' target=\'_blank\' style=\'display:block;padding:12px;background:#4caf50;color:white;text-decoration:none;border-radius:8px;font-weight:bold;\'>📘 해설지 보기</a>"; document.getElementById("kakaoBtn").style.display="none";\n}\n';
+    c += '  r.innerHTML="<div style=\'padding:20px;background:#eeebff;border-radius:15px\'><h3>📊 결과: "+w+"개 틀림</h3><a href=\'' + ansL + '\' target=\'_blank\' style=\'display:block;padding:12px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:10px\'>📘 해설지 보기</a></div>"; document.getElementById("kakaoBtn").style.display="none";\n}\n';
     c += '<\/script></body></html>';
 
     document.getElementById('output').value = c;
