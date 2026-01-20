@@ -3,50 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>1월 3주차 주간지</title>
+<title>1월 3주차 과제</title>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <style>
-body{font-family:-apple-system,sans-serif;background:#f0f2f5;padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
-.btn-kakao{display:block;width:100%;text-align:center;background:#fee500;color:#3c1e1e;border:none;padding:15px;border-radius:10px;font-weight:bold;font-size:1.1rem;cursor:pointer;margin:20px 0;display:none;text-decoration:none}
-.q-item{margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #eee}.omr-label{width:35px;height:35px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.omr-input:checked+.omr-label{background:#2196f3;border-color:#2196f3;color:white}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-</style></head><body><div id="overlay"></div><div class="container"><h2>1월 3주차 주간지</h2><div id="questionContainer"></div><button id="submitBtn" onclick="processSubmission()" style="width:100%;padding:15px;background:#ff6b6b;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:1.1rem;margin-top:20px;">📝 답안 제출하기</button><button id="kakaoBtn" class="btn-kakao" onclick="openKakao()">🟡 카톡으로 결과 전송</button><div id="resultArea" style="display:none;margin-top:20px;text-align:center;"></div></div><script>
-try { if(!window.Kakao.isInitialized()){ window.Kakao.init("062fef389d952e20576f6b4c719f584e"); } } catch(e){}
-const correctAnswers=[1,2,3];const activeQuestions=[1,2,3];const ANSWER_LINK="#";let finalWrongCount=0;let finalShareText="";
-window.addEventListener("load", function(){
-  let h="";for(let i=1;i<=correctAnswers.length;i++){
-    if(activeQuestions.includes(i)){
-      h+='<div class="q-item"><span>'+i+'번</span><div style="display:flex;gap:8px">';
-      for(let j=1;j<=5;j++) h+='<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" style="display:none" class="omr-input"><label for="q'+i+'_'+j+'" class="omr-label">'+j+'</label>';
-      h+='</div></div>';
-    }
-  }document.getElementById("questionContainer").innerHTML=h;
-});
-function processSubmission(){
-  const a=prompt("학원 이름"), n=prompt("학생 이름"); if(!a||!n)return;
-  let w=0; activeQuestions.forEach(i=>{
-    const sel=document.querySelector('input[name="q'+i+'"]:checked');
-    if(!sel||parseInt(sel.value)!==correctAnswers[i-1])w++;
-  }); finalWrongCount=w;
-  finalShareText="[1월 3주차 주간지]\n학원: "+a+"\n학생: "+n+"\n오답: "+w+"개";
-  document.getElementById("submitBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block"; alert("답안 저장 완료! 카톡 버튼을 눌러주세요.");
+:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:500px;margin:0 auto;background:#fff;padding:30px;border-radius:30px;box-shadow:0 15px 35px rgba(0,0,0,0.05)}.q-card{border:1px solid #eee;border-radius:20px;padding:20px;margin-bottom:15px}.opt-label{flex:1;height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer}.opt-input:checked+.opt-label{background:var(--p);color:#fff}.btn{width:100%;padding:18px;border-radius:15px;border:none;font-weight:bold;cursor:pointer;margin-top:15px;display:block;text-align:center;text-decoration:none}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}
+</style></head><body><div id="overlay"></div><div class="container"><h2>주간지 고2 문학</h2><input type="text" id="cN" placeholder="학원/반 (예: 평일A반)" style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:10px;box-sizing:border-box;"><input type="text" id="sN" placeholder="학생 이름" style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:20px;box-sizing:border-box;"><div id="qC"></div><button id="subBtn" class="btn" style="background:var(--p);color:#fff" onclick="submit()">📝 답안 제출 및 기록</button><button id="kakaoBtn" class="btn" style="background:#fee500;color:#3c1e1e;display:none" onclick="share()">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;margin-top:20px;text-align:center"></div></div><script>
+try{if(!Kakao.isInitialized())Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}catch(e){}
+const correct=[1,2,3], sUrl="https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec", domain="https://saenarachild-crypto.github.io"; let resT="", w=0;
+window.addEventListener("load", function(){ let h=""; correct.forEach((_,i)=>{
+  h+='<div class="q-card"><div style="font-weight:bold;margin-bottom:10px">'+(i+1)+'번</div><div style="display:flex;gap:8px">';
+  for(let j=1;j<=5;j++) h+='<input type="radio" name="q'+(i+1)+'" id="q'+(i+1)+'_'+j+'" value="'+j+'" style="display:none" class="opt-input"><label for="q'+(i+1)+'_'+j+'" class="opt-label">'+j+'</label>';
+  h+='</div></div>'; }); document.getElementById("qC").innerHTML=h; });
+function submit(){
+  const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value; if(!cN||!sN){alert("정보를 입력하세요.");return;}
+  w=0; let d=[]; correct.forEach((ans,i)=>{const sel=document.querySelector('input[name="q'+(i+1)+'"]:checked'); if(!sel||parseInt(sel.value)!==ans){w++; d.push(i+1);}});
+  resT="[1월 3주차]\n소속: "+cN+"\n학생: "+sN+"\n오답: "+w+"개\n번호: "+(d.join(", ")||"없음");
+  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"1월 3주차",class:cN,name:sN,wrongCount:w,wrongList:d.join(",")})});
+  alert("제출 완료! 아래 노란색 버튼을 눌러주세요."); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
 }
-function openKakao(){
-  const officialDomain = "https://saenarachild-crypto.github.io"; 
-  // [수정] 에러를 유발하는 fail/success 키를 제거했습니다.
-  window.Kakao.Share.sendDefault({
-    objectType: "text", text: finalShareText,
-    link: { mobileWebUrl: officialDomain, webUrl: officialDomain }
-  });
-  // 전송창이 열린 후 1.5초 뒤에 완료 확인창을 띄웁니다.
-  setTimeout(function(){
-    const o=document.getElementById("overlay"); o.style.display="flex";
-    o.innerHTML='<div style="background:white;padding:30px;border-radius:15px;box-shadow:0 0 20px rgba(0,0,0,0.5);"><p style="font-weight:bold;font-size:1.1rem;">전송을 완료했나요?</p><button onclick="confirmFinish()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>';
-  }, 1500);
+function share(){
+  // 4011 에러 방지를 위해 등록된 도메인을 강제로 매칭합니다.
+  Kakao.Share.sendDefault({ objectType:"text", text:resT, link:{ mobileWebUrl:domain, webUrl:domain } });
+  setTimeout(function(){ document.getElementById("overlay").style.display="flex"; document.getElementById("overlay").innerHTML='<div style="background:#fff;padding:30px;border-radius:20px;text-align:center;width:80%"><p style="font-weight:bold">전송을 완료하셨나요?</p><button onclick="done()" style="padding:15px;background:#fee500;border:none;border-radius:15px;font-weight:bold;width:100%">네, 완료했습니다</button></div>'; }, 2000);
 }
-function confirmFinish(){
-  document.getElementById("overlay").style.display="none";
-  const r=document.getElementById("resultArea"); r.style.display="block";
-  r.innerHTML="<h3>🎉 제출 완료</h3><p style='color:#d32f2f; font-weight:bold;'>오답: "+finalWrongCount+"개</p><a href='"+ANSWER_LINK+"' target='_blank' style='display:inline-block;padding:12px 25px;background:#4caf50;color:white;text-decoration:none;border-radius:8px;font-weight:bold;margin-top:10px;'>📘 해설지 보기</a>";
+function done(){
+  document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none";
+  document.getElementById("resArea").style.display="block"; document.getElementById("resArea").innerHTML="<div style='padding:20px;background:#eeebff;border-radius:20px'><h3>🎊 과제 완료!</h3><div style='font-size:2rem;font-weight:bold'>오답 "+w+"개</div><br><a href='#' target='_blank' class='btn' style='background:var(--p);color:#fff;display:block;text-align:center;padding:15px;border-radius:15px;text-decoration:none;font-weight:bold;'>📘 해설지 보기</a></div>";
 }
 </script></body></html>
