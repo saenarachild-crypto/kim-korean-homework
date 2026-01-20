@@ -9,11 +9,7 @@
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: #f0f2f5; padding: 15px; margin: 0; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
-        
-        /* 셀렉트 박스 디자인 */
         #examSelect { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #e1e4e8; font-size: 1rem; margin-bottom: 20px; outline: none; }
-        
-        /* OMR 문항 디자인 */
         .qBox { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f1f3f4; }
         .qNum { font-weight: bold; color: #5f6368; }
         .qChoices { display: flex; gap: 8px; }
@@ -23,12 +19,9 @@
             border: 1px solid #ddd; border-radius: 50%; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
         .choice input:checked + span { background: #1a73e8; color: white; border-color: #1a73e8; transform: scale(1.1); }
-        
-        /* 버튼 공통 디자인 */
         .btn { width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; border: none; cursor: pointer; margin-top: 12px; display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
-        #subBtn { background: #ff5252; color: white; box-shadow: 0 4px 15px rgba(255,82,82,0.3); }
+        #subBtn { background: #ff5252; color: white; }
         #kakaoBtn { background: #fee500; color: #3c1e1e; display: none; }
-        #pdfBtn { background: #34a853; color: white; display: none; }
     </style>
 </head>
 <body>
@@ -46,27 +39,30 @@
 
     <button id="subBtn" class="btn" onclick="submit()">📝 채점 및 결과 제출</button>
     <a id="kakaoBtn" class="btn" onclick="share()">🟡 카톡으로 결과 공유</a>
-    <a id="pdfBtn" class="btn" onclick="openPDF()">📄 정답 및 해설지 보기</a>
 </div>
 
 <script>
-// [보안 지침 준수] JavaScript 키
-Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");
+// [인증 완료] 선생님의 전용 설정값
+const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001";
+const OFFICIAL_DOMAIN = "https://saenarachild-crypto.github.io";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxjptIp4RB3K14-RMaY_r1UgHv2o1NG7_XNAbr5h35rEKE2q_UqG_e-OElXGOi58aVH/exec";
 
-// 과제 데이터 관리
+// 카카오 초기화
+try { if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY); } catch (e) { console.error(e); }
+
+// 과제 정답 데이터
 const exams = {
-    week3: { title: "1월 3주차", ans: [3,1,1,4,5,4], pdf: "https://example.com/3.pdf" },
-    week4: { title: "1월 4주차", ans: [2,3,4,1,5,2], pdf: "https://example.com/4.pdf" }
+    week3: { title: "1월 3주차", ans: [3,1,1,4,5,4] },
+    week4: { title: "1월 4주차", ans: [2,3,4,1,5,2] }
 };
 
-let correct = [], pdfUrl = "", resultText = "", currentTitle = "";
+let correct = [], resultText = "", currentTitle = "";
 
 function loadExam() {
     const k = document.getElementById("examSelect").value;
     if (!k) { document.getElementById("qArea").innerHTML = ""; return; }
     
     correct = exams[k].ans;
-    pdfUrl = exams[k].pdf;
     currentTitle = exams[k].title;
     
     let h = "";
@@ -78,17 +74,14 @@ function loadExam() {
         h += `</div></div>`;
     });
     document.getElementById("qArea").innerHTML = h;
-    
-    // 회차 변경 시 버튼 상태 초기화
     document.getElementById("subBtn").style.display = "block";
     document.getElementById("kakaoBtn").style.display = "none";
-    document.getElementById("pdfBtn").style.display = "none";
 }
 
-function submit() {
-    const h = prompt("학원명을 입력하세요 (예: 한백고전)");
-    const n = prompt("이름을 입력하세요");
-    if (!h || !n) { alert("학원명과 이름을 모두 입력해야 제출됩니다."); return; }
+async function submit() {
+    const h = prompt("학원명 (예: 한백고전)");
+    const n = prompt("학생 이름");
+    if (!h || !n) { alert("학원명과 이름을 입력해야 제출됩니다."); return; }
 
     let w = 0, wrong = [];
     correct.forEach((ans, i) => {
@@ -97,33 +90,28 @@ function submit() {
         if (v !== ans) { w++; wrong.push(i + 1); }
     });
 
-    resultText = `[${currentTitle} 과제 완료]\n📌 학원: ${h}\n👤 학생: ${n}\n❌ 오답: ${w}개\n➡️ 번호: ${wrong.join(", ") || "없음(만점!)"}`;
+    resultText = `[${currentTitle}]\n📌 학원: ${h}\n👤 학생: ${n}\n❌ 오답: ${w}개\n➡️ 번호: ${wrong.join(", ") || "만점!"}`;
 
-    // [중요] 디스코드/슬랙 웹훅 주소를 아래 URL 자리에 넣으세요
-    const WEBHOOK_URL = "여기에_디스코드_혹은_슬랙_웹훅_주소를_입력하세요";
+    // 1. 구글 시트로 데이터 전송 (자동 성적표 기록)
+    fetch(SHEET_URL, {
+        method: "POST",
+        mode: "no-cors", // 구글 스크립트 특성상 no-cors 설정이 필요할 수 있습니다.
+        body: JSON.stringify({ academy: h, name: n, wrongCount: w, wrongDetails: wrong.join(", "), title: currentTitle })
+    }).catch(e => console.error("전송 에러:", e));
 
-    if(WEBHOOK_URL.startsWith("http")) {
-        fetch(WEBHOOK_URL, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: "🔔 **과제 제출 알림**\n" + resultText })
-        }).catch(e => console.error("Webhook Error", e));
-    }
-
-    alert(`채점 완료! 오답은 ${w}개입니다.`);
+    alert(`채점 완료! 오답은 ${w}개입니다. [확인]을 누르면 카톡 전송 버튼이 생깁니다.`);
     document.getElementById("subBtn").style.display = "none";
     document.getElementById("kakaoBtn").style.display = "block";
-    document.getElementById("pdfBtn").style.display = "block";
 }
 
 function share() {
+    // 4019 에러 방지를 위한 최종 인증 로직
     Kakao.Share.sendDefault({
         objectType: "text",
         text: resultText,
-        link: { mobileWebUrl: location.href, webUrl: location.href }
+        link: { mobileWebUrl: OFFICIAL_DOMAIN, webUrl: OFFICIAL_DOMAIN }
     });
 }
-
-function openPDF() { window.open(pdfUrl, "_blank"); }
 </script>
 </body>
 </html>
