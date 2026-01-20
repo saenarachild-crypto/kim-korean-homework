@@ -1,55 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="utf-8">
-<title>학생 시험</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>국어 과제</title>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+<style>
+body{font-family:sans-serif;background:#f4f7fe;padding:20px}
+.box{max-width:600px;margin:auto;background:#fff;padding:25px;border-radius:15px}
+.q{display:flex;justify-content:space-between;margin:10px 0}
+label{border:1px solid #ccc;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center}
+input:checked+label{background:#6c5ce7;color:#fff}
+button{width:100%;padding:15px;border:none;border-radius:10px;font-weight:bold}
+#shareBtn{background:#fee500;color:#000;display:none}
+</style>
 </head>
 <body>
-<h3 id="title"></h3>
-
-<select id="exam">
-<option>1회차</option>
-<option>2회차</option>
-<option>3회차</option>
-</select>
-
-<div id="omr"></div>
-<button onclick="submitExam()">제출</button>
+<div class="box">
+<h2>📘 국어 과제</h2>
+<div id="qBox"></div>
+<button onclick="submit()">제출</button>
+<button id="shareBtn" onclick="share()">카카오톡 공유</button>
+</div>
 
 <script>
-const params = new URLSearchParams(location.search);
-const name = params.get("name");
-document.getElementById("title").innerText = name+" 학생 시험";
+Kakao.init("062fef389d952e20576f6b4c719f584e");
 
-const ANSWER = ["1","2","3","4","5"];
+const answers=[3,1,1,4,5,4];
+let wrong=0, resultText="";
 
-for(let i=0;i<5;i++){
-  document.getElementById("omr").innerHTML+=`Q${i+1}
-  <input type=radio name=q${i} value=1>
-  <input type=radio name=q${i} value=2>
-  <input type=radio name=q${i} value=3>
-  <input type=radio name=q${i} value=4>
-  <input type=radio name=q${i} value=5><br>`;
+window.onload=()=>{
+ let h="";
+ for(let i=1;i<=answers.length;i++){
+   h+=`<div class="q">${i}번 <div>`;
+   for(let j=1;j<=5;j++){
+     h+=`<input type="radio" name="q${i}" id="q${i}_${j}" value="${j}" hidden>
+         <label for="q${i}_${j}">${j}</label>`;
+   }
+   h+="</div></div>";
+ }
+ qBox.innerHTML=h;
 }
 
-function submitExam(){
-  let wrong=[];
-  for(let i=0;i<5;i++){
-    const v=document.querySelector(`input[name=q${i}]:checked`);
-    if(!v||v.value!==ANSWER[i]) wrong.push(i+1);
-  }
+function submit(){
+ const cls=prompt("반/학원");
+ const name=prompt("이름");
+ if(!cls||!name)return;
 
-  fetch("YOUR_SCRIPT_URL",{
-    method:"POST",
-    body:JSON.stringify({
-      exam:document.getElementById("exam").value,
-      class:"A반",
-      name:name,
-      attempt:1,
-      wrongCount:wrong.length,
-      wrongList:wrong.join(",")
-    })
-  }).then(()=>alert("제출 완료"));
+ wrong=0;
+ answers.forEach((a,i)=>{
+  const s=document.querySelector(`input[name=q${i+1}]:checked`);
+  if(!s||+s.value!==a)wrong++;
+ });
+
+ resultText=`국어과제\n반:${cls}\n이름:${name}\n오답:${wrong}개`;
+ document.getElementById("shareBtn").style.display="block";
+ alert("이제 카카오톡으로 공유하세요");
+}
+
+function share(){
+ Kakao.Share.sendDefault({
+  objectType:"text",
+  text:resultText,
+  link:{mobileWebUrl:"https://saenarachild-crypto.github.io",webUrl:"https://saenarachild-crypto.github.io"}
+ });
 }
 </script>
 </body>

@@ -1,183 +1,19 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>📊 국어 과제 관리자 통계 시스템</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <style>
-        :root { --p:#6c5ce7; --bg:#f4f7fe; --card:#ffffff; }
-        body{font-family:'Apple SD Gothic Neo',sans-serif;background:var(--bg);margin:0;padding:20px;color:#2d3436}
-        .wrap{max-width:1200px;margin:auto}
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h2{color:var(--p);margin:0; font-size: 1.6rem;}
-        .box{background:var(--card);border-radius:20px;padding:25px;margin-bottom:20px;box-shadow:0 10px 25px rgba(108, 92, 231, 0.05)}
-        .select-box { display: flex; align-items: center; gap: 15px; font-weight: bold; }
-        select{padding:12px 20px;border-radius:12px;border:2px solid #eeebff; outline: none; cursor: pointer; font-family: inherit;}
-        
-        .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-        .full{grid-column:span 2}
-        .chart-canvas { min-height: 350px; }
-        
-        table{width:100%;border-collapse:collapse; margin-top: 10px;}
-        th,td{padding:12px;border-bottom:1px solid #f1f3f4;text-align:center;font-size:.95rem}
-        th{background:#eeebff; color: var(--p); font-weight: bold; border-radius: 5px;}
-        .warn{color:#d63031; background: #fff5f5; padding: 4px 10px; border-radius: 8px; font-weight:bold}
-        .success{color:#2ecc71; font-weight:bold}
-    </style>
+<meta charset="UTF-8">
+<title>관리자</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+body{background:#f4f7fe;font-family:sans-serif;padding:20px}
+.box{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:20px}
+iframe{width:100%;height:700px;border:none}
+</style>
 </head>
 <body>
-<div class="wrap">
-    <div class="header-flex">
-        <h2>📊 국어 과제 인텔리전스 대시보드</h2>
-        <div class="status" id="loadStatus">데이터 동기화 중...</div>
-    </div>
-
-    <div class="box select-box">
-        📍 분석할 회차 선택:
-        <select id="weekSelect" onchange="drawAll()"></select>
-    </div>
-
-    <div class="grid">
-        <div class="box"><div id="chartClass" class="chart-canvas"></div></div>
-        <div class="box"><div id="chartStudent" class="chart-canvas"></div></div>
-        <div class="box full"><div id="chartWrongTop" class="chart-canvas"></div></div>
-    </div>
-
-    <div class="box">
-        <h3>🚨 회차별 제출 미완료자</h3>
-        <table id="missingTable">
-            <thead><tr><th>소속(학원)</th><th>이름</th><th>최근 도전 횟수</th><th>상태</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
+<div class="box">
+<h2>📊 국어 과제 관리자</h2>
+<iframe src="https://docs.google.com/spreadsheets/d/시트ID/edit"></iframe>
 </div>
-
-<script>
-google.charts.load('current', {'packages':['corechart', 'bar']});
-google.charts.setOnLoadCallback(loadData);
-
-// ⬇⬇⬇ 구글 시트 정보 (이미 입력하신 주소와 시트명) ⬇⬇⬇
-const SHEET_ID = "1O5D68qRjA9lR2-DqM48KjH0W2YtI-V6K6-V5tY-Y_iE";
-const SHEET_NAME = "결과";
-
-let raw = [];
-
-function loadData(){
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}`;
-    fetch(url).then(r=>r.text()).then(t=>{
-        try {
-            const json = JSON.parse(t.substring(47,t.length-2));
-            // 시트 구조: [0:시간, 1:시험명, 2:학원, 3:이름, 4:도전횟수, 5:틀린개수, 6:틀린번호]
-            raw = json.table.rows.map(r=>r.c.map(c=>c?c.v:""));
-            document.getElementById("loadStatus").innerHTML = "✅ 실시간 연결됨";
-            initWeeks();
-        } catch(e) {
-            document.getElementById("loadStatus").innerHTML = "❌ 연결 오류 (시트 설정을 확인하세요)";
-        }
-    });
-}
-
-function initWeeks(){
-    const sel = document.getElementById("weekSelect");
-    // 중복 제거 후 회차 목록 생성
-    const weeks = [...new Set(raw.map(r=>r[1]))].filter(w => w);
-    sel.innerHTML = weeks.map(w=>`<option value="${w}">${w}</option>`).join("");
-    drawAll();
-}
-
-function drawAll(){
-    const week = document.getElementById("weekSelect").value;
-    if(!week) return;
-    const data = raw.filter(r=>r[1]===week);
-
-    drawClassAvg(data);
-    drawStudentAvg(data);
-    drawWrongTop(data);
-    drawMissing(data, week);
-}
-
-function drawClassAvg(data){
-    const map={};
-    data.forEach(r=>{
-        if(!map[r[2]]) map[r[2]]=[];
-        map[r[2]].push(Number(r[5]));
-    });
-    const arr=[["학원/반","평균 오답", { role: "style" }]];
-    Object.entries(map).forEach(([k,v])=>{
-        arr.push([k, v.reduce((a,b)=>a+b,0)/v.length, "color: #a29bfe"]);
-    });
-    const dt=google.visualization.arrayToDataTable(arr);
-    new google.visualization.ColumnChart(document.getElementById('chartClass')).draw(dt,{
-        title:"학원(반)별 평균 오답 수",
-        chartArea: {width: '80%', height: '70%'},
-        legend: { position: "none" },
-        animation: { startup: true, duration: 1000, easing: 'out' }
-    });
-}
-
-function drawStudentAvg(data){
-    const map={};
-    data.forEach(r=>{
-        // 학생별로 가장 최근 기록(혹은 평균) 분석
-        if(!map[r[3]]) map[r[3]]=[];
-        map[r[3]].push(Number(r[5]));
-    });
-    const arr=[["학생","평균 오답", { role: "style" }]];
-    Object.entries(map).sort((a,b)=>b[1][0]-a[1][0]).forEach(([k,v])=>{
-        arr.push([k, v.reduce((a,b)=>a+b,0)/v.length, "color: #6c5ce7"]);
-    });
-    const dt=google.visualization.arrayToDataTable(arr);
-    new google.visualization.BarChart(document.getElementById('chartStudent')).draw(dt,{
-        title:"학생별 평균 오답 (학습 성취도)",
-        chartArea: {width: '60%', height: '80%'},
-        legend: { position: "none" }
-    });
-}
-
-function drawWrongTop(data){
-    const count={};
-    data.forEach(r=>{
-        if(r[6]){
-            r[6].toString().split(",").forEach(n=>{
-                const num = n.trim();
-                if(num){count[num]=(count[num]||0)+1;}
-            });
-        }
-    });
-    const top=Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,10); // TOP 10으로 확대
-    const arr=[["문항","오답 인원"]];
-    top.forEach(t=>arr.push([t[0]+"번",t[1]]));
-    const dt=google.visualization.arrayToDataTable(arr);
-    new google.visualization.PieChart(document.getElementById('chartWrongTop')).draw(dt,{
-        title:"가장 많이 틀린 문항 분석 (TOP 10)",
-        pieHole: 0.4,
-        colors: ['#6c5ce7', '#a29bfe', '#8e7cf0', '#d1d8ff', '#f1f3f4']
-    });
-}
-
-function drawMissing(data, currentWeek){
-    const tb = document.querySelector("#missingTable tbody");
-    tb.innerHTML = "";
-    
-    // 전체 학생 목록 (전체 시트 데이터에서 추출)
-    const allStudentsMap = {};
-    raw.forEach(r => { if(r[3]) allStudentsMap[r[3]] = r[2]; });
-    
-    // 현재 회차 제출 학생 이름
-    const submittedNames = data.map(r => r[3]);
-    
-    Object.entries(allStudentsMap).forEach(([name, academy]) => {
-        if(!submittedNames.includes(name)){
-            tb.innerHTML += `<tr><td>${academy}</td><td>${name}</td><td>0회</td><td class="warn">미제출</td></tr>`;
-        } else {
-            // 제출한 경우 최신 시도 횟수 표시
-            const studentData = data.filter(d => d[3] === name);
-            const attempts = studentData[studentData.length - 1][4];
-            tb.innerHTML += `<tr><td>${academy}</td><td>${name}</td><td>${attempts}회</td><td class="success">제출완료</td></tr>`;
-        }
-    });
-}
-</script>
 </body>
 </html>
