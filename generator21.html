@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v20.0</title>
+    <title>국어 과제 생성기 v20.5</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -14,25 +14,27 @@
         label { font-weight: bold; font-size: 0.9rem; color: #636e72; }
         input, textarea, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; }
         #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
-        #output { width: 100%; height: 200px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #fff; padding: 15px; border-radius: 10px; font-size: 11px; }
+        #output { width: 100%; height: 200px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #fff; padding: 15px; border-radius: 10px; font-size: 11px; border: none; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v20.0 (버튼 복구)</h2>
+    <h2>🎯 국어 과제 생성기 v20.5</h2>
+    <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">✅ 버튼 클릭 최적화 완료: 사각형 카드 버튼이 정상 작동하는 버전입니다.</div>
+    
     <div class="form-grid">
-        <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
+        <div class="full"><label>과제명 (시험명)</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
         <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 활성화된 번호만 풀이가 가능합니다.</textarea></div>
-        <div class="full"><label>풀이 문항 제한 (활성 문항)</label><input type="text" id="activeRange" placeholder="예: 1, 3, 4"></div>
+        <div class="full"><label>풀이 문항 제한 (활성 문항)</label><input type="text" id="activeRange" placeholder="예: 1-15, 20"></div>
         <div><label>제출 시작일</label><input type="date" id="startDate"></div>
         <div><label>제출 종료일</label><input type="date" id="endDate"></div>
         <div><label>문제지 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
         <div><label>해설지 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
         <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
-        <div class="full"><label>정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="정답 전체 입력"></textarea></div>
-        <button id="genBtn" onclick="generate()">🔮 학생용 답안 제출 페이지 생성</button>
-        <textarea id="output" readonly onclick="this.select(); document.execCommand('copy');"></textarea>
+        <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="정답 전체 입력"></textarea></div>
+        <button id="genBtn" onclick="generate()">🔮 학생용 맞춤 과제 페이지 생성</button>
+        <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('코드가 복사되었습니다!');"></textarea>
     </div>
 </div>
 
@@ -69,15 +71,16 @@ function generate() {
 
     let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n';
     c += '<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
-    c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px} .notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.q-num{font-weight:bold;margin-bottom:10px;font-size:1.1rem}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-label{height:45px;border:1.5px solid #eee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108, 92, 231, 0.3)}.disabled-dash{color:#ccc;font-weight:bold;margin-top:5px;display:block}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center} input, select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}\n</style></head><body><div id="overlay"></div><div class="container">';
+    c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.q-num{font-weight:bold;margin-bottom:12px;font-size:1.1rem}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108, 92, 231, 0.3)}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}\n</style></head><body><div id="overlay"></div><div class="container">';
     c += '<div class="header"><h2>' + week + '</h2></div>';
     c += '<div class="notice-box"><b>[공지사항]</b><br>' + notice + '<br>⏱ ' + time + '분 / 🔄 ' + tries + '회 / 📅 ' + startD + '~' + endD + '</div>';
     c += '<div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름"></div>';
     c += '<div class="info-row"><select id="sD"><option value="">제출일 선택</option>';
     c += '<script>\n  const start=new Date("' + startD + '"), end=new Date("' + endD + '");\n';
+    c += '  const sel=document.getElementById("sD");\n';
     c += '  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){\n';
     c += '    let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();\n';
-    c += '    let opt=document.createElement("option"); opt.value=s; opt.innerText=s; document.getElementById("sD").appendChild(opt);\n  }\n<\/script>';
+    c += '    let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt);\n  }\n<\/script>';
     c += '</select><a href="' + pdf + '" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div>';
     c += '<div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">📝 답안 제출하기</button>';
     c += '<button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div>';
@@ -85,18 +88,16 @@ function generate() {
     c += '<script>\n';
     c += 'try{if(!Kakao.isInitialized())Kakao.init("' + K_KEY + '");}catch(e){}\n';
     c += 'const correct=[' + ansArr.join(',') + '], active=[' + activeArr.join(',') + '], sUrl="' + S_URL + '", domain="' + DOMAIN + '"; let resT="", w=0;\n';
-    
-    // [이미지 반영] 사각형 카드 형태의 버튼 및 라벨 매칭 완료
     c += 'window.onload=function(){let h=""; for(let i=1; i<=correct.length; i++){\n';
     c += '  if(active.includes(i)){\n';
     c += '    h+=\'<div class="q-card"><div class="q-num">\'+i+\'번</div><div class="options">\';\n';
     c += '    for(let j=1;j<=5;j++){\n';
-    c += '      h+=\'<input type="radio" name="q\'+i+\'" id="q\'+i+\'_\'+j+\'" value="\'+j+\'" style="display:none" class="opt-input">\';\n';
+    c += '      h+=\'<input type="radio" name="q\'+i+\'" id="q\'+i+\'_\'+j+\'" value="\'+j+\'" class="opt-input">\';\n';
     c += '      h+=\'<label for="q\'+i+\'_\'+j+\'" class="opt-label">\'+j+\'</label>\';\n';
     c += '    }\n';
     c += '    h+=\'</div></div>\';\n';
     c += '  } else {\n';
-    c += '    h+=\'<div style="padding:10px 20px; color:#ccc; border-bottom:1px solid #f2f2f2">\'+i+\'번 - 풀이 제외 문항</div>\';\n';
+    c += '    h+=\'<div style="padding:15px; color:#ccc; border-bottom:1px solid #f2f2f2; font-style:italic; font-size:0.9rem">\'+i+\'번 - 풀이 제외 문항</div>\';\n';
     c += '  }\n';
     c += '  } document.getElementById("qC").innerHTML=h;};\n';
     
