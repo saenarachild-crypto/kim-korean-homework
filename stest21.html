@@ -53,7 +53,8 @@ function share(){
 }
 function done(){
   document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; 
-  const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style='padding:25px;background:#eeebff;border-radius:15px;text-align:center'><h3>📊 결과: "+w+"개 틀림</h3><a href='#' target='_blank' style='display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:15px'>📘 해설지 보기</a></div>";
+  document.querySelectorAll(".opt-input").forEach(rb => rb.checked = false);
+  document.getElementById("resArea").style.display="none";
   setTimeout(() => { checkLimit(); }, 500); 
 }
 window.onload=initPage;</script></body></html>
