@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v28.0</title>
+    <title>국어 과제 생성기 v30.0</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -19,20 +19,20 @@
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v28.0</h2>
-    <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">✅ <b>엔진 전면 재설계</b>: 스크립트 충돌을 방지하고 도전 횟수 제한 로직을 이중 잠금했습니다.</div>
+    <h2>🎯 국어 과제 생성기 v30.0</h2>
+    <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">✅ <b>항목 누락 해결</b>: 학원명, 이름, 공지사항, 링크가 모두 정상 출력되도록 복구되었습니다.</div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
-        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 지정된 횟수 내에만 제출이 가능합니다.</textarea></div>
-        <div class="full"><label>풀어야 할 문항</label><input type="text" id="activeRange" value="1-11"></div>
+        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 지정된 문항만 풀이해 주세요.</textarea></div>
+        <div class="full"><label>🔥 풀어야 할 문항</label><input type="text" id="activeRange" value="1-11"></div>
         <div><label>제출 시작일</label><input type="date" id="startDate"></div>
         <div><label>제출 종료일</label><input type="date" id="endDate"></div>
-        <div><label>문제지 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
-        <div><label>해설지 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
+        <div><label>문제지 링크 (URL)</label><input type="text" id="pdfLink" placeholder="https://..."></div>
+        <div><label>해설지 링크 (URL)</label><input type="text" id="ansLink" placeholder="https://..."></div>
         <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
-        <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="정답 입력"></textarea></div>
-        <button id="genBtn" onclick="generate()">🔮 무결점 학생용 과제 페이지 생성</button>
+        <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="정답을 숫자만 입력하세요."></textarea></div>
+        <button id="genBtn" onclick="generate()">🔮 UI 완전 복구 페이지 생성</button>
         <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('코드가 복사되었습니다!');"></textarea>
     </div>
 </div>
@@ -71,21 +71,20 @@ function generate() {
 
     let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n';
     c += '<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
-    c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}\n</style></head><body><div id="overlay"></div><div class="container">';
+    c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108, 92, 231, 0.3)}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}\n</style></head><body><div id="overlay"></div><div class="container">';
     c += '<div class="header"><h2>' + week + '</h2></div>';
-    c += '<div class="notice-box"><b>[공지사항]</b><br>' + notice + '<br>🔄 총 ' + maxT + '회 도전 가능</div>';
-    c += '<div id="limitMsg" style="display:none; padding:15px; background:#ffebee; color:#c62828; border-radius:10px; margin-bottom:20px; font-weight:bold; text-align:center;">🚫 도전 횟수가 초과되었습니다.</div>';
+    c += '<div class="notice-box"><b>[공지사항]</b><br>' + notice + '<br>⏱ ' + time + '분 / 🔄 총 ' + maxT + '회 도전 가능 / 📅 ' + startD + '~' + endD + '</div>';
+    c += '<div id="limitMsg" style="display:none; padding:15px; background:#ffebee; color:#c62828; border-radius:10px; margin-bottom:20px; font-weight:bold; text-align:center;">🚫 모든 도전 기회를 사용했습니다.</div>';
     c += '<div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div>';
     c += '<div class="info-row"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="' + pdf + '" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div>';
     c += '<div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">📝 답안 제출하기</button>';
     c += '<button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div>';
     
     c += '<script>\n';
+    c += 'let isSharing=false, isBlocked=false, resT="", w=0, att=0;\n';
     c += 'try{if(!Kakao.isInitialized())Kakao.init("' + K_KEY + '");}catch(e){}\n';
     c += 'const correct=[' + ansArr.join(',') + '], active=[' + activeArr.join(',') + '], sUrl="' + S_URL + '", domain="' + DOMAIN + '", maxT=' + maxT + ';\n';
-    c += 'let resT="", w=0, isSharing=false, isBlocked=false;\n';
     
-    // [해결 1, 2] script 태그 분리 및 DOM 로드 후 날짜/문항 생성
     c += 'function initPage(){\n';
     c += '  const start=new Date("' + startD + '"), end=new Date("' + endD + '"); const sel=document.getElementById("sD");\n';
     c += '  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){\n';
@@ -95,23 +94,20 @@ function generate() {
     c += '  for(let j=1;j<=5;j++){ h+=\'<input type="radio" name="q\'+n+\'" id="q\'+n+\'_\'+j+\'" value="\'+j+\'" class="opt-input"><label for="q\'+n+\'_\'+j+\'" class="opt-label">\'+j+\'</label>\'; }\n';
     c += '  h+=\'</div></div>\'; }); document.getElementById("qC").innerHTML=h; checkLimit();\n}\n';
 
-    // [해결 3] oninput 이벤트로 실시간 감시 강화
     c += 'function checkLimit(){\n';
     c += '  const sN=document.getElementById("sN").value; if(!sN) return;\n';
     c += '  const key="att_"+sN+"_"+"' + week + '"; const currentAtt=parseInt(localStorage.getItem(key)||0);\n';
     c += '  if(currentAtt >= maxT){\n';
-    c += '    isBlocked = true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block";\n';
+    c += '    isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block";\n';
     c += '  } else {\n';
-    c += '    isBlocked = false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none";\n  }\n}\n';
+    c += '    isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none";\n  }\n}\n';
 
-    c += 'window.onload = initPage;\n';
+    c += 'window.onload=initPage;\n';
     
-    // [해결 4] 로직 내부에서 이중 차단 (Blocked 상태면 제출 프로세스 중단)
     c += 'function submit(){\n';
-    c += '  if(isBlocked){ alert("이미 모든 도전 기회를 사용했습니다."); return; }\n';
-    c += '  const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value, sD=document.getElementById("sD").value;\n';
+    c += '  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value, sD=document.getElementById("sD").value;\n';
     c += '  if(!cN || !sN || !sD){alert("정보를 모두 입력해 주세요."); return;}\n';
-    c += '  const key="att_"+sN+"_"+"' + week + '"; let att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);\n';
+    c += '  const key="att_"+sN+"_"+"' + week + '"; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);\n';
     c += '  w=0; let d=[]; active.forEach(n=>{ const sel=document.querySelector(\'input[name="q\'+n+\'"]:checked\');\n';
     c += '    if(!sel || parseInt(sel.value)!==correct[n]){w++; d.push(n);}\n  });\n';
     c += '  let resultMsg = "오답: "+w+"개";\n';
