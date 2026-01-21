@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>1월 2회 문학 수업 교재</title>
+<title>1월 3주차 주간지 고2 문학</title>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <style>
 :root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}
-</style></head><body><div id="overlay"></div><div class="container"><div class="header" style="text-align:center;margin-bottom:20px"><h2>1월 2회 문학 수업 교재</h2></div><div class="notice-box"><b>[공지사항]</b><br>- 2회차 도전 시에만 틀린 번호가 공개됩니다.<br>⏱ 30분 / 🔄 도전한도: 3회 / 📅 2026-01-21~2026-01-22</div><div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름"></div><div class="info-row"><select id="sD"><option value="">제출일 선택</option><script>
-  const start=new Date("2026-01-21"), end=new Date("2026-01-22");
+</style></head><body><div id="overlay"></div><div class="container"><div class="header" style="text-align:center;margin-bottom:20px"><h2>1월 3주차 주간지 고2 문학</h2></div><div class="notice-box"><b>[공지사항]</b><br>- 2회차 도전 시에만 틀린 번호가 공개됩니다.<br>⏱ 30분 / 🔄 도전한도: 3회 / 📅 2026-01-21~2026-01-28</div><div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름"></div><div class="info-row"><select id="sD"><option value="">제출일 선택</option><script>
+  const start=new Date("2026-01-21"), end=new Date("2026-01-28");
   for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
     let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
     let opt=document.createElement("option"); opt.value=s; opt.innerText=s; document.getElementById("sD").appendChild(opt);
@@ -16,7 +16,7 @@
 </script></select><a href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div><script>
 let isSharing = false; // 409 에러 방지용 플래그
 try{if(!Kakao.isInitialized())Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}catch(e){console.log("초기화 중복 무시");}
-const correct=[0], active=[], sUrl="https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec", domain="https://saenarachild-crypto.github.io", maxT=3;
+const correct=[0,5,4,2,3,2,5,5,5,5,2,3], active=[1,2,3,4,5,6,7,8,9,10,11], sUrl="https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec", domain="https://saenarachild-crypto.github.io", maxT=3;
 let resT="", w=0, att=0;
 window.onload=function(){let h=""; active.forEach(n=>{
   h+='<div class="q-card"><div style="font-weight:bold;margin-bottom:10px;font-size:1.1rem">'+n+'번</div><div class="options">';
@@ -25,14 +25,14 @@ window.onload=function(){let h=""; active.forEach(n=>{
 function submit(){
   const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value, sD=document.getElementById("sD").value;
   if(!cN || !sN || !sD){alert("정보를 모두 입력해 주세요."); return;}
-  const key="att_"+sN+"_"+"1월 2회 문학 수업 교재"; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);
+  const key="att_"+sN+"_"+"1월 3주차 주간지 고2 문학"; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);
   w=0; let d=[]; active.forEach(n=>{ const sel=document.querySelector('input[name="q'+n+'"]:checked');
     if(!sel || parseInt(sel.value)!==correct[n]){w++; d.push(n);}
   });
   let resultMsg = "오답: "+w+"개";
   if(att === maxT - 1){ resultMsg += "\n📍 틀린 번호: " + (d.join(", ")||"없음"); }
-  resT="[1월 2회 문학 수업 교재]\n학원: "+cN+"\n이름: "+sN+"\n도전: "+att+"회차\n"+resultMsg;
-  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"1월 2회 문학 수업 교재",class:cN,name:sN,attempt:att,wrongCount:w,wrongList:d.join(",")})});
+  resT="[1월 3주차 주간지 고2 문학]\n학원: "+cN+"\n이름: "+sN+"\n도전: "+att+"회차\n"+resultMsg;
+  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"1월 3주차 주간지 고2 문학",class:cN,name:sN,attempt:att,wrongCount:w,wrongList:d.join(",")})});
   document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block"; alert("제출 완료! 아래 노란색 버튼을 눌러주세요.");
 }
 function share(){
