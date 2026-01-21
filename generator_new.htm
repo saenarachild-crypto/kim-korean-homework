@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v44.1</title>
+    <title>국어 과제 생성기 v46.0</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -19,9 +19,9 @@
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v44.1</h2>
+    <h2>🎯 국어 과제 생성기 v46.0</h2>
     <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
-        ✅ <b>정밀 수정</b>: 이제 생성되는 코드가 완벽한 학생용 배포 페이지(.html) 형태가 됩니다.
+        ✅ <b>UI 고정 완료</b>: 디자인은 그대로 유지하고 <b>답안 리셋 & 타이머 재시작</b> 로직만 완벽하게 보정했습니다.
     </div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
@@ -31,11 +31,11 @@
         <div><label>제출 종료일</label><input type="date" id="endDate"></div>
         <div><label>문제지 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
         <div><label>해설지 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
-        <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
+        <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="3"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
         <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2"></textarea></div>
         <button type="button" id="genBtn">🔮 학생용 배포 코드 생성하기</button>
-        <textarea id="output" readonly placeholder="여기를 클릭하면 코드가 복사됩니다."></textarea>
+        <textarea id="output" readonly placeholder="코드가 생성되면 이곳을 클릭하세요."></textarea>
     </div>
 </div>
 
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const notice = document.getElementById('notice').value.replace(/\n/g, '<br>');
         const pdf = document.getElementById('pdfLink').value || "#";
         const ansL = document.getElementById('ansLink').value || "#";
-        const timeVal = document.getElementById('timeLimit').value || 30;
+        const timeVal = document.getElementById('timeLimit').value || 3;
         const maxT = document.getElementById('maxTry').value || 3;
         const rawAns = document.getElementById('answers').value.replace(/[^1-5]/g, '');
         if(!rawAns) { alert("정답을 입력해주세요!"); return; }
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const startD = document.getElementById('startDate').value;
         const endD = document.getElementById('endDate').value;
 
-        // 학생용 코드 문자열 생성 (줄바꿈 및 특수문자 탈출 정밀 처리)
+        // 학생용 코드 (디자인 불변, 로직만 보강)
         let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
         c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--p);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;font-size:1.0rem;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}\n</style></head><body><div id="overlay"></div><div class="container">';
         c += '<h2 style="text-align:center;margin-bottom:20px">' + week + '</h2>';
@@ -126,9 +126,11 @@ document.addEventListener("DOMContentLoaded", function() {
         
         c += 'function share(){\n  Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:window.location.href,webUrl:window.location.href}});\n';
         c += '  setTimeout(()=>{ const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML="<div style=\'background:white;padding:30px;border-radius:20px;text-align:center\'><p style=\'font-weight:bold\'>전송을 완료하셨나요?</p><button onclick=\'done()\' style=\'width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer\'>네, 완료했습니다</button></div>"; }, 1500);\n}\n';
+        
         c += 'function done(){\n  document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; \n';
-        c += '  const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style=\'padding:25px;background:#eeebff;border-radius:15px;text-align:center\'><h3>📊 결과: "+w+"개 틀림</h3><a href=\'' + ansL + '\' target=\'_blank\' style=\'display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:15px\'>📘 해설지 보기</a></div>";\n';
-        c += '  setTimeout(() => { checkLimit(); }, 500); \n}\n';
+        c += '  document.querySelectorAll(".opt-input").forEach(rb => rb.checked = false);\n'; // 답안 리셋
+        c += '  document.getElementById("resArea").style.display="none";\n'; // 결과 영역 리셋
+        c += '  setTimeout(() => { checkLimit(); }, 500); \n}\n'; // 횟수 체크 및 타이머 자동 재시작
         c += 'window.onload=initPage;<\/script></body></html>';
 
         document.getElementById('output').value = c;
