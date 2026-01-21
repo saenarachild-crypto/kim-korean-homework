@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v30.0</title>
+    <title>국어 과제 생성기 v31.0</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -19,20 +19,20 @@
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v30.0</h2>
-    <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">✅ <b>항목 누락 해결</b>: 학원명, 이름, 공지사항, 링크가 모두 정상 출력되도록 복구되었습니다.</div>
+    <h2>🎯 국어 과제 생성기 v31.0</h2>
+    <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">✅ <b>카톡 로직 고도화</b>: 마지막 전 도전(2회차)에만 틀린 번호를 포함하여 메시지를 생성합니다.</div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
-        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 지정된 문항만 풀이해 주세요.</textarea></div>
+        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 지정된 횟수 내에 정답을 제출하세요.</textarea></div>
         <div class="full"><label>🔥 풀어야 할 문항</label><input type="text" id="activeRange" value="1-11"></div>
         <div><label>제출 시작일</label><input type="date" id="startDate"></div>
         <div><label>제출 종료일</label><input type="date" id="endDate"></div>
-        <div><label>문제지 링크 (URL)</label><input type="text" id="pdfLink" placeholder="https://..."></div>
-        <div><label>해설지 링크 (URL)</label><input type="text" id="ansLink" placeholder="https://..."></div>
+        <div><label>문제지 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
+        <div><label>해설지 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
         <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
-        <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="정답을 숫자만 입력하세요."></textarea></div>
-        <button id="genBtn" onclick="generate()">🔮 UI 완전 복구 페이지 생성</button>
+        <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="정답 입력"></textarea></div>
+        <button id="genBtn" onclick="generate()">🔮 카톡 피드백 최적화 버전 생성</button>
         <textarea id="output" readonly onclick="this.select(); document.execCommand('copy'); alert('코드가 복사되었습니다!');"></textarea>
     </div>
 </div>
@@ -110,8 +110,13 @@ function generate() {
     c += '  const key="att_"+sN+"_"+"' + week + '"; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);\n';
     c += '  w=0; let d=[]; active.forEach(n=>{ const sel=document.querySelector(\'input[name="q\'+n+\'"]:checked\');\n';
     c += '    if(!sel || parseInt(sel.value)!==correct[n]){w++; d.push(n);}\n  });\n';
+    
+    // [회차별 카톡 메시지 로직 핵심]
     c += '  let resultMsg = "오답: "+w+"개";\n';
-    c += '  if(att === maxT - 1){ resultMsg += "\\n📍 틀린 번호: " + (d.join(", ")||"없음"); }\n';
+    c += '  if(att === maxT - 1){ \n'; // 마지막 전 도전(예: 3회중 2회차)일 때
+    c += '    resultMsg += "\\n📍 틀린 번호: " + (d.join(", ")||"없음"); \n';
+    c += '  }\n'; 
+    
     c += '  resT="[' + week + ']\\n학원: "+cN+"\\n이름: "+sN+"\\n도전: "+att+"회차\\n"+resultMsg;\n';
     c += '  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",class:cN,name:sN,attempt:att,wrongCount:w,wrongList:d.join(",")})});\n';
     c += '  alert("제출 완료! 아래 노란색 버튼을 눌러주세요.");\n';
