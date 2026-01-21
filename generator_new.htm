@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v56.0</title>
+    <title>국어 과제 생성기 v57.0</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -14,18 +14,18 @@
         label { font-weight: bold; font-size: 0.9rem; color: #636e72; }
         input, textarea { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; outline: none; }
         #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
-        #output { width: 100%; height: 250px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #a29bfe; padding: 15px; border-radius: 10px; font-size: 11px; border: 2px dashed #6c5ce7; cursor: pointer; }
+        #output { width: 100%; height: 250px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #a29bfe; padding: 15px; border-radius: 10px; font-size: 11px; border: 2px dashed #6c5ce7; cursor: pointer; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v56.0</h2>
+    <h2>🎯 국어 과제 생성기 v57.0</h2>
     <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
-        ✅ <b>404 에러 해결</b>: 관리자 페이지 주소를 직접 지정하여 카톡 [자세히 보기] 링크 오류를 수정했습니다.
+        ✅ <b>업데이트 완료</b>: 코드 클릭 시 즉시 복사되며, 관리자용 상세 성적 확인 링크가 정상 작동합니다.
     </div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
-        <div class="full"><label>관리자 확인 페이지 주소 (선생님 깃허브 주소)</label><input type="text" id="adminBaseUrl" placeholder="https://아이디.github.io/저장소/파일.html"></div>
+        <div class="full"><label>선생님 깃허브 페이지 전체 주소 (404 방지용 필수)</label><input type="text" id="adminBaseUrl" placeholder="예: https://아이디.github.io/저장소명/파일.html"></div>
         <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 카톡 전송 완료 후 점수를 확인할 수 있습니다.</textarea></div>
         <div class="full"><label>🔥 풀어야 할 문항</label><input type="text" id="activeRange" value="1-11"></div>
         <div><label>문제지 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
@@ -33,8 +33,8 @@
         <div><label>대기 시간 (분)</label><input type="number" id="timeLimit" value="3"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="4"></div>
         <div class="full"><label>전체 정답 (숫자 연속 입력)</label><textarea id="answers" rows="2"></textarea></div>
-        <button type="button" id="genBtn">🔮 에러 수정본 생성하기</button>
-        <textarea id="output" readonly placeholder="코드가 생성되면 이곳을 클릭하세요."></textarea>
+        <button type="button" id="genBtn">🔮 학생용 배포 코드 생성하기</button>
+        <textarea id="output" readonly placeholder="코드가 생성되면 이곳을 클릭하여 복사하세요."></textarea>
     </div>
 </div>
 
@@ -43,10 +43,22 @@ document.addEventListener("DOMContentLoaded", function() {
     const btn = document.getElementById("genBtn");
     const output = document.getElementById("output");
 
+    // [복사 기능 보강] Clipboard API 사용
+    output.addEventListener("click", function() {
+        if(!this.value) return;
+        navigator.clipboard.writeText(this.value).then(() => {
+            alert("✅ 학생용 코드가 클립보드에 복사되었습니다!\n메모장이나 깃허브에 붙여넣으세요.");
+        }).catch(err => {
+            this.select();
+            document.execCommand('copy');
+            alert("✅ 코드가 선택되었습니다. Ctrl+C를 눌러 복사하세요.");
+        });
+    });
+
     btn.addEventListener("click", function() {
         const week = document.getElementById('weekTitle').value;
-        const adminUrl = document.getElementById('adminBaseUrl').value;
-        if(!adminUrl) { alert("관리자 확인 페이지 주소를 입력해주세요!"); return; }
+        const adminUrl = document.getElementById('adminBaseUrl').value.trim();
+        if(!adminUrl) { alert("깃허브 페이지 주소를 반드시 입력해야 404 에러가 나지 않습니다!"); return; }
         
         const notice = document.getElementById('notice').value.replace(/\n/g, '<br>');
         const pdf = document.getElementById('pdfLink').value || "#";
@@ -75,8 +87,10 @@ document.addEventListener("DOMContentLoaded", function() {
         c += 'const urlParams = new URLSearchParams(window.location.search);\n';
         c += 'if(urlParams.has("admin_view")){\n';
         c += '  window.onload = function() {\n';
-        c += '    const data = JSON.parse(decodeURIComponent(urlParams.get("admin_view")));\n';
-        c += '    document.body.innerHTML = "<div class=\'container\'><h2>📊 관리자 확인 모드</h2><div class=\'notice-box\'><b>학생:</b> "+data.name+"<br><b>학원:</b> "+data.class+"<br><b>도전:</b> "+data.att+"회차<br><b style=\'color:red\'>오답:</b> "+data.wrongCount+"개<br><b>틀린번호:</b> "+(data.wrongList||"없음")+"</div><button onclick=\'window.close()\' style=\'width:100%;padding:15px;background:#666;color:white;border:none;border-radius:10px\'>창 닫기</button></div>";\n';
+        c += '    try {\n';
+        c += '      const data = JSON.parse(decodeURIComponent(urlParams.get("admin_view")));\n';
+        c += '      document.body.innerHTML = "<div class=\'container\'><h2>📊 관리자 확인 모드</h2><div class=\'notice-box\'><b>학생:</b> "+data.name+"<br><b>학원:</b> "+data.class+"<br><b>도전:</b> "+data.att+"회차<br><b style=\'color:red\'>오답:</b> "+data.wrongCount+"개<br><b>틀린번호:</b> "+(data.wrongList||"없음")+"</div><button onclick=\'window.close()\' style=\'width:100%;padding:15px;background:#666;color:white;border:none;border-radius:10px;width:100%\'>창 닫기</button></div>";\n';
+        c += '    } catch(e) { console.error("Admin View Error", e); }\n';
         c += '  };\n}\n';
         c += '<\/script>\n';
 
@@ -108,17 +122,17 @@ document.addEventListener("DOMContentLoaded", function() {
         c += 'function startWaitTimer(){\n  if(timerInterval) clearInterval(timerInterval); timeLeft = waitMin * 60;\n';
         c += '  const btn=document.getElementById("subBtn"); btn.style.opacity="0.5"; btn.innerText="대기 중..."; btn.disabled=true;\n';
         c += '  timerInterval = setInterval(()=>{\n    if(timeLeft<=0){ clearInterval(timerInterval); timerInterval=null; btn.style.opacity="1"; btn.innerText="📝 답안 제출하기"; btn.disabled=false; document.getElementById("timeText").innerText="입력 가능"; return; }\n    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeText").innerText="다음 회차 도전까지 "+m+"분 "+(s<10?"0"+s:s)+"초 남음";\n  }, 1000);\n}\n';
-        c += 'function submit(){\n  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("정보를 모두 입력해주세요."); return;}\n';
+        c += 'function submit(){\n  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("정보를 입력하세요."); return;}\n';
         c += '  w=0; let d=[]; active.forEach(n=>{ const s=document.querySelector("input[name=\'q"+n+"\']:checked"); if(!s||parseInt(s.value)!==correct[n]){w++; d.push(n);} });\n';
         c += '  isPerfect = (w === 0); wrongListStr = d.join(",");\n';
         c += '  const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);\n';
         c += '  if(isPerfect){ localStorage.setItem("perf_"+sN+"_"+HW_ID, "true"); }\n';
         c += '  resT="[" + "' + week + '" + "]\\n"+sN+"("+att+"회차) 제출 완료"; \n';
-        c += '  alert("제출되었습니다! 카톡 전송 후 [완료] 버튼을 눌러주세요."); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";\n';
+        c += '  alert("제출되었습니다! 카톡 전송 후 [완료]를 눌러 점수를 확인하세요."); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";\n';
         c += '}\n';
         c += 'function share(){\n';
         c += '  const adminData = encodeURIComponent(JSON.stringify({name:document.getElementById("sN").value, class:document.getElementById("cN").value, att:att, wrongCount:w, wrongList:wrongListStr}));\n';
-        c += '  const fullAdminLink = ADMIN_BASE + "?admin_view=" + adminData;\n'; // 수정된 부분: ADMIN_BASE 사용
+        c += '  const fullAdminLink = ADMIN_BASE + "?admin_view=" + adminData;\n';
         c += '  Kakao.Share.sendDefault({\n';
         c += '    objectType: "text",\n';
         c += '    text: resT,\n';
