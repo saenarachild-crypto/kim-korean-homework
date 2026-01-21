@@ -29,7 +29,6 @@ function checkLimit(){
   if(maxT>0 && att>=maxT){ isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; if(timerInterval){clearInterval(timerInterval); timerInterval=null;} }
   else { 
     isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; 
-    // [핵심수정] 이미 타이머가 돌아가고 있다면 놔두고, 없으면 무조건 시작
     if(!timerInterval) startTimer(); 
   }
 }
@@ -54,8 +53,7 @@ function share(){
 }
 function done(){
   document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; 
-  // [수정] 다시 풀 수 있도록 버튼 부활 및 타이머 초기화 준비
   const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style='padding:25px;background:#eeebff;border-radius:15px;text-align:center'><h3>📊 결과: "+w+"개 틀림</h3><a href='#' target='_blank' style='display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:15px'>📘 해설지 보기</a></div>";
-  setTimeout(() => { checkLimit(); }, 500); // 0.5초 뒤 횟수 체크 후 타이머 재시작
+  setTimeout(() => { checkLimit(); }, 500); 
 }
 window.onload=initPage;</script></body></html>
