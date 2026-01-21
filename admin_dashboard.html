@@ -1,19 +1,49 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>관리자</title>
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<style>
-body{background:#f4f7fe;font-family:sans-serif;padding:20px}
-.box{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:20px}
-iframe{width:100%;height:700px;border:none}
-</style>
+    <meta charset="UTF-8">
+    <title>🎯 국어 과제 시스템 | 관리자 모드</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <style>
+        :root { --p: #6c5ce7; --bg: #f4f7fe; }
+        body { background: var(--bg); font-family: 'Apple SD Gothic Neo', sans-serif; padding: 20px; margin: 0; }
+        .box { max-width: 1200px; margin: auto; background: #fff; padding: 30px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        h2 { color: var(--p); margin: 0; display: flex; align-items: center; gap: 10px; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { padding: 10px 20px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .btn-primary { background: var(--p); color: white; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        .status-bar { background: #f0edff; padding: 15px; border-radius: 15px; font-size: 0.85rem; color: var(--p); margin-bottom: 20px; display: flex; justify-content: space-between; }
+        iframe { width: 100%; height: 750px; border: 1.5px solid #eee; border-radius: 15px; background: #fff; }
+        @media (max-width: 768px) { iframe { height: 500px; } }
+    </style>
 </head>
 <body>
-<div class="box">
-<h2>📊 국어 과제 관리자</h2>
-<iframe src="https://docs.google.com/spreadsheets/d/시트ID/edit"></iframe>
-</div>
+    <div class="box">
+        <div class="header">
+            <h2>📊 국어 과제 실시간 성적 관리자</h2>
+            <div class="btn-group">
+                <a href="https://saenarachild-crypto.github.io/kim-korean-homework/stest21.html" target="_blank" class="btn btn-secondary">🏠 학생 페이지 이동</a>
+                <a href="https://docs.google.com/spreadsheets/d/시트ID/edit" target="_blank" class="btn btn-primary">🔓 구글 시트 크게보기</a>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>✅ <b>연동 상태</b>: 구글 스프레드시트 실시간 동기화 중</span>
+            <span>📍 <b>현재 파일</b>: stest21.html 시스템 연동</span>
+        </div>
+
+        <iframe src="https://docs.google.com/spreadsheets/d/시트ID/edit?usp=sharing&headers=false"></iframe>
+    </div>
+
+    <script>
+        // 5분마다 시트 자동 새로고침 (선택 사항)
+        setInterval(function() {
+            const ifr = document.querySelector('iframe');
+            ifr.src = ifr.src;
+        }, 300000);
+    </script>
 </body>
 </html>
