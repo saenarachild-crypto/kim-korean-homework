@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v62.1</title>
+    <title>국어 과제 생성기 v62.2</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -19,9 +19,9 @@
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v62.1 (화면 정상화)</h2>
+    <h2>🎯 국어 과제 생성기 v62.2 (출력 로직 최적화)</h2>
     <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
-        ✅ <b>긴급 수정</b>: 학생 접속 시 문제 화면이 바로 나타나도록 로직 순서를 재정렬했습니다.
+        ✅ <b>최종 수정</b>: 학생용 페이지의 함수 호출 순서를 바로잡아 문제 화면이 즉시 나타나도록 수정했습니다.
     </div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="주간특집 1월 3회차 독서"></div>
@@ -69,9 +69,22 @@ document.addEventListener("DOMContentLoaded", function() {
         const activeArr = Array.from(activeNums).sort((a,b)=>a-b);
 
         let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
-        c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s;position:relative;z-index:1}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}.opt-input:disabled+.opt-label{background:#eee;color:#bbb;cursor:not-allowed;border:none}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}\n</style>';
+        c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s;position:relative;z-index:1}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}.opt-input:disabled+.opt-label{background:#eee;color:#bbb;cursor:not-allowed;border:none}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}\n</style>\n</head><body><div id="overlay"></div><div class="container">';
+        c += '<h2 style="text-align:center">' + week + '</h2>';
+        c += '<div class="notice-box"><b>[공지]</b> ' + document.getElementById('notice').value.replace(/\n/g, '<br>') + '<br>📅 기한: ' + document.getElementById('startDate').value + ' ~ ' + document.getElementById('endDate').value + '</div>';
+        c += '<div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px"></div>';
+        c += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div>';
+        c += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="' + (document.getElementById('pdfLink').value || "#") + '" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 제출 확인</button><div id="resArea" style="display:none;margin-top:20px"></div></div>';
+        
         c += '<script>\n';
-        // 학생 로직 우선 실행
+        c += 'let w=0, att=0, isBlocked=false, resT="", isPerfect=false, wrongListStr="";\n';
+        c += 'const masterAnswers = [0, ..."' + rawAns + '".split("").map(Number)];\n';
+        c += 'const activeList = [' + activeArr.join(',') + '];\n';
+        c += 'const totalQ = ' + totalCount + ';\n';
+        c += 'const maxT=' + document.getElementById('maxTry').value + ', waitMin=' + document.getElementById('timeLimit').value + ';\n';
+        c += 'const startDay="' + document.getElementById('startDate').value + '", endDay="' + document.getElementById('endDate').value + '";\n';
+        c += 'const ansLink = "' + (document.getElementById('ansLink').value || "#") + '", HW_ID = "HW_" + Date.now(), ADMIN_BASE = "' + document.getElementById('adminBaseUrl').value + '", GAS_URL = "' + document.getElementById('gasUrl').value + '";\n';
+        
         c += 'window.onload = function() {\n';
         c += '  const urlParams = new URLSearchParams(window.location.search);\n';
         c += '  if(urlParams.has("admin_view")){\n';
@@ -81,21 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
         c += '  }\n';
         c += '  initPage();\n';
         c += '};\n';
-        c += '<\/script>\n';
-        c += '</head><body><div id="overlay"></div><div class="container">';
-        c += '<h2 style="text-align:center">' + week + '</h2>';
-        c += '<div class="notice-box"><b>[공지]</b> ' + document.getElementById('notice').value.replace(/\n/g, '<br>') + '<br>📅 기한: ' + document.getElementById('startDate').value + ' ~ ' + document.getElementById('endDate').value + '</div>';
-        c += '<div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px"></div>';
-        c += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div>';
-        c += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="' + (document.getElementById('pdfLink').value || "#") + '" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 제출 확인</button><div id="resArea" style="display:none;margin-top:20px"></div></div>';
-        
-        c += '<script>\nlet w=0, att=0, isBlocked=false, resT="", isPerfect=false, wrongListStr="";\n';
-        c += 'const masterAnswers = [0, ..."' + rawAns + '".split("").map(Number)];\n';
-        c += 'const activeList = [' + activeArr.join(',') + '];\n';
-        c += 'const totalQ = ' + totalCount + ';\n';
-        c += 'const maxT=' + document.getElementById('maxTry').value + ', waitMin=' + document.getElementById('timeLimit').value + ';\n';
-        c += 'const startDay="' + document.getElementById('startDate').value + '", endDay="' + document.getElementById('endDate').value + '";\n';
-        c += 'const ansLink = "' + (document.getElementById('ansLink').value || "#") + '", HW_ID = "HW_" + Date.now(), ADMIN_BASE = "' + document.getElementById('adminBaseUrl').value + '", GAS_URL = "' + document.getElementById('gasUrl').value + '";\n';
+
         c += 'try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}\n';
         c += 'function initPage(){\n  const sel=document.getElementById("sD"); const start=new Date();\n  for(let i=0; i<7; i++){ let d=new Date(start.getTime() + i*24*60*60*1000); let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); }\n';
         c += '  let h=""; for(let n=1; n<=totalQ; n++){\n';
