@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v36.0</title>
+    <title>국어 과제 생성기 v37.0</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -12,16 +12,17 @@
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .full { grid-column: span 2; }
         label { font-weight: bold; font-size: 0.9rem; color: #636e72; }
-        input, textarea, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; outline: none; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; outline: none; }
         #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
+        #genBtn:active { background: #5641e5; }
         #output { width: 100%; height: 200px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #fff; padding: 15px; border-radius: 10px; font-size: 11px; border: none; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v36.0</h2>
+    <h2>🎯 국어 과제 생성기 v37.0</h2>
     <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
-        ✅ <b>버튼 강제 활성화</b>: 브라우저가 명령을 무시하지 못하도록 버튼에 기능을 직접 주입했습니다.
+        ✅ <b>최종 해결책</b>: 버튼 클릭 방해 요소를 모두 제거하고, 가장 안정적인 표준 문법으로 재작성했습니다.
     </div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
@@ -34,98 +35,97 @@
         <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
         <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" placeholder="정답 입력"></textarea></div>
-        <button id="genBtn">🔮 학생용 과제 코드 생성하기</button>
+        <button type="button" id="genBtn">🔮 학생용 과제 코드 생성하기</button>
         <textarea id="output" readonly placeholder="여기에 생성된 코드가 나타납니다."></textarea>
     </div>
 </div>
 
 <script>
-// 버튼 요소를 찾아서 기능을 직접 연결 (비활성화 방지)
+// 버튼 클릭 이벤트 리스너 (가장 안전한 방식)
 document.addEventListener("DOMContentLoaded", function() {
     const btn = document.getElementById("genBtn");
-    if(btn) {
-        btn.onclick = function() {
-            runGeneration();
-        };
-    }
     
     // 날짜 자동 세팅
     document.getElementById('startDate').valueAsDate = new Date();
     document.getElementById('endDate').valueAsDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
-});
 
-function parseRange(str, total) {
-    const activeNums = new Set();
-    if(!str) { for(let i=1; i<=total; i++) activeNums.add(i); return Array.from(activeNums); }
-    str.split(',').forEach(part => {
-        const range = part.trim().split('-');
-        if (range.length === 2) { for (let i = parseInt(range[0]); i <= parseInt(range[1]); i++) activeNums.add(i); }
-        else { const num = parseInt(range[0]); if (!isNaN(num)) activeNums.add(num); }
+    btn.addEventListener("click", function() {
+        const week = document.getElementById('weekTitle').value;
+        const notice = document.getElementById('notice').value.replace(/\n/g, '<br>');
+        const pdf = document.getElementById('pdfLink').value || "#";
+        const ansL = document.getElementById('ansLink').value || "#";
+        const time = document.getElementById('timeLimit').value || 30;
+        const maxT = document.getElementById('maxTry').value || 3;
+        const rawAns = document.getElementById('answers').value.replace(/[^1-5]/g, '');
+        
+        if(!rawAns) { alert("정답을 먼저 입력해주세요!"); return; }
+
+        const ansArr = [0, ...rawAns.split('').map(Number)];
+        
+        // 문항 범위 파싱 함수
+        const activeNums = new Set();
+        const rangeStr = document.getElementById('activeRange').value;
+        if(!rangeStr) { 
+            for(let i=1; i<ansArr.length; i++) activeNums.add(i); 
+        } else {
+            rangeStr.split(',').forEach(part => {
+                const range = part.trim().split('-');
+                if (range.length === 2) { for (let i = parseInt(range[0]); i <= parseInt(range[1]); i++) activeNums.add(i); }
+                else { activeNums.add(parseInt(part)); }
+            });
+        }
+        const activeArr = Array.from(activeNums).sort((a,b)=>a-b);
+        const startD = document.getElementById('startDate').value;
+        const endD = document.getElementById('endDate').value;
+
+        const S_URL = "https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec";
+        const K_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001";
+        const DOMAIN = "https://saenarachild-crypto.github.io";
+
+        // 학생용 코드 생성 (특수문자 에러 방지를 위해 최소화된 문자열 결합 방식 사용)
+        let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n';
+        c += '<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
+        c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108, 92, 231, 0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}\n</style></head><body><div id="overlay"></div><div class="container">';
+        c += '<div class="header"><h2>' + week + '</h2></div>';
+        c += '<div id="timer">⏱ 남은 시간: <span id="timeDisplay">--:--</span></div>';
+        c += '<div class="notice-box"><b>[공지사항]</b><br>' + notice + '<br>🔄 총 ' + maxT + '회 도전 가능</div>';
+        c += '<div id="limitMsg" style="display:none; padding:15px; background:#ffebee; color:#c62828; border-radius:10px; margin-bottom:20px; font-weight:bold; text-align:center;">🚫 모든 도전 기회를 사용했습니다.</div>';
+        c += '<div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div>';
+        c += '<div class="info-row"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="' + pdf + '" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div>';
+        c += '<div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">📝 답안 제출하기</button>';
+        c += '<button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div>';
+        
+        c += '<script>\n';
+        c += 'let isSharing=false, isBlocked=false, timeLeft=' + (time * 60) + ', timerInterval, resT="", w=0, att=0;\n';
+        c += 'try{if(!Kakao.isInitialized())Kakao.init("' + K_KEY + '");}catch(e){}\n';
+        c += 'const correct=[' + ansArr.join(',') + '], active=[' + activeArr.join(',') + '], sUrl="' + S_URL + '", domain="' + DOMAIN + '", maxT=' + maxT + ';\n';
+        c += 'function initPage(){\n  const start=new Date("' + startD + '"), end=new Date("' + endD + '"); const sel=document.getElementById("sD");\n';
+        c += '  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){\n    let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();\n    let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt);\n  }\n';
+        c += '  let h=""; active.forEach(n=>{ h+="<div class=\'q-card\'><div style=\'font-weight:bold;margin-bottom:10px;font-size:1.1rem\'>"+n+"번</div><div class=\'options\'>";\n';
+        c += '  for(let j=1;j<=5;j++){ h+="<input type=\'radio\' name=\'q"+n+"\' id=\'q"+n+"_"+j+"\' value=\'"+j+"\' class=\'opt-input\'><label for=\'q"+n+"_"+j+"\' class=\'opt-label\'>"+j+"</label>"; } h+="</div></div>"; });\n';
+        c += '  document.getElementById("qC").innerHTML=h; document.getElementById("limitMsg").style.display="none"; startTimer();\n}\n';
+        c += 'function checkLimit(){\n  const sN=document.getElementById("sN").value.trim(); if(!sN){isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; return;}\n';
+        c += '  const key="att_"+sN.replace(/\\s/g,"")+"_"+"' + week + '"; const currentAtt=parseInt(localStorage.getItem(key)||0);\n';
+        c += '  if(maxT > 0 && currentAtt >= maxT){isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block";}else{isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none";}\n}\n';
+        c += 'function startTimer(){\n  timerInterval = setInterval(()=>{ if(timeLeft<=0){ clearInterval(timerInterval); alert("시간 종료!"); submit(); return; } timeLeft--;\n    const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeDisplay").innerText=m+":"+(s<10?"0"+s:s); }, 1000);\n}\n';
+        c += 'window.onload=initPage;\n';
+        c += 'function submit(){\n  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim(), sD=document.getElementById("sD").value;\n  if(!cN || !sN || !sD){alert("정보 부족!"); return;} clearInterval(timerInterval);\n';
+        c += '  const key="att_"+sN.replace(/\\s/g,"")+"_"+"' + week + '"; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);\n';
+        c += '  w=0; let d=[]; active.forEach(n=>{ const sel=document.querySelector("input[name=\'q"+n+"\']:checked"); if(!sel || parseInt(sel.value)!==correct[n]){w++; d.push(n);} });\n';
+        c += '  let resultMsg = "오답: "+w+"개"; if(maxT > 1 && att === maxT - 1){ resultMsg += "\\n📍 틀린 번호: " + (d.join(", ")||"없음"); }\n';
+        c += '  resT="[" + "' + week + '" + "]\\n학원: "+cN+"\\n이름: "+sN+"\\n도전: "+att+"회차\\n"+resultMsg;\n';
+        c += '  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",class:cN,name:sN,attempt:att,wrongCount:w,wrongList:d.join(",")})});\n';
+        c += '  alert("제출 완료!"); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block"; checkLimit();\n}\n';
+        c += 'function share(){\n  if(isSharing) return; isSharing=true; Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:domain,webUrl:domain}}); setTimeout(()=>{isSharing=false;},1500);\n';
+        c += '  const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML="<div style=\'background:white;padding:30px;border-radius:15px;text-align:center;\'><p style=\'font-weight:bold\'>전송 완료?</p><button onclick=\'done()\' style=\'width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;\'>네</button></div>";\n}\n';
+        c += 'function done(){\n  document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none";\n';
+        c += '  const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style=\'padding:20px;background:#eeebff;border-radius:15px\'><h3>📊 결과: "+w+"개 틀림</h3><a href=\'' + ansL + '\' target=\'_blank\' style=\'display:block;padding:12px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:10px\'>📘 해설지 보기</a></div>";\n}\n';
+        c += '<\/script></body></html>';
+
+        document.getElementById('output').value = c;
+        alert("🔮 코드가 성공적으로 생성되었습니다!");
     });
-    return Array.from(activeNums).sort((a,b)=>a-b);
-}
-
-function runGeneration() {
-    const week = document.getElementById('weekTitle').value;
-    const notice = document.getElementById('notice').value.replace(/\n/g, '<br>');
-    const pdf = document.getElementById('pdfLink').value || "#";
-    const ansL = document.getElementById('ansLink').value || "#";
-    const time = document.getElementById('timeLimit').value || 30;
-    const maxT = document.getElementById('maxTry').value || 3;
-    const rawAns = document.getElementById('answers').value.replace(/[^1-5]/g, '');
-    if(!rawAns) { alert("정답을 입력해주세요!"); return; }
-    
-    const ansArr = [0, ...rawAns.split('').map(Number)];
-    const activeArr = parseRange(document.getElementById('activeRange').value, ansArr.length - 1);
-    const startD = document.getElementById('startDate').value;
-    const endD = document.getElementById('endDate').value;
-
-    const S_URL = "https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec";
-    const K_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001";
-    const DOMAIN = "https://saenarachild-crypto.github.io";
-
-    let c = '<!DOCTYPE html>\\n<html lang="ko">\\n<head>\\n<meta charset="UTF-8">\\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\\n';
-    c += '<title>' + week + '</title>\\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\\/script>\\n';
-    c += '<style>\\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108, 92, 231, 0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}\\n</style></head><body><div id="overlay"></div><div class="container">';
-    c += '<div class="header"><h2>' + week + '</h2></div>';
-    c += '<div id="timer">⏱ 남은 시간: <span id="timeDisplay">--:--</span></div>';
-    c += '<div class="notice-box"><b>[공지사항]</b><br>' + notice + '<br>🔄 총 ' + maxT + '회 도전 가능</div>';
-    c += '<div id="limitMsg" style="display:none; padding:15px; background:#ffebee; color:#c62828; border-radius:10px; margin-bottom:20px; font-weight:bold; text-align:center;">🚫 모든 도전 기회를 사용했습니다.</div>';
-    c += '<div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div>';
-    c += '<div class="info-row"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="' + pdf + '" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div>';
-    c += '<div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">📝 답안 제출하기</button>';
-    c += '<button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div>';
-    
-    c += '<script>\\n';
-    c += 'let isSharing=false, isBlocked=false, timeLeft=' + (time * 60) + ', timerInterval, resT="", w=0, att=0;\\n';
-    c += 'try{if(!Kakao.isInitialized())Kakao.init("' + K_KEY + '");}catch(e){}\\n';
-    c += 'const correct=[' + ansArr.join(',') + '], active=[' + activeArr.join(',') + '], sUrl="' + S_URL + '", domain="' + DOMAIN + '", maxT=' + maxT + ';\\n';
-    c += 'function initPage(){\\n  const start=new Date("' + startD + '"), end=new Date("' + endD + '"); const sel=document.getElementById("sD");\\n';
-    c += '  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){\\n    let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();\\n    let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt);\\n  }\\n';
-    c += '  let h=""; active.forEach(n=>{ h+=\\'<div class="q-card"><div style="font-weight:bold;margin-bottom:10px;font-size:1.1rem">\\'+n+\\'번</div><div class="options">\\';\\n';
-    c += '  for(let j=1;j<=5;j++){ h+=\\\' <input type="radio" name="q\\'+n+\\'" id="q\\'+n+\\'_\\'+j+\\'" value="\\'+j+\\'" class="opt-input"><label for="q\\'+n+\\'_\\'+j+\\'" class="opt-label">\\'+j+\\'</label> \\'; }\\n';
-    c += '  h+=\\'</div></div>\\'; }); document.getElementById("qC").innerHTML=h; document.getElementById("limitMsg").style.display="none"; startTimer();\\n}\\n';
-    c += 'function checkLimit(){\\n  const sN=document.getElementById("sN").value.trim(); if(!sN){isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; return;}\\n';
-    c += '  const key="att_"+sN.replace(/\\\\s/g,"")+"_"+"' + week + '"; const currentAtt=parseInt(localStorage.getItem(key)||0);\\n';
-    c += '  if(maxT > 0 && currentAtt >= maxT){isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block";}else{isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none";}\\n}\\n';
-    c += 'function startTimer(){\\n  timerInterval = setInterval(()=>{ if(timeLeft<=0){ clearInterval(timerInterval); alert("시간 종료!"); submit(); return; } timeLeft--;\\n    const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeDisplay").innerText=m+":"+(s<10?"0"+s:s); }, 1000);\\n}\\n';
-    c += 'window.onload=initPage;\\n';
-    c += 'function submit(){\\n  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim(), sD=document.getElementById("sD").value;\\n  if(!cN || !sN || !sD){alert("정보 부족!"); return;} clearInterval(timerInterval);\\n';
-    c += '  const key="att_"+sN.replace(/\\\\s/g,"")+"_"+"' + week + '"; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);\\n';
-    c += '  w=0; let d=[]; active.forEach(n=>{ const sel=document.querySelector(\\\'input[name="q\\'+n+\\'"]:checked\\\'); if(!sel || parseInt(sel.value)!==correct[n]){w++; d.push(n);} });\\n';
-    c += '  let resultMsg = "오답: "+w+"개"; if(maxT > 1 && att === maxT - 1){ resultMsg += "\\\\n📍 틀린 번호: " + (d.join(", ")||"없음"); }\\n';
-    c += '  resT="[' + week + ']\\\\n학원: "+cN+"\\\\n이름: "+sN+"\\\\n도전: "+att+"회차\\\\n"+resultMsg;\\n';
-    c += '  fetch(sUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",class:cN,name:sN,attempt:att,wrongCount:w,wrongList:d.join(",")})});\\n';
-    c += '  alert("제출 완료!"); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block"; checkLimit();\\n}\\n';
-    c += 'function share(){\\n  if(isSharing) return; isSharing=true; Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:domain,webUrl:domain}});\\n';
-    c += '  setTimeout(function(){isSharing=false; const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML=\\\' <div style="background:white;padding:30px;border-radius:15px;text-align:center;"><p style="font-weight:bold">전송 완료?</p><button onclick="done()" style="width:100%;padding:10px;background:#fee500;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">네</button></div> \\\';},1500);\\n}\\n';
-    c += 'function done(){\\n  document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none";\\n';
-    c += '  const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style=\\\'padding:20px;background:#eeebff;border-radius:15px\\\'><h3>📊 결과: "+w+"개 틀림</h3><a href=\\\'\" + ansL + \"\\\' target=\\\'_blank\\\' style=\\\'display:block;padding:12px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:10px\\\'>📘 해설지 보기</a></div>";\\n}\\n';
-    c += '<\\/script></body></html>';
-
-    document.getElementById('output').value = c;
-    alert("🔮 코드가 성공적으로 생성되었습니다! 아래 박스에서 복사하세요.");
-}
+});
 </script>
 </body>
 </html>
