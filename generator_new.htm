@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v54.0</title>
+    <title>국어 과제 생성기 v55.0</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -19,13 +19,13 @@
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v54.0</h2>
+    <h2>🎯 국어 과제 생성기 v55.0</h2>
     <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
-        ✅ <b>보안 강화</b>: 카톡 전송 전에는 결과를 알 수 없으며, 만점 시 즉시 해설지가 공개됩니다.
+        ✅ <b>관리자 기능 추가</b>: 카톡 메시지의 <b>[자세히 보기]</b>를 누르면 선생님만 상세 결과를 볼 수 있습니다.
     </div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
-        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 만점을 받거나 모든 기회를 사용하면 해설지가 공개됩니다.</textarea></div>
+        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 카톡 전송 완료 후 점수를 확인할 수 있습니다.</textarea></div>
         <div class="full"><label>🔥 풀어야 할 문항</label><input type="text" id="activeRange" value="1-11"></div>
         <div><label>제출 시작일</label><input type="date" id="startDate"></div>
         <div><label>제출 종료일</label><input type="date" id="endDate"></div>
@@ -34,7 +34,7 @@
         <div><label>대기 시간 (분)</label><input type="number" id="timeLimit" value="3"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="4"></div>
         <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2"></textarea></div>
-        <button type="button" id="genBtn">🔮 학생용 배포 코드 생성하기</button>
+        <button type="button" id="genBtn">🔮 최종 관리자 연동판 생성</button>
         <textarea id="output" readonly placeholder="코드가 생성되면 이곳을 클릭하세요."></textarea>
     </div>
 </div>
@@ -78,7 +78,18 @@ document.addEventListener("DOMContentLoaded", function() {
         const endD = document.getElementById('endDate').value;
 
         let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
-        c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s;position:relative;z-index:1}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;font-size:1.0rem;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}\n</style></head><body><div id="overlay"></div><div class="container">';
+        c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--p);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s;position:relative;z-index:1}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;font-size:1.0rem;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}\n</style></head><body><div id="overlay"></div><div class="container">';
+        
+        // [선생님 전용] URL 파라미터가 있으면 결과창을 즉시 띄워주는 관리자 모드 추가
+        c += '<script>\n';
+        c += 'const urlParams = new URLSearchParams(window.location.search);\n';
+        c += 'if(urlParams.has("admin_view")){\n';
+        c += '  window.onload = function() {\n';
+        c += '    const data = JSON.parse(decodeURIComponent(urlParams.get("admin_view")));\n';
+        c += '    document.body.innerHTML = "<div class=\'container\'><h2>📊 관리자 확인 모드</h2><div class=\'notice-box\'><b>학생:</b> "+data.name+"<br><b>학원:</b> "+data.class+"<br><b>도전:</b> "+data.att+"회차<br><b style=\'color:red\'>오답:</b> "+data.wrongCount+"개<br><b>틀린번호:</b> "+(data.wrongList||"없음")+"</div><button onclick=\'window.close()\' style=\'width:100%;padding:15px;background:#666;color:white;border:none;border-radius:10px\'>창 닫기</button></div>";\n';
+        c += '  };\n}\n';
+        c += '<\/script>\n';
+
         c += '<h2 style="text-align:center;margin-bottom:20px">' + week + '</h2>';
         c += '<div id="timer">⏱ <span id="timeText">--분 --초 남음</span></div>';
         c += '<div class="notice-box"><b>[공지]</b> ' + notice + '<br>🔄 총 ' + maxT + '회 도전 가능</div>';
@@ -90,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
         c += '<div style="text-align:right;margin-top:50px"><button onclick="resetAllRecords()" style="background:none;border:none;color:#ddd;font-size:0.6rem;cursor:pointer">관리자 기록 초기화</button></div></div>';
         
         c += '<script>\n';
-        c += 'let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="", isPerfect=false;\n';
+        c += 'let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="", isPerfect=false, wrongListStr="";\n';
         c += 'const correct=[' + ansArr.join(',') + '], active=[' + Array.from(activeNums).sort((a,b)=>a-b).join(',') + '], maxT=' + maxT + ', waitMin=' + timeVal + ';\n';
         c += 'const ansLink = "' + ansL + '", HW_ID = "' + uniqueKey + '";\n';
         c += 'try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}\n';
@@ -112,23 +123,29 @@ document.addEventListener("DOMContentLoaded", function() {
         
         c += 'function submit(){\n  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("모든 정보를 입력해주세요."); return;}\n';
         c += '  w=0; let d=[]; active.forEach(n=>{ const s=document.querySelector("input[name=\'q"+n+"\']:checked"); if(!s||parseInt(s.value)!==correct[n]){w++; d.push(n);} });\n';
-        c += '  isPerfect = (w === 0);\n';
+        c += '  isPerfect = (w === 0); wrongListStr = d.join(",");\n';
         c += '  const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);\n';
         c += '  if(isPerfect){ localStorage.setItem("perf_"+sN+"_"+HW_ID, "true"); }\n';
-        // [카톡 전송 내용 보안] 오답 개수/번호를 지우고 단순 확인용 텍스트만 보냄
-        c += '  resT="[' + week + ']\\n"+sN+"("+att+"회차) 제출 완료\\n(과제 페이지에서 결과를 확인하세요)"; \n';
-        c += '  alert("답안이 서버로 전송되었습니다! 아래 노란색 버튼을 눌러 카톡으로 제출을 확인해주세요."); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";\n';
-        c += '  fetch("https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec",{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",name:sN,class:cN,attempt:att,wrongCount:w,wrongList:d.join(",")})});\n}\n';
+        c += '  resT="[" + "' + week + '" + "]\\n"+sN+"("+att+"회차) 제출 완료\\n(과제 페이지에서 결과를 확인하세요)"; \n';
+        c += '  alert("답안이 전송되었습니다! 카톡 전송 후 반드시 과제 페이지로 돌아와 [완료] 버튼을 눌러주세요."); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";\n';
+        c += '  fetch("https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec",{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"' + week + '",name:sN,class:cN,attempt:att,wrongCount:w,wrongList:wrongListStr})});\n}\n';
         
-        c += 'function share(){\n  Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:window.location.href,webUrl:window.location.href}});\n';
+        // [수정] 선생님 전용 관리자 링크 생성 및 카톡 전송
+        c += 'function share(){\n';
+        c += '  const adminData = encodeURIComponent(JSON.stringify({name:document.getElementById("sN").value, class:document.getElementById("cN").value, att:att, wrongCount:w, wrongList:wrongListStr}));\n';
+        c += '  const adminLink = window.location.href.split("?")[0] + "?admin_view=" + adminData;\n';
+        c += '  Kakao.Share.sendDefault({\n';
+        c += '    objectType: "text",\n';
+        c += '    text: resT,\n';
+        c += '    link: { mobileWebUrl: adminLink, webUrl: adminLink }\n'; // 자세히 보기를 누르면 선생님 전용 관리자 페이지로 연결
+        c += '  });\n';
         c += '  setTimeout(()=>{ const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML="<div style=\'background:white;padding:30px;border-radius:20px;text-align:center\'><p style=\'font-weight:bold\'>선생님께 카톡을 전송하셨나요?</p><button onclick=\'done()\' style=\'width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer\'>네, 완료했습니다</button></div>"; }, 1500);\n}\n';
         
         c += 'function done(){\n  document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; \n';
         c += '  if(isPerfect){ showFinalResult("백점 달성! 축하합니다."); return; }\n';
         c += '  if(att >= maxT){ showFinalResult("모든 도전을 마쳤습니다."); return; }\n';
-        // [결과 공개] 카톡 전송 완료 버튼을 눌러야만 여기서 결과가 출력됨
         c += '  let resultMsg = "📊 " + att + "회차 결과: 오답 " + w + "개";\n';
-        c += '  if(att === maxT - 1){ let d=[]; active.forEach(n=>{ const s=document.querySelector("input[name=\'q"+n+"\']:checked"); if(!s||parseInt(s.value)!==correct[n]){d.push(n);} }); resultMsg += "\\n📍 틀린 번호: " + (d.join(", ")||"없음"); }\n';
+        c += '  if(att === maxT - 1){ resultMsg += "\\n📍 틀린 번호: " + (wrongListStr||"없음"); }\n';
         c += '  alert(resultMsg);\n';
         c += '  document.querySelectorAll(".opt-input").forEach(rb => rb.checked = false);\n';
         c += '  document.getElementById("subBtn").style.display="block"; \n';
