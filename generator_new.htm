@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v48.0</title>
+    <title>국어 과제 생성기 v49.0</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -19,9 +19,9 @@
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v48.0</h2>
+    <h2>🎯 국어 과제 생성기 v49.0</h2>
     <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
-        ✅ <b>로직 수정 완료</b>: 제출 후 <b>제한 시간이 지나야</b> 다음 회차 버튼이 활성화되도록 고쳤습니다.
+        ✅ <b>초정밀 수정</b>: 이름 입력 시 즉시 차단되는 현상을 해결하고, 제출 후에만 대기 타이머가 작동하도록 고쳤습니다.
     </div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
@@ -49,9 +49,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     output.addEventListener("click", function() {
         if(!this.value) return;
-        this.select();
-        document.execCommand("copy");
-        alert("✅ 학생용 배포 코드가 복사되었습니다!");
+        navigator.clipboard.writeText(this.value).then(() => { alert("✅ 코드가 복사되었습니다!"); });
     });
 
     btn.addEventListener("click", function() {
@@ -75,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 else { activeNums.add(parseInt(part.trim())); }
             });
         }
-        const activeArr = Array.from(activeNums).sort((a,b)=>a-b);
         const startD = document.getElementById('startDate').value;
         const endD = document.getElementById('endDate').value;
 
@@ -92,22 +89,22 @@ document.addEventListener("DOMContentLoaded", function() {
         
         c += '<script>\n';
         c += 'let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="";\n';
-        c += 'const correct=[' + ansArr.join(',') + '], active=[' + activeArr.join(',') + '], maxT=' + maxT + ', waitMin=' + timeVal + ';\n';
+        c += 'const correct=[' + ansArr.join(',') + '], active=[' + Array.from(activeNums).sort((a,b)=>a-b).join(',') + '], maxT=' + maxT + ', waitMin=' + timeVal + ';\n';
         c += 'try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}\n';
         c += 'function initPage(){\n  const sel=document.getElementById("sD"); const start=new Date("' + startD + '"), end=new Date("' + endD + '");\n';
         c += '  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){ let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); }\n';
         c += '  let h=""; active.forEach(n=>{ h+="<div class=\'q-card\'><div style=\'font-weight:bold;margin-bottom:15px;font-size:1.1rem\'>"+n+"번</div><div class=\'options\'>"; for(let j=1;j<=5;j++){ h+="<input type=\'radio\' name=\'q"+n+"\' id=\'q"+n+"_"+j+"\' value=\'"+j+"\' class=\'opt-input\'><label for=\'q"+n+"_"+j+"\' class=\'opt-label\'>"+j+"</label>"; } h+="</div></div>"; }); document.getElementById("qC").innerHTML=h;\n}\n';
         
-        c += 'function checkLimit(){\n  const sN=document.getElementById("sN").value.trim().replace(/\\s/g,""); \n';
-        c += '  if(sN.length < 2){ document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; return; }\n';
+        // [수정] 이름과 제출일까지 모두 입력되었을 때만 횟수를 체크하도록 보강
+        c += 'function checkLimit(){\n  const sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value;\n';
+        c += '  if(sN.length < 2 || !sD){ document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; return; }\n';
         c += '  const key="att_"+sN+"_"+"' + week.replace(/\s/g,"") + '"; att=parseInt(localStorage.getItem(key)||0);\n';
         c += '  if(maxT>0 && att>=maxT){ isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; }\n';
         c += '  else { isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; }\n}\n';
         
-        // [수정] 대기 타이머 함수: 버튼 비활성화 상태에서 시간 체크
         c += 'function startWaitTimer(){\n  if(timerInterval) clearInterval(timerInterval); timeLeft = waitMin * 60;\n';
-        c += '  document.getElementById("subBtn").style.opacity="0.5"; document.getElementById("subBtn").innerText="대기 중..."; document.getElementById("subBtn").disabled=true;\n';
-        c += '  timerInterval = setInterval(()=>{\n    if(timeLeft<=0){ clearInterval(timerInterval); timerInterval=null; document.getElementById("subBtn").style.opacity="1"; document.getElementById("subBtn").innerText="📝 답안 제출하기"; document.getElementById("subBtn").disabled=false; document.getElementById("timeText").innerText="입력 가능"; return; }\n    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeText").innerText="다음 회차 도전까지 "+m+"분 "+(s<10?"0"+s:s)+"초 남음";\n  }, 1000);\n}\n';
+        c += '  const btn=document.getElementById("subBtn"); btn.style.opacity="0.5"; btn.innerText="대기 중..."; btn.disabled=true;\n';
+        c += '  timerInterval = setInterval(()=>{\n    if(timeLeft<=0){ clearInterval(timerInterval); timerInterval=null; btn.style.opacity="1"; btn.innerText="📝 답안 제출하기"; btn.disabled=false; document.getElementById("timeText").innerText="입력 가능"; return; }\n    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeText").innerText="다음 회차 도전까지 "+m+"분 "+(s<10?"0"+s:s)+"초 남음";\n  }, 1000);\n}\n';
         
         c += 'function submit(){\n  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("모든 정보를 입력해주세요."); return;}\n';
         c += '  att++; localStorage.setItem("att_"+sN+"_"+"' + week.replace(/\s/g,"") + '", att); w=0; let d=[]; active.forEach(n=>{ const s=document.querySelector("input[name=\'q"+n+"\']:checked"); if(!s||parseInt(s.value)!==correct[n]){w++; d.push(n);} });\n';
@@ -122,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
         c += '  document.querySelectorAll(".opt-input").forEach(rb => rb.checked = false);\n';
         c += '  document.getElementById("resArea").style.display="none";\n';
         c += '  document.getElementById("subBtn").style.display="block"; \n';
-        c += '  startWaitTimer(); // 카톡 전송 완료 직후 대기 타이머 시작\n}\n';
+        c += '  startWaitTimer();\n}\n';
         c += 'window.onload=initPage;<\/script></body></html>';
 
         document.getElementById('output').value = c;
