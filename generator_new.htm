@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v44.0</title>
+    <title>국어 과제 생성기 v44.1</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -14,14 +14,14 @@
         label { font-weight: bold; font-size: 0.9rem; color: #636e72; }
         input, textarea { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; outline: none; }
         #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
-        #output { width: 100%; height: 200px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #a29bfe; padding: 15px; border-radius: 10px; font-size: 11px; border: 2px dashed #6c5ce7; cursor: pointer; }
+        #output { width: 100%; height: 250px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #a29bfe; padding: 15px; border-radius: 10px; font-size: 11px; border: 2px dashed #6c5ce7; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v44.0</h2>
+    <h2>🎯 국어 과제 생성기 v44.1</h2>
     <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
-        ✅ <b>업데이트</b>: 제출 후 다음 회차 도전 시 타이머가 멈추는 현상을 완벽히 해결했습니다.
+        ✅ <b>정밀 수정</b>: 이제 생성되는 코드가 완벽한 학생용 배포 페이지(.html) 형태가 됩니다.
     </div>
     <div class="form-grid">
         <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="1월 3주차 주간지 고2 문학"></div>
@@ -34,8 +34,8 @@
         <div><label>제한 시간 (분)</label><input type="number" id="timeLimit" value="30"></div>
         <div><label>최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
         <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2"></textarea></div>
-        <button type="button" id="genBtn">🔮 학생용 과제 코드 생성하기</button>
-        <textarea id="output" readonly placeholder="코드가 생성되면 이곳을 클릭하세요."></textarea>
+        <button type="button" id="genBtn">🔮 학생용 배포 코드 생성하기</button>
+        <textarea id="output" readonly placeholder="여기를 클릭하면 코드가 복사됩니다."></textarea>
     </div>
 </div>
 
@@ -49,9 +49,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     output.addEventListener("click", function() {
         if(!this.value) return;
-        navigator.clipboard.writeText(this.value).then(() => {
-            alert("✅ 코드가 복사되었습니다!");
-        });
+        this.select();
+        document.execCommand("copy");
+        alert("✅ 학생용 배포 코드가 복사되었습니다!");
     });
 
     btn.addEventListener("click", function() {
@@ -75,9 +75,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 else { activeNums.add(parseInt(part.trim())); }
             });
         }
+        const activeArr = Array.from(activeNums).sort((a,b)=>a-b);
         const startD = document.getElementById('startDate').value;
         const endD = document.getElementById('endDate').value;
 
+        // 학생용 코드 문자열 생성 (줄바꿈 및 특수문자 탈출 정밀 처리)
         let c = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>' + week + '</title>\n<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>\n';
         c += '<style>\n:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--p);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;font-size:1.0rem;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}\n</style></head><body><div id="overlay"></div><div class="container">';
         c += '<h2 style="text-align:center;margin-bottom:20px">' + week + '</h2>';
@@ -91,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         c += '<script>\n';
         c += 'let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="";\n';
-        c += 'const correct=[' + ansArr.join(',') + '], active=[' + Array.from(activeNums).sort((a,b)=>a-b).join(',') + '], maxT=' + maxT + ', limitMin=' + timeVal + ';\n';
+        c += 'const correct=[' + ansArr.join(',') + '], active=[' + activeArr.join(',') + '], maxT=' + maxT + ', limitMin=' + timeVal + ';\n';
         c += 'try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}\n';
         c += 'function initPage(){\n  const sel=document.getElementById("sD"); const start=new Date("' + startD + '"), end=new Date("' + endD + '");\n';
         c += '  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){ let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); }\n';
@@ -109,7 +111,6 @@ document.addEventListener("DOMContentLoaded", function() {
         c += '  if(maxT>0 && att>=maxT){ isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; if(timerInterval){clearInterval(timerInterval); timerInterval=null;} }\n';
         c += '  else { \n';
         c += '    isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; \n';
-        c += '    // [핵심수정] 이미 타이머가 돌아가고 있다면 놔두고, 없으면 무조건 시작\n';
         c += '    if(!timerInterval) startTimer(); \n';
         c += '  }\n}\n';
         
@@ -117,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function() {
         c += '  timerInterval = setInterval(()=>{\n    if(timeLeft<=0){ clearInterval(timerInterval); timerInterval=null; alert("제한 시간이 종료되었습니다!"); submit(); return; }\n    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeText").innerText="다음 회차 도전까지 "+m+"분 "+(s<10?"0"+s:s)+"초 남음";\n  }, 1000);\n}\n';
         
         c += 'function submit(){\n  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("모든 정보를 입력해주세요."); return;} \n';
-        c += '  if(timerInterval){clearInterval(timerInterval); timerInterval=null;} \n'; // 제출 시 확실히 정지
+        c += '  if(timerInterval){clearInterval(timerInterval); timerInterval=null;} \n';
         c += '  att++; localStorage.setItem("att_"+sN+"_"+"' + week.replace(/\s/g,"") + '", att); w=0; let d=[]; active.forEach(n=>{ const s=document.querySelector("input[name=\'q"+n+"\']:checked"); if(!s||parseInt(s.value)!==correct[n]){w++; d.push(n);} });\n';
         c += '  let msg = "오답: "+w+"개"; if(maxT>1 && att===maxT-1){ msg += "\\n📍틀린번호: "+(d.join(", ")||"없음"); }\n';
         c += '  resT="[' + week + ']\\n"+sN+"("+att+"회차)\\n"+msg; alert("제출 완료!"); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";\n';
@@ -126,9 +127,8 @@ document.addEventListener("DOMContentLoaded", function() {
         c += 'function share(){\n  Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:window.location.href,webUrl:window.location.href}});\n';
         c += '  setTimeout(()=>{ const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML="<div style=\'background:white;padding:30px;border-radius:20px;text-align:center\'><p style=\'font-weight:bold\'>전송을 완료하셨나요?</p><button onclick=\'done()\' style=\'width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer\'>네, 완료했습니다</button></div>"; }, 1500);\n}\n';
         c += 'function done(){\n  document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; \n';
-        c += '  // [수정] 다시 풀 수 있도록 버튼 부활 및 타이머 초기화 준비\n';
         c += '  const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style=\'padding:25px;background:#eeebff;border-radius:15px;text-align:center\'><h3>📊 결과: "+w+"개 틀림</h3><a href=\'' + ansL + '\' target=\'_blank\' style=\'display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:15px\'>📘 해설지 보기</a></div>";\n';
-        c += '  setTimeout(() => { checkLimit(); }, 500); // 0.5초 뒤 횟수 체크 후 타이머 재시작\n}\n';
+        c += '  setTimeout(() => { checkLimit(); }, 500); \n}\n';
         c += 'window.onload=initPage;<\/script></body></html>';
 
         document.getElementById('output').value = c;
