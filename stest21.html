@@ -7,10 +7,11 @@
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <style>
 :root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s;position:relative;z-index:1}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;font-size:1.0rem;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}
-</style></head><body><div id="overlay"></div><div class="container"><h2 style="text-align:center;margin-bottom:20px">1월 3주차 주간지 고2 문학</h2><div id="timer">⏱ <span id="timeText">--분 --초 남음</span></div><div class="notice-box"><b>[공지]</b> - 이름 입력 후 풀이를 시작하세요.<br>🔄 총 3회 도전 가능</div><div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px">🚫 도전 기회를 모두 사용했습니다.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;margin-top:20px"></div><div style="text-align:right;margin-top:50px"><button onclick="resetAllRecords()" style="background:none;border:none;color:#ddd;font-size:0.6rem;cursor:pointer">관리자 기록 초기화</button></div></div><script>
+</style></head><body><div id="overlay"></div><div class="container"><h2 style="text-align:center;margin-bottom:20px">1월 3주차 주간지 고2 문학</h2><div id="timer">⏱ <span id="timeText">--분 --초 남음</span></div><div class="notice-box"><b>[공지]</b> - 마지막 전 도전회차에만 틀린 번호가 공개됩니다.<br>🔄 총 4회 도전 가능</div><div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px">🚫 도전 기회를 모두 사용했습니다. 하단의 해설을 확인하세요.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;margin-top:20px"></div><div style="text-align:right;margin-top:50px"><button onclick="resetAllRecords()" style="background:none;border:none;color:#ddd;font-size:0.6rem;cursor:pointer">관리자 기록 초기화</button></div></div><script>
 let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="";
-const correct=[0,1,2,3,4,5], active=[1,2,3,4,5], maxT=3, waitMin=3;
-const HW_ID = "HW_1768997468568";
+const correct=[0,1,2,3], active=[1,2,3], maxT=4, waitMin=1;
+const ansLink = "#";
+const HW_ID = "HW_1768998462656";
 try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}
 function resetAllRecords(){ if(confirm("모든 테스트 기록을 초기화할까요?")){ localStorage.clear(); location.reload(); } }
 function initPage(){
@@ -22,7 +23,7 @@ function checkLimit(){
   const sN=document.getElementById("sN").value.trim().replace(/\s/g,""), sD=document.getElementById("sD").value;
   if(sN.length < 2 || !sD){ document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; return; }
   const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0);
-  if(maxT>0 && att>=maxT){ isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; }
+  if(maxT>0 && att>=maxT){ isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; showFinalResult(); }
   else { isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; }
 }
 function startWaitTimer(){
@@ -35,9 +36,10 @@ function startWaitTimer(){
 }
 function submit(){
   if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("모든 정보를 입력해주세요."); return;}
-  att++; const key="att_"+sN+"_"+HW_ID; localStorage.setItem(key, att); w=0; let d=[]; active.forEach(n=>{ const s=document.querySelector("input[name='q"+n+"']:checked"); if(!s||parseInt(s.value)!==correct[n]){w++; d.push(n);} });
-  let msg = "오답: "+w+"개"; if(att === 2){ msg += "\n📍틀린번호: "+(d.join(", ")||"없음"); }
-  resT="[1월 3주차 주간지 고2 문학]\n"+sN+"("+att+"회차)\n"+msg; alert("제출 완료!"); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
+  const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att); w=0; let d=[];
+  active.forEach(n=>{ const s=document.querySelector("input[name='q"+n+"']:checked"); if(!s||parseInt(s.value)!==correct[n]){w++; d.push(n);} });
+  let msg = "오답: "+w+"개"; if(att === maxT - 1){ msg += "\n📍틀린번호: "+(d.join(", ")||"없음"); }
+  resT="[" + "1월 3주차 주간지 고2 문학" + "]\n"+sN+"("+att+"회차)\n"+msg; alert("제출 완료!"); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
   fetch("https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec",{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"1월 3주차 주간지 고2 문학",name:sN,class:cN,attempt:att,wrongCount:w,wrongList:d.join(",")})});
 }
 function share(){
@@ -46,9 +48,17 @@ function share(){
 }
 function done(){
   document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; 
+  if(att >= maxT){ showFinalResult(); return; }
   document.querySelectorAll(".opt-input").forEach(rb => rb.checked = false);
   document.getElementById("resArea").style.display="none";
   document.getElementById("subBtn").style.display="block"; 
   startWaitTimer();
+}
+function showFinalResult(){
+  const r=document.getElementById("resArea"); r.style.display="block"; 
+  r.innerHTML = "<div style='padding:25px;background:#eeebff;border-radius:15px;text-align:center'><h3>🏁 최종 결과 공개</h3><p>모든 도전을 마쳤습니다.</p>";
+  let ansList = "<b>[정답 확인]</b><br>"; active.forEach(n=> { ansList += n + "번: " + correct[n] + " / "; });
+  r.innerHTML += "<div style='font-size:0.85rem; background:#fff; padding:15px; border-radius:10px; margin-bottom:15px'>" + ansList + "</div>";
+  r.innerHTML += "<a href='" + ansLink + "' target='_blank' style='display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold'>📘 최종 해설지 보기</a></div>";
 }
 window.onload=initPage;</script></body></html>
