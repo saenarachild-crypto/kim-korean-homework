@@ -7,17 +7,10 @@
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <style>
 :root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05)}.header{text-align:center;margin-bottom:20px}.notice-box{background:#fff3e0;border:1px solid #ffe0b2;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037}.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.opt-input{position:absolute;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s}.opt-input:checked+.opt-label{background:var(--p);border-color:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108, 92, 231, 0.3)}#timer{font-weight:bold;color:#ff6b6b;text-align:right;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;box-sizing:border-box;width:100%}
-</style></head><body><div id="overlay"></div><div class="container"><div class="header"><h2>1월 3주차 주간지 고2 문학</h2></div><div id="timer">⏱ 남은 시간: <span id="timeDisplay">--:--</span></div><div class="notice-box"><b>[공지사항]</b><br>- 마지막 전 도전(2회차)에만 틀린 번호가 공개됩니다.<br>🔄 총 3회 도전 가능 / 📅 2026-01-21~2026-01-28</div><div id="limitMsg" style="display:none; padding:15px; background:#ffebee; color:#c62828; border-radius:10px; margin-bottom:20px; font-weight:bold; text-align:center;">🚫 모든 도전 기회를 사용했습니다.</div><div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div><div class="info-row"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div><script>
-let isSharing=false, isBlocked=false, timeLeft=60, timerInterval, resT="", w=0, att=0;
+</style></head><body><div id="overlay"></div><div class="container"><div class="header"><h2>1월 3주차 주간지 고2 문학</h2></div><div id="timer">⏱ 남은 시간: <span id="timeDisplay">--:--</span></div><div class="notice-box"><b>[공지사항]</b><br>- 이름 입력 후 풀이를 시작하세요.<br>🔄 총 3회 도전 가능</div><div id="limitMsg" style="display:none; padding:15px; background:#ffebee; color:#c62828; border-radius:10px; margin-bottom:20px; font-weight:bold; text-align:center;">🚫 모든 도전 기회를 사용했습니다.</div><div class="info-row"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div><div class="info-row"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:18px;background:#ff6b6b;color:white;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:20px;font-size:1.1rem">🟡 카톡으로 결과 전송</button><div id="resArea" style="display:none;text-align:center;margin-top:20px"></div></div><script>
+let isSharing=false, isBlocked=false, timeLeft=120, timerInterval, resT="", w=0, att=0;
 try{if(!Kakao.isInitialized())Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}catch(e){}
-const correct=[0,1,2,3], active=[1,2], sUrl="https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec", domain="https://saenarachild-crypto.github.io", maxT=3;
-function startTimer(){
-  timerInterval = setInterval(()=>{
-    if(timeLeft<=0){ clearInterval(timerInterval); alert("제한 시간이 종료되었습니다. 자동으로 제출합니다."); submit(); return; }
-    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60;
-    document.getElementById("timeDisplay").innerText=m+":"+(s<10?"0"+s:s);
-  }, 1000);
-}
+const correct=[0,1,2,3], active=[1,2,3], sUrl="https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec", domain="https://saenarachild-crypto.github.io", maxT=3;
 function initPage(){
   const start=new Date("2026-01-21"), end=new Date("2026-01-28"); const sel=document.getElementById("sD");
   for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
@@ -26,16 +19,28 @@ function initPage(){
   }
   let h=""; active.forEach(n=>{ h+='<div class="q-card"><div style="font-weight:bold;margin-bottom:10px;font-size:1.1rem">'+n+'번</div><div class="options">';
   for(let j=1;j<=5;j++){ h+='<input type="radio" name="q'+n+'" id="q'+n+'_'+j+'" value="'+j+'" class="opt-input"><label for="q'+n+'_'+j+'" class="opt-label">'+j+'</label>'; }
-  h+='</div></div>'; }); document.getElementById("qC").innerHTML=h; checkLimit(); startTimer();
+  h+='</div></div>'; }); document.getElementById("qC").innerHTML=h;
+  document.getElementById("limitMsg").style.display="none"; // 초기 로딩 시 차단 메시지 강제 숨김
+  startTimer();
 }
 function checkLimit(){
-  const sN=document.getElementById("sN").value.trim(); if(!sN) return;
+  const sN=document.getElementById("sN").value.trim();
+  if(!sN) { 
+    isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none"; return; 
+  }
   const key="att_"+sN.replace(/\s/g,"")+"_"+"1월 3주차 주간지 고2 문학"; const currentAtt=parseInt(localStorage.getItem(key)||0);
   if(currentAtt >= maxT){
     isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block";
   } else {
     isBlocked=false; document.getElementById("subBtn").style.display="block"; document.getElementById("limitMsg").style.display="none";
   }
+}
+function startTimer(){
+  timerInterval = setInterval(()=>{
+    if(timeLeft<=0){ clearInterval(timerInterval); alert("제한 시간이 종료되었습니다. 자동으로 제출합니다."); submit(); return; }
+    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60;
+    document.getElementById("timeDisplay").innerText=m+":"+(s<10?"0"+s:s);
+  }, 1000);
 }
 window.onload=initPage;
 function submit(){
