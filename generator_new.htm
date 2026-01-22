@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>국어 과제 생성기 v62.11</title>
+    <title>국어 과제 생성기 v62.12 (자동저장)</title>
     <style>
         :root { --p: #6c5ce7; --bg: #f9f9fb; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: var(--bg); padding: 20px; color: #2d3436; }
@@ -14,36 +14,68 @@
         label { font-weight: bold; font-size: 0.9rem; color: #636e72; }
         input, textarea { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; outline: none; }
         .file-indicator { background: #6c5ce7; color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; display: inline-block; }
-        #genBtn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 30px; }
+        #genBtn { flex: 3; padding: 20px; background: var(--p); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #clearBtn { flex: 1; padding: 20px; background: #dfe6e9; color: #636e72; border: none; border-radius: 15px; font-size: 1rem; cursor: pointer; }
         #output { width: 100%; height: 250px; margin-top: 20px; font-family: monospace; background: #2d3436; color: #a29bfe; padding: 15px; border-radius: 10px; font-size: 11px; border: 2px dashed #6c5ce7; cursor: pointer; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>🎯 국어 과제 생성기 v62.11 (보안 강화)</h2>
+    <h2>🎯 국어 과제 생성기 v62.12 (자동저장)</h2>
     <div id="targetFile" class="file-indicator">📂 수정 대상 파일: 확인 중...</div>
-    <div style="background:#fff0f0; padding:15px; border-radius:12px; font-size:0.85rem; color:#d63031; margin-bottom:25px; border:1px solid #fab1a0;">
-        ⚠️ <b>긴급 수정</b>: 학생들이 카톡 링크로 오답을 확인하던 보안 결함을 해결했습니다. 
+    
+    <div style="background:#f0edff; padding:15px; border-radius:12px; font-size:0.85rem; color:var(--p); margin-bottom:25px;">
+        ✅ <b>업데이트</b>: 입력한 내용이 브라우저에 자동 저장됩니다. 다시 접속해도 이전 내용이 그대로 남아있습니다.
     </div>
+
     <div class="form-grid">
-        <div class="full"><label>과제명</label><input type="text" id="weekTitle" value="주간과제 1월 3회차 독서"></div>
-        <div class="full"><label>선생님 깃허브 주소</label><input type="text" id="adminBaseUrl" value="https://saenarachild-crypto.github.io/kim-korean-homework/stest23.html" oninput="updateFileIndicator()"></div>
-        <div class="full"><label>구글 웹 앱 URL</label><input type="text" id="gasUrl" value="https://script.google.com/macros/s/AKfycbztPu2ZsmP7HOt93FGri3W86YV7i0U-71BbAl9cXclpxZJGTXcSE8ejOwuv8RTdE0bP/exec"></div>
-        <div><label>📅 제출 시작일</label><input type="date" id="startDate" value="2026-01-21"></div>
-        <div><label>⏰ 제출 마감일</label><input type="date" id="endDate" value="2026-01-26"></div>
-        <div class="full"><label>공지사항</label><textarea id="notice" rows="2">- 활성화된 번호만 풀어서 제출하세요.</textarea></div>
-        <div class="full"><label>🔥 풀어야 할 문항</label><input type="text" id="activeRange" value="1-31"></div>
-        <div><label>🔗 문제지 링크</label><input type="text" id="pdfLink" placeholder="https://..."></div>
-        <div><label>🔗 해설지 링크</label><input type="text" id="ansLink" placeholder="https://..."></div>
-        <div><label>⏳ 대기 시간 (분)</label><input type="number" id="timeLimit" value="3"></div>
-        <div><label>🔄 최대 도전 횟수</label><input type="number" id="maxTry" value="3"></div>
-        <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2"></textarea></div>
-        <button type="button" id="genBtn">🚀 보안 강화 배포 코드 생성</button>
+        <div class="full"><label>과제명</label><input type="text" id="weekTitle" class="save-val"></div>
+        <div class="full"><label>선생님 깃허브 주소</label><input type="text" id="adminBaseUrl" class="save-val" oninput="updateFileIndicator()"></div>
+        <div class="full"><label>구글 웹 앱 URL</label><input type="text" id="gasUrl" class="save-val"></div>
+        <div><label>📅 제출 시작일</label><input type="date" id="startDate" class="save-val"></div>
+        <div><label>⏰ 제출 마감일</label><input type="date" id="endDate" class="save-val"></div>
+        <div class="full"><label>공지사항</label><textarea id="notice" rows="2" class="save-val"></textarea></div>
+        <div class="full"><label>🔥 풀어야 할 문항</label><input type="text" id="activeRange" class="save-val"></div>
+        <div><label>🔗 문제지 링크</label><input type="text" id="pdfLink" class="save-val"></div>
+        <div><label>🔗 해설지 링크</label><input type="text" id="ansLink" class="save-val"></div>
+        <div><label>⏳ 대기 시간 (분)</label><input type="number" id="timeLimit" class="save-val"></div>
+        <div><label>🔄 최대 도전 횟수</label><input type="number" id="maxTry" class="save-val"></div>
+        <div class="full"><label>전체 정답 (숫자만 연속 입력)</label><textarea id="answers" rows="2" class="save-val"></textarea></div>
+        
+        <div class="btn-group full">
+            <button type="button" id="genBtn">🚀 배포 코드 생성</button>
+            <button type="button" id="clearBtn" onclick="clearAll()">🧹 모든 칸 비우기</button>
+        </div>
         <textarea id="output" readonly></textarea>
     </div>
 </div>
 
 <script>
+// 자동 저장 로직
+const saveInputs = document.querySelectorAll('.save-val');
+function loadSettings() {
+    saveInputs.forEach(input => {
+        const val = localStorage.getItem('kb_gen_' + input.id);
+        if (val) input.value = val;
+    });
+    updateFileIndicator();
+}
+saveInputs.forEach(input => {
+    input.addEventListener('input', () => {
+        localStorage.setItem('kb_gen_' + input.id, input.value);
+    });
+});
+function clearAll() {
+    if(confirm("모든 입력 내용을 지울까요?")) {
+        saveInputs.forEach(input => {
+            input.value = '';
+            localStorage.removeItem('kb_gen_' + input.id);
+        });
+        updateFileIndicator();
+    }
+}
+
 function updateFileIndicator() {
     const url = document.getElementById('adminBaseUrl').value;
     const fileName = url.substring(url.lastIndexOf('/') + 1);
@@ -51,10 +83,10 @@ function updateFileIndicator() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    updateFileIndicator();
+    loadSettings();
     const btn = document.getElementById("genBtn");
     const output = document.getElementById("output");
-    output.addEventListener("click", function() { if(!this.value) return; navigator.clipboard.writeText(this.value).then(() => { alert("✅ 보안 코드가 복사되었습니다!"); }); });
+    output.addEventListener("click", function() { if(!this.value) return; navigator.clipboard.writeText(this.value).then(() => { alert("✅ 코드가 복사되었습니다!"); }); });
 
     btn.addEventListener("click", function() {
         const week = document.getElementById('weekTitle').value;
@@ -99,7 +131,6 @@ document.addEventListener("DOMContentLoaded", function() {
         c += 'const totalQ = ' + rawAns.length + ';\n';
         c += 'const maxT=' + mTry + ', waitMin=' + waitMin + ';\n';
         c += 'const startDay="' + startDay + '", endDay="' + endDay + '";\n';
-        // HW_ID를 과제명으로 고정하여 독서/문학 등 다른 과제끼리 기록이 섞이지 않게 수정
         c += 'const ansLink = "' + ansL + '", HW_ID = "HW_' + week.replace(/\s/g, "") + '", ADMIN_BASE = "' + adminUrl + '", GAS_URL = "' + gasUrl + '";\n';
         
         c += 'try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}\n';
@@ -121,7 +152,6 @@ document.addEventListener("DOMContentLoaded", function() {
         c += '  timerInterval = setInterval(()=>{\n    if(timeLeft<=0){ clearInterval(timerInterval); timerInterval=null; btn.style.opacity="1"; btn.innerText="📝 답안 제출하기"; btn.disabled=false; document.getElementById("timeText").innerText="입력 가능"; return; }\n    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeText").innerText="다음 도전까지 "+m+"분 "+(s<10?"0"+s:s)+"초 남음";\n  }, 1000);\n}\n';
         c += 'function done(){ document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; if(isPerfect){showFinalResult("백점 달성!"); return;} if(att >= maxT){showFinalResult("기회 소진"); return;} alert("📊 "+att+"회차: 오답 "+w+"개" + (att === maxT - 1 ? "\\n📍 틀린 번호: " + (wrongListStr||"없음") : "")); document.querySelectorAll(".opt-input").forEach(rb=>{if(!rb.disabled) rb.checked=false;}); document.getElementById("subBtn").style.display="block"; startWaitTimer(); }\n';
         c += 'function showFinalResult(msg){ const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style=\'padding:25px;background:#eeebff;border-radius:15px;text-align:center\'><h3>🏁 "+msg+"</h3><p>정답 확인.</p><a href=\'"+ansLink+"\' target=\'_blank\' style=\'display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold\'>📘 해설지 보기</a></div>"; document.getElementById("subBtn").style.display="none"; }\n';
-        // share 함수에서 webUrl과 mobileWebUrl을 단순히 ADMIN_BASE로만 설정하여 학생용 카톡 메시지에서 admin_view를 제거
         c += 'function share(){ Kakao.Share.sendDefault({ objectType: "text", text: resT, link: { mobileWebUrl: ADMIN_BASE, webUrl: ADMIN_BASE } }); setTimeout(()=>{const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML="<div style=\'background:white;padding:30px;border-radius:20px;text-align:center\'><p style=\'font-weight:bold\'>전송 완료?</p><button onclick=\'done()\' style=\'width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer\'>네</button></div>";},1500); }\n';
         c += '<\/script></body></html>';
         
