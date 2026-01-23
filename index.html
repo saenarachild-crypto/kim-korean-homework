@@ -137,10 +137,10 @@
 
     function shareAndUnlock() {
         const currentTry = (serverRes && serverRes.try) ? serverRes.try : 1;
-        const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?update=' + Date.now();
+        const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + Date.now();
         
-        // 🛡️ 1~2회차엔 버튼 없음, 3회차에만 "결과 확인하기" 버튼 노출
-        const kakaoContent = {
+        // 🛡️ buttons 속성 완전 삭제하여 "자세히 보기" 영구 제거
+        Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
                 title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
@@ -148,13 +148,7 @@
                 imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
             }
-        };
-
-        if(currentTry >= 3) {
-            kakaoContent.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }];
-        }
-
-        Kakao.Share.sendDefault(kakaoContent);
+        });
 
         setTimeout(() => {
             if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
@@ -168,8 +162,9 @@
     }
 
     function displayResult() {
-        const currentTry = serverRes.try;
-        document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${currentTry}회차 제출 완료)</span>`;
+        const currentTry = (serverRes && serverRes.try) ? serverRes.try : 1;
+        const count = (serverRes && serverRes.wrongCount !== undefined) ? serverRes.wrongCount : 0;
+        document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${count}개</span><br><span style="font-size:0.7em; color:#999;">(${currentTry}회차 제출 완료)</span>`;
         if(currentTry >= 3) {
             document.getElementById('historyArea').style.display = 'block';
             document.getElementById('solArea').innerHTML = `
