@@ -119,7 +119,6 @@
         const key = document.getElementById("examSelect").value;
         cur = TASKS[key]; curID = "HW_V67_" + cur.id;
         
-        // UI 초기화
         document.getElementById('resultCard').style.display = 'none';
         document.getElementById('resWrongs').style.display = 'none';
         document.getElementById('solLinkArea').style.display = 'none';
@@ -147,11 +146,24 @@
         const name = document.getElementById('stuName').value.trim();
         const academy = document.getElementById('academyName').value.trim();
         if(!name || !academy) return alert("정보를 입력하세요.");
+        
         const answers = [];
+        let uncheckCount = 0;
+        
         for(let i=1; i<=cur.qCount; i++) {
             const val = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-            if(!val) return alert(i + "번 정답을 선택하세요.");
-            answers.push(Number(val));
+            // 🚩 미체크 문항은 0으로 처리 (틀린 것으로 간주)
+            if(!val) {
+                answers.push(0);
+                uncheckCount++;
+            } else {
+                answers.push(Number(val));
+            }
+        }
+        
+        // 미체크 문항이 있을 경우 확인 절차 (선택 사항)
+        if(uncheckCount > 0) {
+            if(!confirm(`체크하지 않은 문항이 ${uncheckCount}개 있습니다.\n미체크 문항은 오답 처리됩니다. 계속하시겠습니까?`)) return;
         }
         
         const btn = document.getElementById('submitBtn');
@@ -188,7 +200,6 @@
         const stuName = document.getElementById('stuName').value;
         const examName = document.getElementById("examSelect").value;
 
-        // 🖼️ 카톡 공유 로고 비율 최적화 및 회차 정보 명시
         Kakao.Share.sendDefault({ 
             objectType: 'feed', 
             content: { 
@@ -211,14 +222,11 @@
             const solArea = document.getElementById('solLinkArea');
             let f = `${serverRes.try}회차 제출 완료. `;
 
-            // 🚩 [핵심 로직] 회차별 오답 정보 차등 제공
             if(serverRes.try < 3) {
-                // 1~2회차: 틀린 개수만 노출
                 f += `현재 오답 개수는 ${serverRes.wrongCount}개입니다. 틀린 문항을 다시 고민해 보세요!`;
                 document.getElementById('resWrongs').style.display = 'none';
                 solArea.style.display = 'none';
             } else {
-                // 마지막 3회차: 틀린 번호 + 해설지 버튼 노출
                 f += `모든 도전이 끝났습니다. 아래 오답 번호와 해설지를 확인하세요.`;
                 document.getElementById('resWrongs').innerText = `상세 오답 문항: ${serverRes.wrongs}`;
                 document.getElementById('resWrongs').style.display = 'block';
