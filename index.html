@@ -16,16 +16,19 @@
         .selector-box { background: #eeebff; padding: 12px; border-radius: 12px; margin-bottom: 20px; border: 1.5px solid #d1ccff; }
         select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; background: #fff; outline: none; }
         .notice-box { background: #fff3e0; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.9rem; border: 1px solid #ffe0b2; line-height: 1.6; }
+        
+        /* stest23 스타일 복구 */
         .q-card { background: #fff; border: 1.5px solid #eee; border-radius: 15px; padding: 20px; margin-bottom: 12px; }
         .options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; position: relative; }
         .opt-input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-        .opt-label { height: 45px; border: 1.5px solid #eee; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: #636e72; transition: 0.2s; position: relative; z-index: 1; }
+        .opt-label { height: 45px; border: 1.5px solid #eee; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: #636e72; transition: 0.2s; }
         .opt-input:checked + .opt-label { background: var(--p); color: #fff; border-color: var(--p); box-shadow: 0 5px 12px rgba(108,92,231,0.3); }
-        .opt-input:disabled + .opt-label { background: #f1f2f6; color: #ccc; border: none; cursor: not-allowed; }
+        .opt-input:disabled + .opt-label { background: #eee; color: #bbb; cursor: not-allowed; border: none; }
+
         #timer { font-weight: bold; color: #ff6b6b; text-align: right; margin-bottom: 10px; font-size: 1rem; }
         input { padding: 12px; border: 1px solid #ddd; border-radius: 10px; width: 100%; box-sizing: border-box; margin-bottom: 10px; outline: none; }
-        .btn-main { width: 100%; padding: 20px; background: #ff6b6b; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 20px; }
-        #kakaoBtn { display: none; width: 100%; background: #fee500; color: #3c1e1e; border: none; padding: 20px; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-main { width: 100%; padding: 20px; background: #ff6b6b; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        .pdf-btn { display: flex; align-items: center; justify-content: center; background: #eee; color: #333; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 0.8rem; height: 45px; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
     </style>
 </head>
@@ -41,18 +44,19 @@
     <div id="examContent">
         <div id="timer">⏱ <span id="timeText">재도전 대기 없음</span></div>
         <div class="notice-box" id="noticeArea"></div>
-        <div id="limitMsg" style="display:none; color:red; font-weight:bold; text-align:center; margin-bottom:15px; padding:10px; background:#ffdada; border-radius:10px;"></div>
+        <div id="limitMsg" style="display:none; color:red; font-weight:bold; text-align:center; margin-bottom:15px; padding:12px; background:#ffdada; border-radius:10px;"></div>
+        
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <input type="text" id="cN" placeholder="학원명">
             <input type="text" id="sN" placeholder="이름" oninput="checkLimit()">
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
             <select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select>
-            <a id="pdfLink" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; background:#eee; color:#333; text-decoration:none; border-radius:10px; font-weight:bold; font-size:0.8rem">📄 문제지 보기</a>
+            <a id="pdfLink" href="#" target="_blank" class="pdf-btn">📄 문제지 보기</a>
         </div>
         <div id="qC"></div>
         <button id="subBtn" onclick="submit()" class="btn-main">📝 답안 제출하기</button>
-        <button id="kakaoBtn" onclick="share()">🟡 카톡으로 제출 확인</button>
+        <button id="kakaoBtn" onclick="share()" style="display:none; width:100%; background:#fee500; color:#3c1e1e; border:none; padding:20px; border-radius:15px; font-weight:bold; cursor:pointer; margin-top:20px;">🟡 카톡으로 제출 확인</button>
         <div id="resArea" style="display:none; margin-top:20px;"></div>
     </div>
 </div>
@@ -87,15 +91,10 @@ try{if(!Kakao.isInitialized()) Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}c
 window.onload = function() {
     const params = new URLSearchParams(window.location.search);
     if(params.has("admin_view")) { renderAdmin(params.get("admin_view")); return; }
-    
     const sel = document.getElementById("examSelect");
     const taskKeys = Object.keys(TASKS);
     taskKeys.forEach(k => { let o = document.createElement("option"); o.value=k; o.innerText=k; sel.appendChild(o); });
-    
-    if(taskKeys.length > 0) {
-        sel.value = taskKeys[taskKeys.length - 1];
-        loadExam();
-    }
+    if(taskKeys.length > 0) { sel.value = taskKeys[taskKeys.length - 1]; loadExam(); }
 };
 
 function loadExam() {
@@ -112,15 +111,11 @@ function loadExam() {
         let o = document.createElement("option"); o.value=s; o.innerText=s; sD.appendChild(o);
     }
 
-    // 🎯 문항 버튼 생성 로직 (이 부분이 빠져있었습니다!)
     let h = "";
-    const totalQ = cur.ans.length;
-    for(let n=1; n<=totalQ; n++) {
+    for(let n=1; n<=cur.ans.length; n++) {
         let dis = cur.active.includes(n) ? "" : "disabled";
         h += `<div class="q-card"><b>${n}번</b><div class="options">`;
-        for(let j=1; j<=5; j++) {
-            h += `<input type="radio" name="q${n}" id="q${n}_${j}" value="${j}" class="opt-input" ${dis}><label for="q${n}_${j}" class="opt-label">${j}</label>`;
-        }
+        for(let j=1; j<=5; j++) h += `<input type="radio" name="q${n}" id="q${n}_${j}" value="${j}" class="opt-input" ${dis}><label for="q${n}_${j}" class="opt-label">${j}</label>`;
         h += `</div></div>`;
     }
     document.getElementById("qC").innerHTML = h;
@@ -154,14 +149,14 @@ function share() {
     Kakao.Share.sendDefault({ objectType: "text", text: resT, link: { mobileWebUrl: BASE_URL, webUrl: BASE_URL } });
     setTimeout(() => {
         document.getElementById("overlay").style.display = "flex";
-        document.getElementById("overlay").innerHTML = `<div style="background:#fff;padding:30px;border-radius:20px;text-align:center;"><p>카톡 전송을 완료했나요?</p><button onclick="done()" style="width:100%;padding:15px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">네, 완료했습니다</button></div>`;
+        document.getElementById("overlay").innerHTML = `<div style="background:#fff;padding:30px;border-radius:20px;text-align:center;"><p>카톡 전송을 완료했나요?</p><button onclick="done()" style="width:100%;padding:15px;background:#fee500;border:none;border-radius:10px;font-weight:bold;">네, 완료했습니다</button></div>`;
     }, 1500);
 }
 
 function done() {
     document.getElementById("overlay").style.display = "none";
     document.getElementById("kakaoBtn").style.display = "none";
-    if(isPerfect) return showFinal("백점 달성!");
+    if(wCount === 0) return showFinal("백점 달성!");
     if(attCount >= cur.max) return showFinal("기회 소진");
     alert(`📊 ${attCount}회차 결과: 오답 ${wCount}개` + (attCount === cur.max - 1 ? `\n📍 힌트: ${wrongListStr}` : ""));
     document.getElementById("subBtn").style.display = "block";
@@ -185,7 +180,9 @@ function startWaitTimer() {
 
 function checkDateLimit() {
     let now = new Date(); now.setHours(0,0,0,0);
-    let s = new Date(cur.start); let e = new Date(cur.end); e.setHours(23,59,59,999);
+    // ⭐ 날짜 판정 완화: 시작일 자정부터 바로 가능하도록
+    let s = new Date(cur.start); s.setHours(0,0,0,0);
+    let e = new Date(cur.end); e.setHours(23,59,59,999);
     const m = document.getElementById("limitMsg"), b = document.getElementById("subBtn");
     if(now < s || now > e) { isBlocked = true; b.style.display="none"; m.style.display="block"; m.innerText="🚫 제출 기간이 아닙니다."; }
     else { isBlocked = false; b.style.display="block"; m.style.display="none"; }
