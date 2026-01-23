@@ -22,9 +22,13 @@
         .notice-card p { margin: 0; font-size: 0.95em; line-height: 1.6; color: #555; }
         .input-grid { display: flex !important; gap: 10px; margin-bottom: 20px; }
         input[type="text"] { flex: 1; width: 0; padding: 15px 10px; border: 1px solid var(--border); border-radius: 15px; font-size: 16px !important; text-align: center; background: #fdfdff; outline: none; height: 50px; box-sizing: border-box; }
-        .selector-box { background: #eeebff; padding: 15px; border-radius: 20px; margin-bottom: 20px; }
+        .selector-box { background: #eeebff; padding: 15px; border-radius: 20px; margin-bottom: 10px; } /* 간격 조정 */
         select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #c3b9ff; font-weight: 700; color: var(--p); font-size: 1em; outline: none; background: #fff; }
-        .pdf-btn { display: block; width: 100%; padding: 15px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 15px; font-weight: 700; font-size: 1em; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* 📄 문제지 버튼 크기 및 디자인 보정 */
+        .pdf-btn { display: block; width: 100%; padding: 18px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 20px; font-weight: 800; font-size: 1.05em; margin-bottom: 20px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); box-sizing: border-box; transition: 0.2s; }
+        .pdf-btn:active { transform: scale(0.98); opacity: 0.9; }
+
         .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; background: #fff; }
         .is-waiting { opacity: 0.4 !important; pointer-events: none !important; }
         .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -50,7 +54,9 @@
         <div id="waitDisplay" class="wait-banner">⏳ 다시 고민할 시간입니다...</div>
         <div class="notice-card"><h3>📢 시험지 공지</h3><p id="examNotice"></p></div>
         <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
-        <a id="pdfLink" class="pdf-btn" target="_blank" href="#">📄 원본 문제지 보기</a>
+        
+        <a id="pdfLink" class="pdf-btn" target="_blank" onclick="openPdf(event)">📄 원본 문제지 보기</a>
+        
         <div id="questionsContainer"></div>
         <button id="submitBtn" class="main-btn" onclick="processSubmit()">제출 및 서버 채점</button>
         <button id="kakaoBtn" class="main-btn" onclick="shareAndUnlock()" style="display:none; background:#fee500; color:#3c1e1e;">🟡 카톡 전송 후 결과 확인</button>
@@ -62,7 +68,6 @@
     google.charts.load('current', {'packages':['corechart']});
     const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001", GAS_URL = "https://script.google.com/macros/s/AKfycbxcT0dziBtsHKDZEPwzyBySOkZjfl3_B7nSysFX7DlXyDKiAD03zLI3jXI8ZBNbA31C/exec";
     
-    // 🐯 선생님이 주신 정확한 링크 데이터 반영
     const TASKS = {
         "1월 3회차 문학": { 
             id: "2601_03_LIT", 
@@ -94,6 +99,12 @@
         checkGlobalWait(); 
     };
 
+    function openPdf(e) {
+        e.preventDefault();
+        const key = document.getElementById("examSelect").value;
+        window.open(TASKS[key].pdf, '_blank'); // 선택된 시험지 PDF 즉시 열기
+    }
+
     function checkGlobalWait() {
         const until = localStorage.getItem('wait_until');
         if (until && parseInt(until) > Date.now()) {
@@ -111,7 +122,6 @@
         const key = document.getElementById("examSelect").value;
         const cur = TASKS[key];
         document.getElementById('examNotice').innerText = cur.notice;
-        document.getElementById('pdfLink').href = cur.pdf;
         
         let html = "";
         cur.allNums.forEach(n => {
