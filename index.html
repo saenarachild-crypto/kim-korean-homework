@@ -58,7 +58,7 @@
     let serverRes = null;
     try { if (KAKAO_KEY) Kakao.init(KAKAO_KEY); } catch(e) {}
 
-    function getUserKey() { return "v74.2_" + document.getElementById('stuName').value.trim(); }
+    function getUserKey() { return "v74.3_" + document.getElementById('stuName').value.trim(); }
 
     window.onload = async () => {
         const params = new URLSearchParams(window.location.search);
@@ -72,7 +72,7 @@
     async function checkServerBeforeStart(direct = false) {
         const name = document.getElementById('stuName').value.trim();
         if(!name) return alert("이름 입력!");
-        document.getElementById('startBtn').innerText = "데이터 대조 중...";
+        const btn = document.getElementById('startBtn'); btn.disabled = true; btn.innerText = "데이터 동기화 중...";
         try {
             const res = await fetch(GAS_URL + "?check=true&name=" + encodeURIComponent(name));
             const data = await res.json();
@@ -88,8 +88,7 @@
     function startExam() { document.getElementById('introPage').classList.remove('show'); document.getElementById('examPage').classList.add('show'); loadExam(); }
 
     function loadExam() {
-        const userKey = getUserKey();
-        if(localStorage.getItem('finished_' + userKey) === 'true') { lockExamPermanently(); return; }
+        if(localStorage.getItem('finished_' + getUserKey()) === 'true') { lockExamPermanently(); return; }
         let html = "";
         TASKS["1월 3회차 문학"].nums.forEach(n => {
             html += `<div class="q-card"><b>${n}번</b><div class="ans-row">${[1,2,3,4,5].map(v => `<input type="radio" name="q${n}" value="${v}" id="q${n}_${v}"><label for="q${n}_${v}">${v}</label>`).join('')}</div></div>`;
@@ -99,10 +98,9 @@
 
     async function processSubmit() {
         const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "채점 중...";
-        const name = document.getElementById('stuName').value, academy = document.getElementById('academyName').value;
         const answers = TASKS["1월 3회차 문학"].nums.map(n => document.querySelector(`input[name="q${n}"]:checked`)?.value || 0);
         try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: TASKS["1월 3회차 문학"].id, name, academy, answers }) });
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: TASKS["1월 3회차 문학"].id, name: document.getElementById('stuName').value, academy: document.getElementById('academyName').value, answers }) });
             serverRes = await res.json();
             btn.style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'block';
         } catch(e) { alert("제출실패"); btn.disabled = false; }
@@ -113,23 +111,25 @@
         const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg?v=' + Date.now();
         const callUrl = window.location.origin + window.location.pathname + "?viewResult=true&name=" + encodeURIComponent(name) + "&academy=" + encodeURIComponent(academy);
         
+        // 🛡️ [핵심 패치] content 내부의 link를 삭제하여 '자세히 보기' 생성을 근본적으로 차단
         const kakaoObj = {
             objectType: 'feed',
             content: {
                 title: `[${academy}] 제출 완료`,
                 description: `${name} 학생 (${currentTry}회차)`,
-                imageUrl: bustUrl, imageWidth: 400, imageHeight: 400,
-                link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
+                imageUrl: bustUrl, imageWidth: 400, imageHeight: 400
+                // ❌ link 제거 완료
             }
         };
 
+        // 🛡️ 오직 3회차일 때만 결과 확인용 버튼 배열 추가
         if(currentTry >= 3) {
             kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callUrl, webUrl: callUrl } }];
         }
 
         Kakao.Share.sendDefault(kakaoObj);
         setTimeout(() => {
-            if(confirm("선생님께 전송을 완료하셨나요?")) {
+            if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
                 displayResult(); document.getElementById('resultModal').style.display = 'block';
                 if(currentTry >= 3) { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); }
             }
@@ -155,7 +155,7 @@
         new google.visualization.LineChart(document.getElementById('chart_div')).draw(google.visualization.arrayToDataTable(chartData), {
             legend: 'none', colors: ['#ff7675'],
             vAxis: { direction: -1, minValue: 0, viewWindow: { min: 0, max: maxVal }, gridlines: { count: maxVal + 1 }, format: '0' },
-            chartArea: { width: '85%', height: '70%' }, pointSize: 7
+            hAxis: { textStyle: {fontSize: 10} }, chartArea: { width: '85%', height: '70%' }, pointSize: 7
         });
     }
 
