@@ -2,119 +2,183 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>주간과제 1월 3회차 문학</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>1교시 김현석 국어 – 주간과제</title>
+<link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
 <style>
-/* 🛡️ 선생님의 기본 골격 디자인 유지 */
-:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s;position:relative;z-index:1}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}.opt-input:disabled+.opt-label{background:#eee;color:#bbb;cursor:not-allowed;border:none}#timer{font-weight:bold;color:#ff6b6b;text-align:right;font-size:1.0rem;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}
+:root{--p:#6c5ce7;--bg:#f8f9fc;--border:#e2e8f0;--accent:#ff7675}
+body{background:var(--bg);font-family:Pretendard,system-ui;margin:0;padding:15px;color:#2d3436;-webkit-tap-highlight-color:transparent}
+.container{max-width:500px;margin:0 auto;background:#fff;padding:25px;border-radius:30px;box-shadow:0 10px 40px rgba(0,0,0,.03)}
+.header-logo{text-align:center;margin-bottom:20px}.header-logo img{width:100%;max-width:300px;border-radius:15px}
+.wait-banner{background:#fff200;color:#000;text-align:center;padding:15px;border-radius:15px;font-weight:900;font-size:1.1em;margin-bottom:15px;display:none;border:3px solid #000}
+.notice-card{background:#fff9f0;padding:18px;border-radius:20px;border:2px dashed #ffcc80;margin-bottom:20px}.notice-card p{margin:0;font-size:0.95em;line-height:1.6;color:#555}
+.input-grid{display:flex;gap:10px;margin-bottom:20px}input{flex:1;padding:15px;border:1px solid var(--border);border-radius:15px;font-size:16px;text-align:center;outline:none}
+select{width:100%;padding:12px;border-radius:12px;border:1px solid #c3b9ff;font-weight:700;color:var(--p);background:#fff;margin-bottom:10px;outline:none}
+.pdf-btn,.main-btn{width:100%;padding:18px;border-radius:20px;font-weight:800;border:none;cursor:pointer;box-sizing:border-box}
+.pdf-btn{background:#2d3436;color:#fff;margin-bottom:20px;display:block;text-align:center;text-decoration:none}
+.main-btn{background:var(--p);color:#fff}.q-card{border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:15px;background:#fff}
+.ans-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}input[type=radio]{display:none}
+label{height:45px;border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer}
+input:checked+label{background:var(--p);color:#fff}
+#resultModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:2000;overflow-y:auto;padding:15px;box-sizing:border-box}
+.modal-content{background:#fff;border-radius:30px;padding:25px;max-width:500px;margin:20px auto}
+#chart_div{width:100%;height:200px;margin:15px 0}.wrong-box{background:#fff0f0;padding:15px;border-radius:12px;color:#c0392b;font-weight:700;margin:15px 0;line-height:1.6;font-size:0.9em;word-break:break-all}
 </style>
 </head>
 <body>
-<div id="overlay"></div>
 <div class="container">
-    <h2 style="text-align:center">주간과제 1월 3회차 문학</h2>
-    <div id="timer">⏱ <span id="timeText">입력 가능</span></div>
-    <div class="notice-box"><b>[공지]</b> 시험지를 선택하고 자정까지 제출하세요. 미제출 시 분석이 불가능합니다.</div>
-    
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
-        <input type="text" id="cN" placeholder="학원명"> 
-        <input type="text" id="sN" placeholder="학생 이름">
-    </div>
-    
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
-        <select id="sD"><option value="2026-01-24">2026-01-24</option></select>
-        <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=rFfzXM" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#2d3436;color:white;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a>
+    <div id="introPage">
+        <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg"></div>
+        <div class="notice-card"><p>시험지를 선택하고 자정까지 제출하세요. 미제출 시 분석이 불가능합니다.</p></div>
+        <div class="input-grid">
+            <input id="academy" placeholder="학원명">
+            <input id="name" placeholder="학생 이름">
+        </div>
+        <button class="main-btn" onclick="checkServerBeforeStart()">본인 확인 완료 (과제 시작)</button>
     </div>
 
-    <div id="qC"></div>
-    
-    <button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:var(--p);color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출 및 채점</button>
-    <button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡 전송 후 결과 확인</button>
-    <div id="resArea" style="display:none;margin-top:20px"></div>
+    <div id="examPage" style="display:none;">
+        <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg"></div>
+        <div id="waitDisplay" class="wait-banner"></div>
+        <div class="notice-card"><p id="examNotice"></p></div>
+        <select id="examSelect" onchange="loadExam()"></select>
+        <button class="pdf-btn" onclick="openPdf()">📄 원본 문제지 보기</button>
+        <div id="qBox"></div>
+        <button class="main-btn" id="submitBtn" onclick="submit()">제출 및 서버 채점</button>
+        <button class="main-btn" id="kakaoBtn" onclick="share()" style="display:none;background:#fee500;color:#3c1e1e">🟡 카톡 전송 후 결과 확인</button>
+        <button class="main-btn" id="reviewBtn" style="display:none;background:#2f3542;" onclick="showLastResult()">📊 최종 리포트 다시 보기</button>
+    </div>
 </div>
 
+<div id="resultModal"><div class="modal-content"><h2 style="text-align:center;">📊 리포트</h2><div id="resSummary" style="font-weight:800; margin:20px 0; font-size:1.3em; text-align:center;"></div><div id="historyArea" style="display:none;"><div id="chart_div"></div><p style="font-size:0.8em; color:#666; text-align:center;">* 위로 갈수록 성적이 좋아지는 그래프입니다.</p></div><div id="solArea"></div><button class="main-btn" style="background:#f1f2f6; color:#333; margin-top:20px;" onclick="closeModal()">결과창 닫기</button></div></div>
+
 <script>
-let w=0, att=0, isPerfect=false, wrongListStr="", resT="";
-const masterAnswers = [0, ..."1321525524145132442143332454332".split("").map(Number)];
-const totalQ = 31;
-const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001", 
-      GAS_URL = "https://script.google.com/macros/s/AKfycbxtPu2ZsmP7HOt93FGri3W86YV7i0U-71BbAl9cXclpxZJGTXcSE8ejOwuv8RTdE0bP/exec",
-      ADMIN_BASE = "https://saenarachild-crypto.github.io/kim-korean-homework/";
+google.charts.load('current',{packages:['corechart']});
+const KAKAO_KEY="f81d5eae0eaaf6fa2d0bdccbe6916001", 
+      GAS_URL="https://script.google.com/macros/s/AKfycbxtPu2ZsmP7HOt93FGri3W86YV7i0U-71BbAl9cXclpxZJGTXcSE8ejOwuv8RTdE0bP/exec";
+if(!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
-try { if(!Kakao.isInitialized()){ Kakao.init(KAKAO_KEY); } } catch(e) {}
+const EXAMS={
+  "1월 3회차 문학":{ 
+    id:"2601_03_LIT", 
+    wait:1, 
+    notice:"전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", 
+    pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", 
+    all:Array.from({length:31},(_,i)=>i+1), 
+    active:Array.from({length:31},(_,i)=>i+1) 
+  },
+  "1월 3회차 독서":{ 
+    id:"2601_03_READING", 
+    wait:5, 
+    notice:"지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", 
+    pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC5xf-Z-XrcRKZRHFK77VR1AR04L4r74w6r8sNvYB7-j5c?e=gzGNQR", 
+    all:Array.from({length:42},(_,i)=>i+1), 
+    active:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39] 
+  },
+  "해설지":{ sol:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=Z182ND" }
+};
 
-// 문제 생성
-let h=""; for(let n=1; n<=totalQ; n++){
-    h+="<div class='q-card'><div style='font-weight:bold;margin-bottom:15px'>"+n+"번</div><div class='options'>";
-    for(let j=1;j<=5;j++){ h+="<input type='radio' name='q"+n+"' id='q"+n+"_"+j+"' value='"+j+"' class='opt-input'><label for='q"+n+"_"+j+"' class='opt-label'>"+j+"</label>"; }
-    h+="</div></div>";
-} document.getElementById("qC").innerHTML=h;
+let serverRes=null, waitInt=null;
+const sel=document.getElementById("examSelect");
+Object.keys(EXAMS).filter(k=>k!=="해설지").forEach(k=>{let o=document.createElement("option");o.text=k;sel.add(o)});
 
-function submit(){
-    const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim();
-    if(!cN||!sN){alert("학원명과 이름을 입력하세요!"); return;}
-    
-    w=0; let d=[]; 
-    for(let i=1; i<=totalQ; i++){
-        let s=document.querySelector("input[name='q"+i+"']:checked");
-        let v=s?parseInt(s.value):0;
-        if(v!==masterAnswers[i]){w++; d.push(i);}
-    }
-    isPerfect=(w===0); wrongListStr=d.join(",");
-    const key="att_"+sN+"_HW3"; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key,att);
+function getUserKey() { return `v76.5_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
-    resT = `[${cN}] 제출 완료\n${sN} 학생 (${att}회차)`;
-    
-    document.getElementById("subBtn").style.display="none";
-    document.getElementById("kakaoBtn").style.display="block";
-    
-    fetch(GAS_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"1월 3회차 문학",name:sN,class:cN,attempt:att,wrongCount:w,wrongList:wrongListStr})});
+async function checkServerBeforeStart(){
+    const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
+    if(!name||!academy) return alert("정보 입력!");
+    const btn=event.target; btn.disabled=true; btn.innerText="데이터 동기화 중...";
+    try {
+        const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[sel.value].id);
+        const data=await res.json();
+        if(data.finished){
+            localStorage.setItem('finished_'+getUserKey(), 'true');
+            localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(data.lastRes));
+        }
+        document.getElementById("introPage").style.display="none";
+        document.getElementById("examPage").style.display="block";
+        loadExam();
+    } catch(e){ document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; loadExam(); }
+}
+
+function loadExam(){
+    const e=EXAMS[sel.value];
+    document.getElementById("examNotice").innerText=e.notice;
+    if(localStorage.getItem('finished_'+getUserKey())==='true'){ lockExam(); return; }
+    let h=""; e.all.forEach(n=>{
+        const act=e.active.includes(n);
+        h+=`<div class="q-card" style="${act?'':'opacity:0.3;pointer-events:none'}"><b>${n}번</b><div class="ans-row">`;
+        for(let j=1;j<=5;j++) h+=`<input type=radio name=q${n} id=q${n}_${j} value=${j} ${act?'':'disabled'}><label for=q${n}_${j}>${j}</label>`;
+        h+=`</div></div>`;
+    });
+    document.getElementById("qBox").innerHTML=h; checkGlobalWait();
+}
+
+async function submit(){
+    const e=EXAMS[sel.value], answers=[];
+    // 🛡️ 서버 정답 배열 길이와 1:1 대응 (서버 오류 방지)
+    e.all.forEach(n=>{
+        if(e.active.includes(n)) answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0);
+        else answers.push(0);
+    });
+    const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.innerText="채점 중...";
+    try {
+        const res=await fetch(GAS_URL,{method:"POST",body:JSON.stringify({examId:e.id,name:document.getElementById("name").value.trim(),academy:document.getElementById("academy").value.trim(),answers})});
+        serverRes=await res.json(); btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
+    } catch(e){ alert("오류"); btn.disabled=false; }
 }
 
 function share(){
-    // 🛡️ 보내주신 코드의 잘 되는 호출 방식(objectType: "text") 사용
-    const shareObj = {
-        objectType: "text",
-        text: resT,
-        link: { mobileWebUrl: ADMIN_BASE, webUrl: ADMIN_BASE }
-    };
+    const name=document.getElementById("name").value, academy=document.getElementById("academy").value, att=serverRes.try||1;
+    let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
+            : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라.]`
+            : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
 
-    // 🛡️ 3회차일 때만 결과 확인 버튼 추가 (그 외엔 buttons 없음 -> 자세히 보기 봉쇄)
-    if(att >= 3) {
-        shareObj.buttons = [{
-            title: "결과 확인하기",
-            link: { mobileWebUrl: ADMIN_BASE + "?viewResult=true", webUrl: ADMIN_BASE + "?viewResult=true" }
-        }];
-    }
-
-    Kakao.Share.sendDefault(shareObj);
-
-    setTimeout(()=>{
-        const o=document.getElementById("overlay");
-        o.style.display="flex";
-        o.innerHTML="<div style='background:white;padding:30px;border-radius:20px;text-align:center'><p style='font-weight:bold'>선생님께 전송하셨나요?</p><button onclick='done()' style='width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer'>네, 완료했습니다</button></div>";
-    },1500);
+    const obj={ objectType:"text", text:msg, link:{mobileWebUrl:location.href, webUrl:location.href} };
+    if(att>=3) obj.buttons=[{title:"결과 보기", link:{mobileWebUrl:location.href+"?viewResult=true", webUrl:location.href+"?viewResult=true"}}];
+    
+    Kakao.Share.sendDefault(obj);
+    setTimeout(()=>{ if(confirm("선생님께 전송 완료하셨습니까?")){ 
+        displayResult(); document.getElementById('resultModal').style.display='block';
+        if(att<3) localStorage.setItem('wait_until_'+getUserKey(), Date.now()+(EXAMS[sel.value].wait*60000));
+        else { localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); }
+    }}, 1500);
 }
 
-function done(){
-    document.getElementById("overlay").style.display="none";
-    document.getElementById("kakaoBtn").style.display="none";
-    document.getElementById("resArea").style.display="block";
-    
-    let resHtml = `<div style='padding:20px;background:#eeebff;border-radius:15px;text-align:center'><h3>📊 ${att}회차 채점 결과</h3><p>오답 개수: <span style='color:red;font-weight:bold'>${w}개</span></p>`;
-    
-    if(att === 2) resHtml += `<p style='color:blue;font-size:0.9rem'>틀린 번호 힌트: ${wrongListStr}</p>`;
-    if(att >= 3 || isPerfect) resHtml += `<a href='https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg' target='_blank' style='display:block;margin-top:10px;padding:12px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold'>📘 최종 해설지 보기</a>`;
-    
-    resHtml += `</div>`;
-    document.getElementById("resArea").innerHTML = resHtml;
-    
-    if(att < 3 && !isPerfect) {
-        document.getElementById("subBtn").style.display="block";
-        document.getElementById("subBtn").innerText = "다음 회차 재제출";
-    }
+function displayResult(){
+    const att=serverRes.try||1, count=serverRes.wrongCount||0;
+    document.getElementById('resSummary').innerHTML=`틀린 개수: <span style="color:var(--accent)">${count}개</span><br>(${att}회차 제출 완료)`;
+    if(att>=3){
+        document.getElementById('historyArea').style.display='block';
+        document.getElementById('solArea').innerHTML=`<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${EXAMS['해설지'].sol}" class="main-btn" target="_blank" style="display:block;text-align:center;text-decoration:none">최종 해설지 확인하기</a>`;
+        setTimeout(drawChart, 300);
+    } else { document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center">${att===1?'2회차에 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p>`; }
 }
+
+function drawChart(){
+    const data=new google.visualization.DataTable(); data.addColumn('string','회차'); data.addColumn('number','오답');
+    serverRes.history.forEach((h,i)=>data.addRow([(i+1)+'회',Number(h.wrongCount)]));
+    new google.visualization.LineChart(document.getElementById('chart_div')).draw(data,{legend:'none',colors:['#ff7675'],vAxis:{direction:-1,minValue:0,format:'0'},chartArea:{width:'85%',height:'70%'},pointSize:7});
+}
+
+function checkGlobalWait(){ 
+    const until=localStorage.getItem('wait_until_'+getUserKey()); 
+    if(until && parseInt(until)>Date.now()) startWaitTimer(Math.ceil((parseInt(until)-Date.now())/1000)); 
+}
+function startWaitTimer(r){
+    const b=document.getElementById('waitDisplay'), q=document.getElementById('qBox'), s=document.getElementById('submitBtn');
+    b.style.display='block'; q.style.pointerEvents='none'; s.disabled=true;
+    waitInt=setInterval(()=>{
+        let m=Math.floor(r/60), sec=r%60; b.innerText=`⏳ 대기 중: ${m}:${sec<10?'0'+sec:sec}`;
+        if(r--<=0){ clearInterval(waitInt); b.style.display='none'; q.style.pointerEvents='auto'; s.disabled=false; s.innerText="제출 및 서버 채점"; localStorage.removeItem('wait_until_'+getUserKey()); }
+    },1000);
+}
+function lockExam(){ document.getElementById('qBox').innerHTML="<div style='text-align:center;padding:50px;color:#999'>3회차 제출 완료로 수정 불가.</div>"; document.getElementById('submitBtn').style.display='none'; document.getElementById('kakaoBtn').style.display='none'; document.getElementById('reviewBtn').style.display='block'; }
+function openPdf(){ window.open(EXAMS[sel.value].pdf) }
+function showLastResult(){ const saved=JSON.parse(localStorage.getItem('last_res_'+getUserKey())); if(saved){serverRes=saved; displayResult(); document.getElementById('resultModal').style.display='block';} }
+function closeModal(){ document.getElementById('resultModal').style.display='none'; checkGlobalWait(); }
 </script>
 </body>
 </html>
