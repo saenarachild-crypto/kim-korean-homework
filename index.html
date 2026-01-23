@@ -42,7 +42,6 @@
 <div class="container">
     <div id="introPage" class="show">
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg"></div>
-        <div class="notice-card"><h3>📢 공지사항</h3><p>시험지를 선택하고 자정까지 제출하세요. 미제출 시 분석이 불가능합니다.</p></div>
         <div class="input-grid" style="display:flex; gap:10px; margin-bottom:20px;">
             <input type="text" id="academyName" placeholder="학원명"><input type="text" id="stuName" placeholder="학생 이름">
         </div>
@@ -67,15 +66,14 @@
     google.charts.load('current', {'packages':['corechart']});
     const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001", GAS_URL = "https://script.google.com/macros/s/AKfycbxcT0dziBtsHKDZEPwzyBySOkZjfl3_B7nSysFX7DlXyDKiAD03zLI3jXI8ZBNbA31C/exec";
     const TASKS = {
-        "1월 3회차 문학": { id: "2601_03_LIT", wait: 1, notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", pdf: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", allNums: Array.from({length: 31}, (_, i) => i + 1), activeNums: Array.from({length: 31}, (_, i) => i + 1), sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" },
-        "1월 3회차 독서": { id: "2601_03_READING", wait: 5, notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/2601_03_reading.pdf", allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" }
+        "1월 3회차 문학": { id: "2601_03_LIT", wait: 1, notice: "전 문항 풀이. 1/26 자정까지", pdf: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", allNums: Array.from({length: 31}, (_, i) => i + 1), activeNums: Array.from({length: 31}, (_, i) => i + 1), sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" },
+        "1월 3회차 독서": { id: "2601_03_READING", wait: 5, notice: "지정 문항 풀이. 1/26 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/2601_03_reading.pdf", allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" }
     };
     let serverRes = null, waitInt = null;
-    try { if (KAKAO_KEY) Kakao.init(KAKAO_KEY); } catch(e) {}
-
-    function getUserKey() { return "v74.4_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
+    function initKakao() { try { if (KAKAO_KEY && !Kakao.isInitialized()) Kakao.init(KAKAO_KEY); } catch(e) {} }
 
     window.onload = async () => {
+        initKakao();
         const sel = document.getElementById("examSelect");
         Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
         const params = new URLSearchParams(window.location.search);
@@ -86,10 +84,12 @@
         }
     };
 
+    function getUserKey() { return "v74.5_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
+
     async function checkServerBeforeStart(direct = false) {
         const name = document.getElementById('stuName').value.trim(), academy = document.getElementById('academyName').value.trim(), key = document.getElementById("examSelect").value;
-        if(!name) return alert("이름 입력!");
-        document.getElementById('startBtn').innerText = "데이터 동기화 중...";
+        if(!name) return alert("이름을 입력하세요.");
+        const btn = document.getElementById('startBtn'); btn.disabled = true; btn.innerText = "데이터 동기화 중...";
         try {
             const res = await fetch(GAS_URL + "?check=true&name=" + encodeURIComponent(name) + "&examId=" + TASKS[key].id);
             const data = await res.json();
@@ -124,13 +124,25 @@
     }
 
     function shareAndUnlock() {
+        initKakao();
+        if (!Kakao.isInitialized()) return alert("카톡 연결 지연 중... 잠시 후 다시 누르세요.");
         const currentTry = serverRes.try || 1, name = document.getElementById('stuName').value, academy = document.getElementById('academyName').value;
         const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg?v=' + Date.now();
         const callUrl = window.location.origin + window.location.pathname + "?viewResult=true&name=" + encodeURIComponent(name) + "&academy=" + encodeURIComponent(academy);
-        const kakaoObj = { objectType: 'feed', content: { title: `[${academy}] 제출 완료`, description: `${name} 학생 (${currentTry}회차)`, imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400 } };
-        if(currentTry >= 3) kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callUrl, webUrl: callUrl } }];
-        Kakao.Share.sendDefault(kakaoObj);
-        setTimeout(() => { if(confirm("선생님 채팅방으로 전송 완료?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if(currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 1500);
+        
+        const kakaoObj = {
+            objectType: 'feed',
+            content: { title: `[${academy}] 제출 완료`, description: `${name} 학생 (${currentTry}회차)`, imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400 }
+        };
+        // 🛡️ 3회차일 때만 link와 buttons를 추가하여 '자세히 보기' 자동 생성을 완벽 차단
+        if(currentTry >= 3) {
+            kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callUrl, webUrl: callUrl } }];
+        }
+
+        try {
+            Kakao.Share.sendDefault(kakaoObj);
+            setTimeout(() => { if(confirm("선생님 채팅방으로 전송을 완료하셨나요?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if(currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 1500);
+        } catch(e) { alert("카톡 앱을 찾을 수 없습니다."); }
     }
 
     function displayResult() {
