@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>1교시 김현석 국어</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="김현석 국어">
+    <link rel="apple-touch-icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg">
+    <link rel="shortcut icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg">
+
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+    <style>
+        :root { --p: #6c5ce7; --bg: #f8f9fc; --card: #ffffff; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; margin: 0; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .header-logo { text-align: center; margin-bottom: 20px; }
+        .header-logo img { width: 80px; height: auto; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* 과제 선택창 스타일 */
+        .selector-box { background: #eeebff; padding: 15px; border-radius: 15px; border: 1.5px solid #d1ccff; margin-bottom: 20px; }
+        .selector-label { font-size: 0.85rem; font-weight: bold; color: var(--p); display: block; margin-bottom: 8px; }
+        select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; outline: none; background: white; }
+
+        h2 { text-align: center; color: #2d3436; margin: 10px 0; font-weight: 800; }
+        .notice-box { background: #fff3e0; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.9rem; color: #5d4037; line-height: 1.6; border: 1px solid #ffe0b2; }
+        .q-card { background: #fff; border: 1.5px solid #eee; border-radius: 15px; padding: 20px; margin-bottom: 12px; }
+        .options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .opt-input { position: absolute; opacity: 0; pointer-events: none; }
+        .opt-label { height: 45px; border: 1.5px solid #eee; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: #636e72; transition: 0.2s; }
+        .opt-input:checked + .opt-label { background: var(--p); color: #fff; border-color: var(--p); box-shadow: 0 5px 12px rgba(108,92,231,0.3); }
+        
+        #timer { font-weight: bold; color: #ff6b6b; text-align: right; font-size: 0.9rem; margin-bottom: 10px; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 16px; outline: none; margin-bottom: 10px; }
+        .btn-main { width: 100%; padding: 20px; background: #ff6b6b; color: white; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        #kakaoBtn { display: none; width: 100%; background: #fee500; color: #3c1e1e; border: none; padding: 20px; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+<div id="overlay"></div>
+<div class="container">
+    <div class="header-logo">
+        <img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" alt="김현석 국어">
+    </div>
+
+    <div class="selector-box">
+        <label class="selector-label">📂 풀고 싶은 과제를 선택하세요</label>
+        <select id="examSelect" onchange="loadExamData()"></select>
+    </div>
+
+    <div id="examContent" style="display:none;">
+        <h2 id="displayTitle"></h2>
+        <div id="timer">⏱ <span id="timeText">재도전 대기 없음</span></div>
+        <div class="notice-box" id="noticeArea"></div>
+        
+        <div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px"></div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <input type="text" id="cN" placeholder="학원명"> 
+            <input type="text" id="sN" placeholder="이름" oninput="checkLimit()">
+        </div>
+        <select id="sD" onchange="checkLimit()" style="margin-bottom:15px;"><option value="">제출일 선택</option></select>
+
+        <div id="quizContainer"></div>
+
+        <button id="subBtn" onclick="submit()" class="btn-main">📝 답안 제출하기</button>
+        <button id="kakaoBtn" onclick="share()">🟡 카톡으로 제출 확인</button>
+        <div id="resArea" style="display:none;margin-top:20px"></div>
+    </div>
+</div>
+
+<script>
+// 📂 [선생님 데이터 관리소] 이 부분만 업데이트하시면 됩니다.
+const TASKS = {
+    "1월 3회차 독서": {
+        ans: "1234512345123451234512345123451", // 31문항 정답
+        range: "1-31",
+        start: "2026-01-21",
+        end: "2026-01-26",
+        msg: "독서 지문 분석을 철저히 하세요!",
+        max: 3, wait: 3
+    },
+    "1월 4회차 문학": {
+        ans: "543215432154321", // 15문항 정답
+        range: "1-15",
+        start: "2026-01-28",
+        end: "2026-02-02",
+        msg: "현대시 표현법 복습용 과제입니다.",
+        max: 3, wait: 5
+    }
+};
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbztPu2ZsmP7HOt93FGri3W86YV7i0U-71BbAl9cXclpxZJGTXcSE8ejOwuv8RTdE0bP/exec";
+const BASE_URL = window.location.href.split('?')[0];
+
+let cur = null, curID = "", w=0, att=0, isBlocked=false, resT="", isPerfect=false, wrongListStr="";
+try { if(!Kakao.isInitialized()) Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001"); } catch(e){}
+
+window.onload = function() {
+    const params = new URLSearchParams(window.location.search);
+    if(params.has("admin_view")) { renderAdmin(params.get("admin_view")); return; }
+    
+    const sel = document.getElementById("examSelect");
+    sel.innerHTML = '<option value="">과제를 선택하세요</option>';
+    Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value=k; o.innerText=k; sel.appendChild(o); });
+};
+
+function loadExamData() {
+    const key = document.getElementById("examSelect").value;
+    if(!key) { document.getElementById("examContent").style.display="none"; return; }
+    
+    cur = TASKS[key]; curID = "HW_" + key.replace(/\s/g, "");
+    document.getElementById("examContent").style.display="block";
+    document.getElementById("displayTitle").innerText = key;
+    document.getElementById("noticeArea").innerHTML = `<b>[공지]</b> ${cur.msg}<br>📅 기한: ${cur.start} ~ ${cur.end}<br>🔄 총 ${cur.max}회 도전 가능`;
+
+    // 📅 날짜 로직: 오늘부터 마감일까지
+    const sD = document.getElementById("sD"); sD.innerHTML = '<option value="">제출일 선택</option>';
+    let now = new Date(); now.setHours(0,0,0,0);
+    let end = new Date(cur.end); end.setHours(0,0,0,0);
+    for(let d=new Date(now); d<=end; d.setDate(d.getDate()+1)){
+        let s = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+        let o = document.createElement("option"); o.value=s; o.innerText=s; sD.appendChild(o);
+    }
+
+    // 📝 문항 생성
+    let h = "", activeArr = [];
+    cur.range.split(',').forEach(p => {
+        let r = p.trim().split('-');
+        if(r.length===2) for(let i=parseInt(r[0]);i<=parseInt(r[1]);i++) activeArr.push(i);
+        else activeArr.push(parseInt(p));
+    });
+    for(let n=1; n<=cur.ans.length; n++) {
+        let dis = activeArr.includes(n) ? "" : "disabled";
+        h += `<div class="q-card"><b>${n}번</b><div class="options">`;
+        for(let j=1; j<=5; j++) h += `<input type="radio" name="q${n}" id="q${n}_${j}" value="${j}" class="opt-input" ${dis}><label for="q${n}_${j}" class="opt-label">${j}</label>`;
+        h += `</div></div>`;
+    }
+    document.getElementById("quizContainer").innerHTML = h;
+    checkDateLimit();
+}
+
+function submit() {
+    if(isBlocked) return;
+    const sN = document.getElementById("sN").value.trim(), cN = document.getElementById("cN").value, sD = document.getElementById("sD").value;
+    if(!sN || !cN || !sD) return alert("정보를 모두 입력하세요.");
+
+    w = 0; let wrongs = [], mAns = [0, ...cur.ans.split("").map(Number)];
+    let activeArr = [];
+    cur.range.split(',').forEach(p => {
+        let r = p.trim().split('-');
+        if(r.length===2) for(let i=parseInt(r[0]);i<=parseInt(r[1]);i++) activeArr.push(i);
+        else activeArr.push(parseInt(p));
+    });
+
+    activeArr.forEach(n => {
+        let sel = document.querySelector(`input[name="q${n}"]:checked`);
+        if((sel?parseInt(sel.value):0) !== mAns[n]) { w++; wrongs.push(n); }
+    });
+
+    isPerfect = (w === 0); wrongListStr = wrongs.join(", ");
+    let k = "att_" + sN + "_" + curID;
+    att = parseInt(localStorage.getItem(k) || 0) + 1;
+    localStorage.setItem(k, att);
+    if(isPerfect) localStorage.setItem("perf_" + sN + "_" + curID, "true");
+
+    resT = `[1교시 김현석 국어]\n${sN} 학생 (${document.getElementById("examSelect").value}) 제출 완료`;
+    fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ exam: document.getElementById("examSelect").value, name: sN, class: cN, attempt: att, wrongCount: w, wrongList: wrongListStr }) });
+
+    alert("카톡 제출 후 [완료] 버튼을 눌러야 결과가 저장됩니다!");
+    document.getElementById("subBtn").style.display = "none";
+    document.getElementById("kakaoBtn").style.display = "block";
+}
+
+function share() {
+    Kakao.Share.sendDefault({ objectType: "text", text: resT, link: { mobileWebUrl: BASE_URL, webUrl: BASE_URL } });
+    setTimeout(() => {
+        document.getElementById("overlay").style.display = "flex";
+        document.getElementById("overlay").innerHTML = `<div style="background:#fff;padding:30px;border-radius:20px;text-align:center;"><p>카톡 전송을 완료했나요?</p><button onclick="done()" style="width:100%;padding:15px;background:#fee500;border:none;border-radius:10px;font-weight:bold;">네, 완료했습니다</button></div>`;
+    }, 1500);
+}
+
+function done() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("kakaoBtn").style.display = "none";
+    if(isPerfect) return showFinal("🎉 백점 달성!");
+    if(att >= cur.max) return showFinal("🚫 모든 기회 소진");
+
+    let msg = `📊 오답 ${w}개`;
+    if(att === cur.max - 1) msg += `\n📍 힌트(오답번호): ${wrongListStr}`;
+    alert(msg);
+    document.getElementById("subBtn").style.display = "block";
+    startWaitTimer();
+}
+
+function showFinal(m) {
+    document.getElementById("resArea").style.display = "block";
+    document.getElementById("resArea").innerHTML = `<div style="padding:20px;background:#eeebff;border-radius:15px;text-align:center;"><h3>${m}</h3></div>`;
+    document.getElementById("subBtn").style.display = "none";
+}
+
+function startWaitTimer() {
+    let t = cur.wait * 60;
+    const btn = document.getElementById("subBtn"); btn.disabled = true; btn.style.opacity = "0.5";
+    let inv = setInterval(() => {
+        if(t <= 0) { clearInterval(inv); btn.disabled = false; btn.style.opacity = "1"; document.getElementById("timeText").innerText = "입력 가능"; return; }
+        t--; document.getElementById("timeText").innerText = `재도전 대기: ${Math.floor(t/60)}분 ${t%60}초`;
+    }, 1000);
+}
+
+function checkDateLimit() {
+    let now = new Date(); now.setHours(0,0,0,0);
+    let s = new Date(cur.start); let e = new Date(cur.end); e.setHours(23,59,59,999);
+    const m = document.getElementById("limitMsg"), b = document.getElementById("subBtn");
+    if(now < s || now > e) { isBlocked = true; b.style.display="none"; m.style.display="block"; m.innerText="🚫 제출 기간이 아닙니다."; }
+    else { isBlocked = false; b.style.display="block"; m.style.display="none"; }
+}
+
+function checkLimit() {
+    const sN = document.getElementById("sN").value.trim(); if(sN.length<2) return;
+    let k = "att_" + sN + "_" + curID;
+    if(localStorage.getItem("perf_" + sN + "_" + curID) === "true") { isBlocked = true; showFinal("이미 백점을 달성했습니다!"); }
+    else if(parseInt(localStorage.getItem(k)||0) >= cur.max) { isBlocked = true; showFinal("기회를 모두 소진했습니다."); }
+}
+
+function renderAdmin(v) {
+    const d = JSON.parse(decodeURIComponent(v));
+    document.body.innerHTML = `<div class='container' style='margin-top:50px; text-align:center;'><h2>📊 선생님 전용 확인창</h2><div class='notice-box' style='text-align:left;'><b>학생:</b> ${d.name}<br><b>학원:</b> ${d.class}<br><b>회차:</b> ${d.att}회<br><b>오답:</b> <span style='color:red'>${d.wrongCount}개</span><br><b>번호:</b> ${d.wrongList}</div><button onclick='location.href="${BASE_URL}"' style='width:100%;padding:15px;background:#6c5ce7;color:white;border-radius:10px;'>돌아가기</button></div>`;
+}
+</script>
+</body>
+</html>
