@@ -33,7 +33,7 @@
         .main-btn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.1em; font-weight: 800; cursor: pointer; }
         #resultModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; overflow-y: auto; padding: 15px; box-sizing: border-box; }
         .modal-content { background: #fff; border-radius: 30px; padding: 25px; max-width: 500px; margin: 20px auto; }
-        #chart_div { width: 100%; height: 200px; margin: 20px 0; }
+        #chart_div { width: 100%; height: 200px; margin: 25px 0; }
     </style>
 </head>
 <body>
@@ -94,18 +94,16 @@
     }
 
     function shareAndUnlock() {
-        // 🐯 카톡 로고 잘림 방지: 2:1 비율(800x400)로 설정하여 메시지 창 가득 채우기
         const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + new Date().getTime();
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
-                title: `[과제 제출] ${document.getElementById("examSelect").value}`,
+                title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
                 description: `${document.getElementById("stuName").value} 학생 (${serverRes.try}회차) 제출 완료`,
                 imageUrl: bustUrl,
-                imageWidth: 800, imageHeight: 400,
+                imageWidth: 200, imageHeight: 200,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
-            },
-            buttons: [{ title: '결과 확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
+            }
         });
 
         setTimeout(() => {
@@ -115,15 +113,15 @@
                 if(serverRes.try >= 3) {
                     document.getElementById('historyArea').style.display = 'block';
                     document.getElementById('solArea').innerHTML = `
-                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin-bottom:15px; line-height:1.6; font-size:0.9em;">❌ 상세 오답 문항:<br>${serverRes.wrongs}</div>
-                        <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">해설지 보기</a>`;
+                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:20px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
+                        <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
                     setTimeout(drawChart, 300);
                 } else {
                     document.getElementById('historyArea').style.display = 'none';
-                    document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:10px;">3회차 제출 시 상세 오답과 성적 분석표가 공개됩니다.</p>`;
+                    document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:15px;">3회차 제출 시 상세 분석표가 공개됩니다.</p>`;
                 }
             }
-        }, 2000); 
+        }, 1500); 
     }
 
     function closeModal() {
@@ -150,6 +148,7 @@
     }
 
     function drawChart() {
+        // 데이터 숫자로 강제 변환하여 type string 오류 방지
         const chartData = [['회차', '오답 개수']];
         serverRes.history.forEach((h, idx) => { chartData.push([ (idx+1) + "회", Number(h.wrongCount) ]); });
         const data = google.visualization.arrayToDataTable(chartData);
