@@ -61,46 +61,34 @@
 <script>
     google.charts.load('current', {'packages':['corechart']});
     const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001", GAS_URL = "https://script.google.com/macros/s/AKfycbxcT0dziBtsHKDZEPwzyBySOkZjfl3_B7nSysFX7DlXyDKiAD03zLI3jXI8ZBNbA31C/exec";
-    
     const TASKS = {
         "1월 3회차 문학": { 
-            id: "2601_03_LIT", wait: 1, 
-            notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", 
+            id: "2601_03_LIT", wait: 1, notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", 
             pdf: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", 
-            allNums: Array.from({length: 31}, (_, i) => i + 1), 
-            activeNums: Array.from({length: 31}, (_, i) => i + 1), 
+            allNums: Array.from({length: 31}, (_, i) => i + 1), activeNums: Array.from({length: 31}, (_, i) => i + 1), 
             sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" 
         },
         "1월 3회차 독서": { 
-            id: "2601_03_READING", wait: 5, 
-            notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", 
+            id: "2601_03_READING", wait: 5, notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", 
             pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/2601_03_reading.pdf", 
-            allNums: Array.from({length: 39}, (_, i) => i + 1), 
-            activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], 
+            allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], 
             sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" 
         }
     };
-
     let serverRes = null, waitInt = null;
     if (KAKAO_KEY) Kakao.init(KAKAO_KEY);
 
     window.onload = () => {
         const sel = document.getElementById("examSelect");
         Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
-        loadExam();
-        checkGlobalWait(); 
+        loadExam(); checkGlobalWait(); 
     };
 
-    function openCurrentPdf() {
-        const key = document.getElementById("examSelect").value;
-        window.open(TASKS[key].pdf, '_blank');
-    }
+    function openCurrentPdf() { window.open(TASKS[document.getElementById("examSelect").value].pdf, '_blank'); }
 
     function checkGlobalWait() {
         const until = localStorage.getItem('wait_until');
-        if (until && parseInt(until) > Date.now()) {
-            startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000));
-        }
+        if (until && parseInt(until) > Date.now()) { startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
     }
 
     function startExam() {
@@ -110,8 +98,7 @@
     }
 
     function loadExam() {
-        const key = document.getElementById("examSelect").value;
-        const cur = TASKS[key];
+        const cur = TASKS[document.getElementById("examSelect").value];
         document.getElementById('examNotice').innerText = cur.notice;
         let html = "";
         cur.allNums.forEach(n => {
@@ -135,25 +122,26 @@
     }
 
     function shareAndUnlock() {
-        const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + new Date().getTime();
+        const tryTxt = serverRes.try + "회차"; // 🐯 undefined 방지 고정
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
                 title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
-                description: `${document.getElementById("stuName").value} 학생 (${serverRes.try}회차) 제출 완료`,
-                imageUrl: bustUrl, imageWidth: 200, imageHeight: 200,
+                description: `${document.getElementById("stuName").value} 학생 (${tryTxt}) 제출 완료`,
+                imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + new Date().getTime(),
+                imageWidth: 200, imageHeight: 200,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
             }
+            // 🛡️ [자세히 보기] 버튼 메뉴 코드 완벽 삭제
         });
 
         setTimeout(() => {
             if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
                 document.getElementById('resultModal').style.display = 'block';
-                document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${serverRes.try}회차 제출 완료)</span>`;
+                document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${tryTxt} 제출 완료)</span>`;
                 
                 if(serverRes.try < 3) {
-                    const waitMin = TASKS[document.getElementById("examSelect").value].wait;
-                    localStorage.setItem('wait_until', Date.now() + (waitMin * 60 * 1000));
+                    localStorage.setItem('wait_until', Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000));
                 }
 
                 if(serverRes.try >= 3) {
