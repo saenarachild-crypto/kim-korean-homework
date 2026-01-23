@@ -71,20 +71,22 @@
     let serverRes = null, waitInt = null;
     try { if (KAKAO_KEY) Kakao.init(KAKAO_KEY); } catch(e) {}
 
-    window.onload = () => {
-        const sel = document.getElementById("examSelect");
-        Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
-        if(window.location.search.includes('viewResult=true')) showLastResult();
-    };
+    function getUserKey() { return document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
 
     async function checkServerBeforeStart() {
         const name = document.getElementById('stuName').value.trim(), academy = document.getElementById('academyName').value.trim(), key = document.getElementById("examSelect").value;
         if(!name) return alert("이름을 입력하세요.");
         const btn = document.getElementById('startBtn'); btn.disabled = true; btn.innerText = "서버 대조 중...";
+        const userKey = getUserKey();
         try {
             const res = await fetch(GAS_URL + "?check=true&name=" + encodeURIComponent(name) + "&academy=" + encodeURIComponent(academy) + "&examId=" + TASKS[key].id);
             const data = await res.json();
-            if(data.finished) { localStorage.setItem('finished_' + key, 'true'); localStorage.setItem('last_res_' + key, JSON.stringify(data.lastRes)); }
+            if(data.finished) {
+                localStorage.setItem('finished_' + userKey, 'true');
+                localStorage.setItem('last_res_' + userKey, JSON.stringify(data.lastRes));
+            } else {
+                localStorage.removeItem('finished_' + userKey);
+            }
             startExam();
         } catch(e) { startExam(); }
     }
@@ -92,10 +94,10 @@
     function startExam() { document.getElementById('introPage').classList.remove('show'); document.getElementById('examPage').classList.add('show'); loadExam(); }
 
     function loadExam() {
-        const key = document.getElementById("examSelect").value, cur = TASKS[key];
+        const key = document.getElementById("examSelect").value, cur = TASKS[key], userKey = getUserKey();
         document.getElementById('examNotice').innerText = cur.notice;
         document.getElementById('finishMsg').style.display = 'none'; document.getElementById('reviewBtn').style.display = 'none'; document.getElementById('submitBtn').style.display = 'block';
-        if(localStorage.getItem('finished_' + key) === 'true') { lockExamPermanently(); return; }
+        if(localStorage.getItem('finished_' + userKey) === 'true') { lockExamPermanently(); return; }
         let html = "";
         cur.allNums.forEach(n => {
             const active = cur.activeNums.includes(n);
@@ -116,27 +118,17 @@
     }
 
     function shareAndUnlock() {
-        if (!Kakao.isInitialized()) return alert("카톡 연결 실패. 관리자 설정을 확인하세요.");
-        const currentTry = serverRes.try || 1;
-        const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + Date.now();
+        const currentTry = serverRes.try || 1, userKey = getUserKey();
+        const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + Date.now();
         const callbackUrl = window.location.origin + window.location.pathname + "?viewResult=true";
-        const kakaoObj = {
-            objectType: 'feed',
-            content: {
-                title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
-                description: `${document.getElementById("stuName").value} 학생 (${currentTry}회차) 제출 완료`,
-                imageUrl: bustUrl, imageWidth: 400, imageHeight: 400,
-                link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
-            }
-        };
+        const kakaoObj = { objectType: 'feed', content: { title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`, description: `${document.getElementById("stuName").value} 학생 (${currentTry}회차) 제출 완료`, imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400, link: { mobileWebUrl: window.location.href, webUrl: window.location.href } } };
         if(currentTry >= 3) kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callbackUrl, webUrl: callbackUrl } }];
         Kakao.Share.sendDefault(kakaoObj);
         setTimeout(() => {
             if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
-                const key = document.getElementById("examSelect").value;
                 displayResult(); document.getElementById('resultModal').style.display = 'block';
-                if(currentTry < 3) localStorage.setItem('wait_until_' + key, Date.now() + (TASKS[key].wait * 60 * 1000));
-                else { localStorage.setItem('finished_' + key, 'true'); localStorage.setItem('last_res_' + key, JSON.stringify(serverRes)); }
+                if(currentTry < 3) localStorage.setItem('wait_until_' + userKey, Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000));
+                else { localStorage.setItem('finished_' + userKey, 'true'); localStorage.setItem('last_res_' + userKey, JSON.stringify(serverRes)); }
             }
         }, 1500); 
     }
@@ -165,12 +157,13 @@
         });
     }
 
-    function checkGlobalWait() { const key = document.getElementById("examSelect").value, until = localStorage.getItem('wait_until_' + key); if (localStorage.getItem('finished_' + key) === 'true') lockExamPermanently(); else if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
+    function checkGlobalWait() { const userKey = getUserKey(), until = localStorage.getItem('wait_until_' + userKey); if (localStorage.getItem('finished_' + userKey) === 'true') lockExamPermanently(); else if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
     function lockExamPermanently() { document.getElementById('questionsContainer').innerHTML = "<div style='text-align:center; padding:50px; color:#999; font-weight:700;'>3회차 제출 완료로<br>답안지를 수정할 수 없습니다.</div>"; document.getElementById('submitBtn').style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'none'; document.getElementById('reviewBtn').style.display = 'block'; document.getElementById('finishMsg').style.display = 'block'; }
-    function startWaitTimer(r) { const b = document.getElementById('waitDisplay'), q = document.getElementById('questionsContainer'), s = document.getElementById('submitBtn'); b.style.display = 'block'; q.style.pointerEvents = 'none'; s.disabled = true; if(waitInt) clearInterval(waitInt); waitInt = setInterval(() => { let m = Math.floor(r/60), sec = r%60; s.innerText = `재제출까지 ${m}:${sec<10?'0'+sec:sec} 남음`; b.innerText = `⏳ 다음 제출 대기 중: ${m}:${sec<10?'0'+sec:sec}`; if(r-- <= 0) { clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + document.getElementById("examSelect").value); } }, 1000); }
+    function startWaitTimer(r) { const b = document.getElementById('waitDisplay'), q = document.getElementById('questionsContainer'), s = document.getElementById('submitBtn'); b.style.display = 'block'; q.style.pointerEvents = 'none'; s.disabled = true; if(waitInt) clearInterval(waitInt); waitInt = setInterval(() => { let m = Math.floor(r/60), sec = r%60; s.innerText = `재제출까지 ${m}:${sec<10?'0'+sec:sec} 남음`; b.innerText = `⏳ 다음 제출 대기 중: ${m}:${sec<10?'0'+sec:sec}`; if(r-- <= 0) { clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + getUserKey()); } }, 1000); }
     function openCurrentPdf() { window.open(TASKS[document.getElementById("examSelect").value].pdf, '_blank'); }
-    function showLastResult() { const key = document.getElementById("examSelect").value, saved = JSON.parse(localStorage.getItem('last_res_' + key)); if (saved) { serverRes = saved; displayResult(); document.getElementById('resultModal').style.display = 'block'; } }
+    function showLastResult() { const userKey = getUserKey(), saved = JSON.parse(localStorage.getItem('last_res_' + userKey)); if (saved) { serverRes = saved; displayResult(); document.getElementById('resultModal').style.display = 'block'; } }
     function closeModal() { document.getElementById('resultModal').style.display = 'none'; checkGlobalWait(); }
+    window.onload = () => { const sel = document.getElementById("examSelect"); Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); }); if(window.location.search.includes('viewResult=true')) { document.getElementById('stuName').value = "리포트확인용"; showLastResult(); } };
 </script>
 </body>
 </html>
