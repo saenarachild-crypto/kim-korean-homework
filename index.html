@@ -9,41 +9,48 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; }
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; }
-        .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
+        .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); position: relative; }
         
+        /* [1단계] 게이트웨이 페이지 */
         #gatewayPage { text-align: center; }
-        .exam-list-title { font-size: 1.5em; font-weight: 800; margin-bottom: 25px; color: var(--p); }
         .exam-select-btn { width: 100%; padding: 25px; margin-bottom: 15px; background: #fff; border: 2px solid var(--p); border-radius: 20px; color: var(--p); font-weight: bold; font-size: 1.1em; cursor: pointer; transition: 0.3s; }
-        .exam-select-btn:hover { background: var(--p); color: #fff; transform: translateY(-3px); }
+        .exam-select-btn:hover { background: var(--p); color: #fff; }
 
+        /* [2단계] 시험 페이지 */
         #examPage { display: none; }
         h1 { text-align: center; font-size: 1.8em; margin-bottom: 10px; font-weight: 800; }
-        .timer-display { text-align: right; color: #ff7675; font-weight: bold; font-size: 1.1em; margin-bottom: 10px; min-height: 24px; }
+        .timer-display { text-align: right; color: #ff7675; font-weight: bold; font-size: 1.1em; margin-bottom: 10px; }
         
-        /* 이번 주 공지사항 스타일 */
-        .notice-box { background: #fff9f0; border-radius: 15px; padding: 20px; margin-bottom: 25px; line-height: 1.7; font-size: 0.95em; border: 1px solid #ffecce; }
+        /* 공지사항 박스 (선생님 요청 문구 반영) */
+        .notice-box { background: #fff9f0; border-radius: 15px; padding: 20px; margin-bottom: 25px; line-height: 1.7; font-size: 0.95em; border: 1px solid #ffecce; text-align: left; }
         .notice-box b { color: #d35400; font-size: 1.1em; }
 
+        /* 입력 폼 */
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        input, select { width: 100%; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 1em; box-sizing: border-box; }
+        input, select { width: 100%; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 1em; box-sizing: border-box; outline: none; }
         
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .btn-paper { background: #f1f2f6; border: none; border-radius: 12px; padding: 15px; cursor: pointer; text-decoration: none; color: #4b4b4b; text-align: center; font-size: 0.95em; font-weight: bold; }
+        .btn-paper { background: #f1f2f6; border: none; border-radius: 12px; padding: 15px; cursor: pointer; text-decoration: none; color: #4b4b4b; text-align: center; font-size: 0.95em; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
-        .q-card { border: 1px solid var(--border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        /* 답안지 카드 */
+        .q-card { border: 1px solid var(--border); border-radius: 15px; padding: 20px; margin-bottom: 20px; background: #fff; }
         .q-num { font-weight: 800; font-size: 1.2em; margin-bottom: 15px; display: block; }
         .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         
         input[type="radio"] { display: none; }
-        label { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; font-weight: 700; transition: 0.2s; background: #fff; }
+        label { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; font-weight: 700; transition: 0.2s; }
         input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
 
-        .submit-area { margin-top: 40px; position: sticky; bottom: 20px; }
-        .main-btn { width: 100%; padding: 20px; border: none; border-radius: 15px; font-size: 1.2em; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        #submitBtn { background: var(--p); color: white; }
-        #kakaoBtn { background: #fee500; color: #3c1e1e; display: none; }
+        /* 버튼 영역 (답안지 마지막에 배치) */
+        .submit-area { margin-top: 30px; }
+        .main-btn { width: 100%; padding: 20px; border: none; border-radius: 20px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        #submitBtn { background: var(--p); color: white; box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3); }
+        #kakaoBtn { background: #fee500; color: #3c1e1e; display: none; box-shadow: 0 8px 20px rgba(254, 229, 0, 0.3); }
+        .main-btn:disabled { background: #cbd5e0; box-shadow: none; cursor: not-allowed; }
 
-        .result-card { display: none; margin-top: 25px; padding: 25px; border-radius: 20px; border: 3px solid var(--p); background: #fcfaff; }
+        /* 결과 카드 */
+        .result-card { display: none; margin-top: 30px; padding: 25px; border-radius: 20px; border: 3px solid var(--p); background: #fcfaff; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -55,7 +62,7 @@
             마감 기한을 확인하세요. <br>
             카톡 전송해야 틀린 개수를 알 수 있습니다.
         </div>
-        <div class="exam-list-title">📝 응시할 시험 선택</div>
+        <div style="font-weight: 800; margin-bottom: 20px; color: var(--p);">📝 응시할 과제를 선택하세요.</div>
         <div id="examList"></div>
     </div>
 
@@ -76,79 +83,78 @@
                 <option value="1월25일">1월 25일</option>
                 <option value="1월26일">1월 26일</option>
             </select>
-            <a id="paperLink" href="#" target="_blank" class="btn-paper">📄 문제지 열기</a>
+            <a id="paperLink" href="#" target="_blank" class="btn-paper">📄 문제지 보기</a>
         </div>
 
         <form id="quizForm">
             <div id="questionsContainer"></div>
+            
             <div class="submit-area">
-                <button type="button" id="submitBtn" class="main-btn" onclick="submitData()">제출하기 (성적 전송)</button>
-                <button type="button" id="kakaoBtn" class="main-btn" onclick="shareToKakao()">카톡 전송 후 결과 확인</button>
+                <button type="button" id="submitBtn" class="main-btn" onclick="sendData()">제출하기 (성적 전송)</button>
+                <button type="button" id="kakaoBtn" class="main-btn" onclick="verifyAndShow()">카톡 전송 후 결과 확인</button>
             </div>
         </form>
 
         <div id="resultCard" class="result-card">
             <h2 id="resScore" style="margin:0 0 10px 0; color:var(--p)"></h2>
-            <p id="resFeedback" style="font-weight:600; font-size:1.1em;"></p>
-            <div id="resWrongs" style="margin-top:15px; color:#e74c3c; font-weight:bold; background:#fff0f0; padding:10px; border-radius:8px;"></div>
+            <p id="resFeedback" style="font-weight:600; font-size:1.1em; margin-bottom: 5px;"></p>
+            <div id="resWrongs" style="color:#e74c3c; font-weight:bold; background:#fff0f0; padding:15px; border-radius:12px;"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec";
-    const KAKAO_KEY = "YOUR_KAKAO_JS_KEY"; // 선생님의 키 입력 필요
-
-    const EXAMS = [{
-        id: "2601_03_LIT",
-        title: "주간과제 1월 3회차 문학",
-        ans: "1321525524145132442143332454332",
-        endDate: "2026-01-26",
-        paper: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=rFfzXM",
-        waitMin: 1,
-        maxTry: 3
-    }];
+    const CONFIG = {
+        gas: "https://script.google.com/macros/s/AKfycbwtzD2n-5ksERWy2iqE1dB4g36RfWfpP0DhvutxJcYTOSZP8u-xvLHUNZcFgMNkjbF1/exec",
+        kakaoKey: "YOUR_KAKAO_JS_KEY", // 선생님 키 입력
+        exams: [{
+            id: "2601_03_LIT",
+            title: "주간과제 1월 3회차 문학",
+            ans: "1321525524145132442143332454332",
+            paper: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=rFfzXM",
+            endDate: "2026-01-26",
+            waitMin: 1,
+            maxTry: 3
+        }]
+    };
 
     let currentEx = null, tryCount = 0, timerInterval = null;
-    try { Kakao.init(KAKAO_KEY); } catch(e) {}
+    try { Kakao.init(CONFIG.kakaoKey); } catch(e) {}
 
     window.onload = () => {
         const list = document.getElementById('examList');
-        EXAMS.forEach(ex => {
+        CONFIG.exams.forEach(ex => {
             const btn = document.createElement('button');
             btn.className = 'exam-select-btn';
             btn.innerText = ex.title;
-            btn.onclick = () => startExam(ex);
+            btn.onclick = () => {
+                currentEx = ex;
+                tryCount = parseInt(localStorage.getItem(ex.id + '_tries') || 0);
+                document.getElementById('gatewayPage').style.display = 'none';
+                document.getElementById('examPage').style.display = 'block';
+                document.getElementById('activeTitle').innerText = ex.title;
+                document.getElementById('paperLink').href = ex.paper;
+                
+                const container = document.getElementById('questionsContainer');
+                for(let i=1; i<=ex.ans.length; i++) {
+                    container.innerHTML += `<div class="q-card"><span class="q-num">${i}번</span><div class="ans-row">${[1,2,3,4,5].map(n => `<input type="radio" name="q${i}" value="${n}" id="q${i}_${n}"><label for="q${i}_${n}">${n}</label>`).join('')}</div></div>`;
+                }
+                checkTimer();
+            };
             list.appendChild(btn);
         });
     };
 
-    function startExam(ex) {
-        currentEx = ex;
-        tryCount = parseInt(localStorage.getItem(ex.id + '_tries') || 0);
-        document.getElementById('gatewayPage').style.display = 'none';
-        document.getElementById('examPage').style.display = 'block';
-        document.getElementById('activeTitle').innerText = ex.title;
-        document.getElementById('paperLink').href = ex.paper;
-        
-        const container = document.getElementById('questionsContainer');
-        container.innerHTML = '';
-        for(let i=1; i<=ex.ans.length; i++) {
-            container.innerHTML += `<div class="q-card"><span class="q-num">${i}번</span><div class="ans-row">${[1,2,3,4,5].map(n => `<input type="radio" name="q${i}" value="${n}" id="q${i}_${n}"><label for="q${i}_${n}">${n}</label>`).join('')}</div></div>`;
-        }
-        checkTimer();
-    }
-
-    async function submitData() {
-        const academy = document.getElementById('academyName').value;
-        const name = document.getElementById('stuName').value;
+    async function sendData() {
+        const academy = document.getElementById('academyName').value.trim();
+        const name = document.getElementById('stuName').value.trim();
         const day = document.getElementById('submitDay').value;
-        if(!academy || !name || !day) return alert("학원명, 이름, 제출일을 입력하세요.");
+        if(!academy || !name || !day) return alert("학원명, 이름, 제출일을 모두 입력해주세요.");
         
         const userAns = [];
         for(let i=1; i<=currentEx.ans.length; i++) {
             const val = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-            if(!val) return alert(i + "번 정답 미선택");
+            if(!val) return alert(i + "번 정답을 선택하지 않았습니다.");
             userAns.push(Number(val));
         }
 
@@ -158,52 +164,56 @@
         userAns.forEach((v, i) => { v === master[i] ? correct++ : wrongs.push(i+1); });
 
         window.latestResult = { 
-            id: currentEx.id, title: currentEx.title, academy, name, day, 
+            title: currentEx.title, academy, name, day, 
             score: Math.round((correct/currentEx.ans.length)*100), 
             try: tryCount, wrongCount: wrongs.length, wrongs: wrongs.join(", ") 
         };
 
-        fetch(GAS_URL, { method: "POST", body: JSON.stringify(window.latestResult) });
+        // GAS 전송
+        fetch(CONFIG.gas, { method: "POST", body: JSON.stringify(window.latestResult) });
+        
         localStorage.setItem(currentEx.id + '_tries', tryCount);
         localStorage.setItem(currentEx.id + '_lock', new Date().getTime() + (currentEx.waitMin * 60000));
         
         document.getElementById('submitBtn').style.display = 'none';
         document.getElementById('kakaoBtn').style.display = 'block';
-        alert("성적 전송 완료! 이제 카톡 버튼을 눌러 공유해야 결과를 볼 수 있습니다.");
+        alert("성적 데이터가 전송되었습니다. 이제 카톡 공유를 완료하면 점수를 확인할 수 있습니다.");
     }
 
-    function shareToKakao() {
-        if(!window.latestResult) return;
-        
-        // 카톡 공유 실행 및 결과 공개
+    function verifyAndShow() {
+        // 카톡 공유 실행
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
-                title: `[과제완료] ${currentEx.title}`,
-                description: `${window.latestResult.name} 학생: ${window.latestResult.score}점`,
+                title: `[과제 제출] ${currentEx.title}`,
+                description: `${window.latestResult.name} 학생 (${window.latestResult.score}점 / ${window.latestResult.try}회차)`,
                 imageUrl: 'https://cdn-icons-png.flaticon.com/512/3407/3407024.png',
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
-            },
-            callback: function() {
-                // 공유 완료 시 실행될 로직 (일부 브라우저 제약이 있을 수 있음)
             }
         });
 
-        // 지침: 카톡 버튼을 누른 후 결과 카드 공개
+        // 지침: 카톡 전송 버튼 클릭 시 결과 노출
         const res = window.latestResult;
         document.getElementById('resultCard').style.display = 'block';
-        document.getElementById('resScore').innerText = `성적: ${res.score}점`;
+        document.getElementById('resScore').innerText = `내 점수: ${res.score}점`;
         
-        let feedback = `현재 ${res.try}회차 제출 완료. `;
+        let feedback = `${res.try}회차 제출 완료. `;
         if(res.try < currentEx.maxTry - 1) {
-            feedback += `틀린 개수는 ${res.wrongCount}개입니다. 다시 검토해보세요!`;
+            feedback += `틀린 개수는 총 ${res.wrongCount}개입니다. 다시 검토해보세요!`;
+            document.getElementById('resWrongs').style.display = 'none';
         } else if(res.try == currentEx.maxTry - 1) {
-            feedback += `[힌트 공개] 틀린 번호: ${res.wrongs}`;
+            feedback += `[마지막 직전 힌트] 틀린 번호들을 확인하고 수정하세요.`;
+            document.getElementById('resWrongs').innerText = `틀린 번호: ${res.wrongs}`;
+            document.getElementById('resWrongs').style.display = 'block';
         } else {
-            feedback += `최종 제출이 완료되었습니다.`;
+            feedback += `최종 제출이 끝났습니다. 수고하셨습니다.`;
+            document.getElementById('resWrongs').innerText = `최종 오답: ${res.wrongs}`;
+            document.getElementById('resWrongs').style.display = 'block';
         }
         document.getElementById('resFeedback').innerText = feedback;
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        
+        // 결과창으로 자동 스크롤
+        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
     }
 
     function checkTimer() {
@@ -216,11 +226,12 @@
 
             if(tryCount >= currentEx.maxTry) {
                 subBtn.disabled = true;
-                timerDisk.innerText = "⏱ 제출 기회 소진";
+                timerDisk.innerText = "⏱ 제출 횟수 초과";
+                clearInterval(timerInterval);
             } else if(lock && now < lock) {
                 subBtn.disabled = true;
                 const diff = Math.ceil((lock - now) / 1000);
-                timerDisk.innerText = `⏱ 재응시 대기: ${Math.floor(diff/60)}분 ${diff%60}초`;
+                timerDisk.innerText = `⏱ ${Math.floor(diff/60)}분 ${diff%60}초 후 재응시 가능`;
             } else {
                 subBtn.disabled = false;
                 timerDisk.innerText = "⏱ 제출 가능";
