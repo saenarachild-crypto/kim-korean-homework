@@ -112,13 +112,11 @@
 
     function shareAndUnlock() {
         const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + new Date().getTime();
-        
-        // 🐯 카톡 공유: 제목에 "선생님 제출용" 명시하여 부정 방지 유도
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
-                title: `[${document.getElementById("academyName").value}] 김현석 국어 과제 제출`,
-                description: `${document.getElementById("stuName").value} 학생 - ${document.getElementById("examSelect").value} (${serverRes.try}회차)`,
+                title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
+                description: `${document.getElementById("stuName").value} 학생 (${serverRes.try}회차) 제출 완료`,
                 imageUrl: bustUrl,
                 imageWidth: 200, imageHeight: 200,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
@@ -126,8 +124,7 @@
         });
 
         setTimeout(() => {
-            // 🛡️ 더 강력한 문구로 심리적 차단
-            if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?\n(선생님께 전송하지 않은 것이 확인될 경우 성적이 무효 처리될 수 있습니다.)")) {
+            if(confirm("카카오톡 전송을 완료하셨습니까?")) {
                 document.getElementById('resultModal').style.display = 'block';
                 document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${serverRes.try}회차 제출 완료)</span>`;
                 
@@ -138,9 +135,7 @@
 
                 if(serverRes.try >= 3) {
                     document.getElementById('historyArea').style.display = 'block';
-                    document.getElementById('solArea').innerHTML = `
-                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:15px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
-                        <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
+                    document.getElementById('solArea').innerHTML = `<div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:20px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
                     setTimeout(drawChart, 300);
                 } else {
                     document.getElementById('historyArea').style.display = 'none';
@@ -177,12 +172,7 @@
         const chartData = [['회차', '오답 개수']];
         serverRes.history.forEach((h, idx) => { chartData.push([ (idx+1) + "회", Number(h.wrongCount) ]); });
         const data = google.visualization.arrayToDataTable(chartData);
-        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, {
-            legend: 'none', colors: ['#ff7675'],
-            vAxis: { direction: -1, gridlines: {count: 5}, minValue: 0 },
-            chartArea: { width: '85%', height: '70%' },
-            pointSize: 7
-        });
+        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, { legend: 'none', colors: ['#ff7675'], vAxis: { direction: -1, gridlines: {count: 5}, minValue: 0 }, chartArea: { width: '85%', height: '70%' }, pointSize: 7 });
     }
 </script>
 </body>
