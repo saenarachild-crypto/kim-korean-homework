@@ -24,7 +24,7 @@
         input[type="text"] { flex: 1; width: 0; padding: 15px 10px; border: 1px solid var(--border); border-radius: 15px; font-size: 16px !important; text-align: center; background: #fdfdff; outline: none; height: 50px; box-sizing: border-box; }
         .selector-box { background: #eeebff; padding: 15px; border-radius: 20px; margin-bottom: 20px; }
         select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #c3b9ff; font-weight: 700; color: var(--p); font-size: 1em; outline: none; background: #fff; }
-        .pdf-btn { display: block; width: 100%; padding: 12px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 15px; font-weight: 700; font-size: 0.9em; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .pdf-btn { display: block; width: 100%; padding: 15px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 15px; font-weight: 700; font-size: 1em; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; background: #fff; }
         .is-waiting { opacity: 0.4 !important; pointer-events: none !important; }
         .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -61,10 +61,29 @@
 <script>
     google.charts.load('current', {'packages':['corechart']});
     const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001", GAS_URL = "https://script.google.com/macros/s/AKfycbxcT0dziBtsHKDZEPwzyBySOkZjfl3_B7nSysFX7DlXyDKiAD03zLI3jXI8ZBNbA31C/exec";
+    
+    // 🐯 선생님이 주신 정확한 링크 데이터 반영
     const TASKS = {
-        "1월 3회차 문학": { id: "2601_03_LIT", wait: 1, notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/exam1.pdf", allNums: Array.from({length: 31}, (_, i) => i + 1), activeNums: Array.from({length: 31}, (_, i) => i + 1), sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" },
-        "1월 3회차 독서": { id: "2601_03_READING", wait: 5, notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/exam2.pdf", allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" }
+        "1월 3회차 문학": { 
+            id: "2601_03_LIT", 
+            wait: 1, 
+            notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", 
+            pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/2601_03_lit.pdf", 
+            allNums: Array.from({length: 31}, (_, i) => i + 1), 
+            activeNums: Array.from({length: 31}, (_, i) => i + 1), 
+            sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" 
+        },
+        "1월 3회차 독서": { 
+            id: "2601_03_READING", 
+            wait: 5, 
+            notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", 
+            pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/2601_03_reading.pdf", 
+            allNums: Array.from({length: 39}, (_, i) => i + 1), 
+            activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], 
+            sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" 
+        }
     };
+
     let serverRes = null, waitInt = null;
     if (KAKAO_KEY) Kakao.init(KAKAO_KEY);
 
@@ -92,7 +111,7 @@
         const key = document.getElementById("examSelect").value;
         const cur = TASKS[key];
         document.getElementById('examNotice').innerText = cur.notice;
-        document.getElementById('pdfLink').href = cur.pdf; // PDF 링크 업데이트
+        document.getElementById('pdfLink').href = cur.pdf;
         
         let html = "";
         cur.allNums.forEach(n => {
@@ -128,7 +147,7 @@
         });
 
         setTimeout(() => {
-            if(confirm("카카오톡 전송을 완료하셨습니까?")) {
+            if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?\n(미전송 시 무효 처리될 수 있습니다.)")) {
                 document.getElementById('resultModal').style.display = 'block';
                 document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${serverRes.try}회차 제출 완료)</span>`;
                 
