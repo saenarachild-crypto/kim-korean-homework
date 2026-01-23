@@ -29,8 +29,17 @@ const startDay="2026-01-21", endDay="2026-01-26";
 const ansLink = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=L3FOKZ", HW_ID = "HW_주간과제1월3회차독서", ADMIN_BASE = "https://saenarachild-crypto.github.io/kim-korean-homework/stest22.html", GAS_URL = "https://script.google.com/macros/s/AKfycbztPu2ZsmP7HOt93FGri3W86YV7i0U-71BbAl9cXclpxZJGTXcSE8ejOwuv8RTdE0bP/exec";
 try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}
 function initPage(){
-  const sel=document.getElementById("sD"); const start=new Date(startDay); const end=new Date(endDay);
-  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){ let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); }
+  const sel=document.getElementById("sD"); 
+  const now=new Date(); now.setHours(0,0,0,0);
+  const end=new Date(endDay); end.setHours(0,0,0,0);
+  let loopDate = new Date(now);
+  if (loopDate > end) { /* 기한 종료 시 표시 안함 */ } 
+  else {
+    for(let d=loopDate; d<=end; d.setDate(d.getDate()+1)){ 
+      let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); 
+      let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); 
+    }
+  }
   let h=""; for(let n=1; n<=totalQ; n++){
     const dis = activeList.includes(n) ? "" : "disabled";
     h+="<div class='q-card'><div style='font-weight:bold;margin-bottom:15px;font-size:1.1rem'>"+n+"번</div><div class='options'>";
