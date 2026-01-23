@@ -88,8 +88,8 @@ function getUserKey() { return `v76.5_${sel.value}_${document.getElementById('na
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
-    if(!name||!academy) return alert("정보 입력!");
-    const btn=event.target; btn.disabled=true; btn.innerText="데이터 동기화 중...";
+    if(!name||!academy) return alert("학원명과 이름을 입력하세요!");
+    const btn=event.target; btn.disabled=true; btn.innerText="동기화 중...";
     try {
         const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[sel.value].id);
         const data=await res.json();
@@ -118,7 +118,7 @@ function loadExam(){
 
 async function submit(){
     const e=EXAMS[sel.value], answers=[];
-    // 🛡️ 서버 정답 배열 길이와 1:1 대응 (서버 오류 방지)
+    // 🛡️ 서버 배열 길이 1:1 대응 (서버 전송 오류 방지)
     e.all.forEach(n=>{
         if(e.active.includes(n)) answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0);
         else answers.push(0);
@@ -127,11 +127,11 @@ async function submit(){
     try {
         const res=await fetch(GAS_URL,{method:"POST",body:JSON.stringify({examId:e.id,name:document.getElementById("name").value.trim(),academy:document.getElementById("academy").value.trim(),answers})});
         serverRes=await res.json(); btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
-    } catch(e){ alert("오류"); btn.disabled=false; }
+    } catch(e){ alert("서버 채점 오류가 발생했습니다."); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
 function share(){
-    const name=document.getElementById("name").value, academy=document.getElementById("academy").value, att=serverRes.try||1;
+    const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
             : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라.]`
             : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
@@ -139,12 +139,15 @@ function share(){
     const obj={ objectType:"text", text:msg, link:{mobileWebUrl:location.href, webUrl:location.href} };
     if(att>=3) obj.buttons=[{title:"결과 보기", link:{mobileWebUrl:location.href+"?viewResult=true", webUrl:location.href+"?viewResult=true"}}];
     
-    Kakao.Share.sendDefault(obj);
-    setTimeout(()=>{ if(confirm("선생님께 전송 완료하셨습니까?")){ 
-        displayResult(); document.getElementById('resultModal').style.display='block';
-        if(att<3) localStorage.setItem('wait_until_'+getUserKey(), Date.now()+(EXAMS[sel.value].wait*60000));
-        else { localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); }
-    }}, 1500);
+    // 🛡️ [복구] 표준 호출 방식으로 모든 브라우저 대응
+    try {
+        Kakao.Share.sendDefault(obj);
+        setTimeout(()=>{ if(confirm("선생님께 카톡 전송을 완료하셨습니까?")){ 
+            displayResult(); document.getElementById('resultModal').style.display='block';
+            if(att<3) localStorage.setItem('wait_until_'+getUserKey(), Date.now()+(EXAMS[sel.value].wait*60000));
+            else { localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); }
+        }}, 1500);
+    } catch(e) { alert("카톡 호출 실패. 기본 브라우저 설정을 확인하세요."); }
 }
 
 function displayResult(){
