@@ -70,7 +70,7 @@
     };
     let serverRes = null;
 
-    function getUserKey() { return "v75.9_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
+    function getUserKey() { return "v76.0_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
 
     window.onload = () => {
         if (typeof Kakao !== 'undefined') Kakao.init(KAKAO_KEY);
@@ -114,18 +114,18 @@
         const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "채점 중...";
         try {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: cur.id, name: document.getElementById('stuName').value.trim(), academy: document.getElementById('academyName').value.trim(), answers }) });
-            serverRes = await res.json(); btn.style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'block';
+            serverRes = await res.json();
+            btn.style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'block';
         } catch(e) { alert("오류"); btn.disabled = false; }
     }
 
     function shareAndUnlock() {
-        // 🛡️ [터치 잠금 해제] 전송 전 화면 클릭 권한 강제 복구
+        // 🛡️ [복구] 터치 제한 강제 해제 및 표준 카톡 호출
         document.body.style.pointerEvents = 'auto';
         document.getElementById('questionsContainer').style.pointerEvents = 'auto';
         if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
         const currentTry = serverRes.try || 1, name = document.getElementById('stuName').value.trim(), academy = document.getElementById('academyName').value.trim();
-        // 🛡️ 로고 .jpeg 수정 및 캐시 방지
         const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg?v=' + Date.now();
         const callUrl = window.location.origin + window.location.pathname + "?viewResult=true";
         
@@ -135,7 +135,7 @@
                 title: `[${academy}] 제출 완료`,
                 description: `${name} 학생 (${currentTry}회차) 제출 완료`,
                 imageUrl: bustUrl, imageWidth: 400, imageHeight: 400
-                // 🔒 link 완전 제거: 1~2회차 '자세히 보기' 자동 생성 차단
+                // 🔒 1~2회차 link 삭제: 카톡 '자세히 보기' 자동 생성 차단
             },
             buttons: [] 
         };
@@ -146,6 +146,7 @@
         }
 
         try {
+            // 🛡️ [복구] 브라우저 상관없이 작동하던 가장 안정적인 호출 방식
             Kakao.Share.sendDefault(kakaoObj);
             setTimeout(() => {
                 if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
@@ -153,8 +154,8 @@
                     if(currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000));
                     else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); }
                 }
-            }, 1500); 
-        } catch(e) { alert("카톡 호출 실패. Safari 브라우저를 사용해 주세요."); }
+            }, 1000); 
+        } catch(e) { alert("카톡 앱을 호출할 수 없습니다."); }
     }
 
     function displayResult() {
@@ -182,7 +183,7 @@
 
     function checkGlobalWait() { const uKey = getUserKey(), until = localStorage.getItem('wait_until_' + uKey); if (localStorage.getItem('finished_' + uKey) === 'true') lockExamPermanently(); else if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
     function lockExamPermanently() { document.getElementById('questionsContainer').innerHTML = "<div style='text-align:center; padding:50px; color:#999; font-weight:700;'>3회차 제출 완료로<br>수정할 수 없습니다.</div>"; document.getElementById('submitBtn').style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'none'; document.getElementById('reviewBtn').style.display = 'block'; document.getElementById('finishMsg').style.display = 'block'; }
-    function startWaitTimer(r) { const b = document.getElementById('waitDisplay'), q = document.getElementById('questionsContainer'), s = document.getElementById('submitBtn'); b.style.display = 'block'; q.style.pointerEvents = 'none'; s.disabled = true; if(waitInt) clearInterval(waitInt); waitInt = setInterval(() => { let m = Math.floor(r/60), sec = r%60; s.innerText = `재제출까지 ${m}:${sec<10?'0'+sec:sec} 남음`; b.innerText = `⏳ 대기 중: ${m}:${sec<10?'0'+sec:sec}`; if(r-- <= 0) { clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + getUserKey()); } }, 1000); }
+    function startWaitTimer(r) { const b = document.getElementById('waitDisplay'), q = document.getElementById('questionsContainer'), s = document.getElementById('submitBtn'); b.style.display = 'block'; q.style.pointerEvents = 'none'; s.disabled = true; let waitInt = setInterval(() => { let m = Math.floor(r/60), sec = r%60; s.innerText = `재제출까지 ${m}:${sec<10?'0'+sec:sec} 남음`; b.innerText = `⏳ 대기 중: ${m}:${sec<10?'0'+sec:sec}`; if(r-- <= 0) { clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + getUserKey()); } }, 1000); }
     function openCurrentPdf() { window.open(TASKS[document.getElementById("examSelect").value].pdf, '_blank'); }
     function showLastResult() { const uKey = getUserKey(), saved = JSON.parse(localStorage.getItem('last_res_' + uKey)); if (saved) { serverRes = saved; displayResult(); document.getElementById('resultModal').style.display = 'block'; } }
     function closeModal() { document.getElementById('resultModal').style.display = 'none'; checkGlobalWait(); }
