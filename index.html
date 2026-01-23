@@ -27,14 +27,15 @@
         .pdf-btn { display: block; width: 100%; padding: 18px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 20px; font-weight: 800; font-size: 1.05em; margin-bottom: 20px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); border:none; cursor:pointer; }
         .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; background: #fff; }
         .is-waiting { opacity: 0.4 !important; pointer-events: none !important; }
-        .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        input[type="radio"] { position: absolute; opacity: 0; }
-        .ans-row label { height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; }
+        .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; position: relative; }
+        input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+        .ans-row label { height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; z-index: 2; }
         input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
         .main-btn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.1em; font-weight: 800; cursor: pointer; }
         #resultModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; overflow-y: auto; padding: 15px; box-sizing: border-box; }
         .modal-content { background: #fff; border-radius: 30px; padding: 25px; max-width: 500px; margin: 20px auto; }
-        #chart_div { width: 100%; height: 200px; margin: 25px 0; }
+        #chart_div { width: 100%; height: 200px; margin: 15px 0; }
+        .finished-msg { background: #f1f2f6; color: #57606f; padding: 15px; border-radius: 15px; text-align: center; font-weight: 700; margin-bottom: 20px; display: none; }
     </style>
 </head>
 <body>
@@ -48,12 +49,14 @@
     <div id="examPage">
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg"></div>
         <div id="waitDisplay" class="wait-banner">⏳ 다시 고민할 시간입니다...</div>
+        <div id="finishMsg" class="finished-msg">✅ 3회차 최종 제출이 완료된 시험입니다.</div>
         <div class="notice-card"><h3>📢 시험지 공지</h3><p id="examNotice"></p></div>
         <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
         <button id="pdfLinkBtn" class="pdf-btn" onclick="openCurrentPdf()">📄 원본 문제지 보기</button>
         <div id="questionsContainer"></div>
         <button id="submitBtn" class="main-btn" onclick="processSubmit()">제출 및 서버 채점</button>
         <button id="kakaoBtn" class="main-btn" onclick="shareAndUnlock()" style="display:none; background:#fee500; color:#3c1e1e;">🟡 카톡 전송 후 결과 확인</button>
+        <button id="reviewBtn" class="main-btn" style="display:none; background:#2f3542;" onclick="showLastResult()">📊 최종 리포트 다시 보기</button>
     </div>
 </div>
 <div id="resultModal"><div class="modal-content"><h2 style="text-align:center;">📊 리포트</h2><div id="resSummary" style="font-weight:800; margin:20px 0; font-size:1.3em; text-align:center;"></div><div id="historyArea" style="display:none;"><div id="chart_div"></div><p style="font-size:0.8em; color:#666; text-align:center;">* 위로 갈수록 오답이 적은(성적이 좋은) 그래프입니다.</p></div><div id="solArea"></div><button class="main-btn" style="background:#f1f2f6; color:#333; margin-top:20px;" onclick="closeModal()">결과창 닫기</button></div></div>
@@ -77,8 +80,25 @@
     function openCurrentPdf() { window.open(TASKS[document.getElementById("examSelect").value].pdf, '_blank'); }
 
     function checkGlobalWait() {
-        const until = localStorage.getItem('wait_until');
-        if (until && parseInt(until) > Date.now()) { startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
+        const key = document.getElementById("examSelect").value;
+        const until = localStorage.getItem('wait_until_' + key);
+        const isFinished = localStorage.getItem('finished_' + key);
+        if (isFinished === 'true') { lockExamPermanently(); }
+        else if (until && parseInt(until) > Date.now()) { startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
+    }
+
+    function lockExamPermanently() {
+        document.getElementById('questionsContainer').classList.add('is-waiting');
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('kakaoBtn').style.display = 'none';
+        document.getElementById('reviewBtn').style.display = 'block';
+        document.getElementById('finishMsg').style.display = 'block';
+    }
+
+    function showLastResult() {
+        const key = document.getElementById("examSelect").value;
+        const savedRes = JSON.parse(localStorage.getItem('last_res_' + key));
+        if (savedRes) { serverRes = savedRes; displayResult(); document.getElementById('resultModal').style.display = 'block'; }
     }
 
     function startExam() {
@@ -90,6 +110,10 @@
     function loadExam() {
         const cur = TASKS[document.getElementById("examSelect").value];
         document.getElementById('examNotice').innerText = cur.notice;
+        document.getElementById('finishMsg').style.display = 'none';
+        document.getElementById('reviewBtn').style.display = 'none';
+        document.getElementById('submitBtn').style.display = 'block';
+        document.getElementById('questionsContainer').classList.remove('is-waiting');
         let html = "";
         cur.allNums.forEach(n => {
             const active = cur.activeNums.includes(n);
@@ -112,48 +136,53 @@
     }
 
     function shareAndUnlock() {
-        const currentTry = (serverRes && serverRes.try) ? serverRes.try : 1; // 🐯 undefined 원천 차단
-        const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?cache=' + new Date().getTime();
+        const currentTry = (serverRes && serverRes.try) ? serverRes.try : 1;
+        const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?update=' + Date.now();
         
-        // 🛡️ 카톡 메뉴 버튼 완벽 삭제 (buttons 배열 비움)
-        Kakao.Share.sendDefault({
+        // 🛡️ 1~2회차엔 버튼 없음, 3회차에만 "결과 확인하기" 버튼 노출
+        const kakaoContent = {
             objectType: 'feed',
             content: {
                 title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
                 description: `${document.getElementById("stuName").value} 학생 (${currentTry}회차) 제출 완료`,
-                imageUrl: bustUrl, imageWidth: 200, imageHeight: 200,
+                imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
             }
-        });
+        };
+
+        if(currentTry >= 3) {
+            kakaoContent.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }];
+        }
+
+        Kakao.Share.sendDefault(kakaoContent);
 
         setTimeout(() => {
             if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
+                const key = document.getElementById("examSelect").value;
+                displayResult();
                 document.getElementById('resultModal').style.display = 'block';
-                document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${currentTry}회차 제출 완료)</span>`;
-                
-                if(currentTry < 3) {
-                    localStorage.setItem('wait_until', Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000));
-                }
-
-                if(currentTry >= 3) {
-                    document.getElementById('historyArea').style.display = 'block';
-                    document.getElementById('solArea').innerHTML = `
-                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:15px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
-                        <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
-                    setTimeout(drawChart, 300);
-                } else {
-                    document.getElementById('historyArea').style.display = 'none';
-                    document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:15px;">3회차 제출 시 상세 분석표가 공개됩니다.</p>`;
-                }
+                if(currentTry < 3) { localStorage.setItem('wait_until_' + key, Date.now() + (TASKS[key].wait * 60 * 1000)); }
+                else { localStorage.setItem('finished_' + key, 'true'); localStorage.setItem('last_res_' + key, JSON.stringify(serverRes)); }
             }
         }, 1500); 
     }
 
-    function closeModal() {
-        document.getElementById('resultModal').style.display = 'none';
-        checkGlobalWait();
-        if(serverRes && serverRes.try >= 3) location.reload();
+    function displayResult() {
+        const currentTry = serverRes.try;
+        document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${currentTry}회차 제출 완료)</span>`;
+        if(currentTry >= 3) {
+            document.getElementById('historyArea').style.display = 'block';
+            document.getElementById('solArea').innerHTML = `
+                <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:15px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
+                <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
+            setTimeout(drawChart, 300);
+        } else {
+            document.getElementById('historyArea').style.display = 'none';
+            document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:15px;">3회차 제출 시 상세 분석표가 공개됩니다.</p>`;
+        }
     }
+
+    function closeModal() { document.getElementById('resultModal').style.display = 'none'; checkGlobalWait(); }
 
     function startWaitTimer(remainSec) {
         let sec = remainSec;
@@ -163,12 +192,8 @@
         waitInt = setInterval(() => {
             let m = Math.floor(sec/60), s = sec%60;
             sBtn.innerText = `재제출까지 ${m}:${s<10?'0'+s:s} 남음`;
-            banner.innerText = `⏳ 다음 제출 대기 중: ${m}:${s<10?'0'+s:s}`;
-            if(sec-- <= 0) {
-                clearInterval(waitInt); banner.style.display = 'none'; qBox.classList.remove('is-waiting');
-                sBtn.disabled = false; sBtn.innerText = "제출 및 서버 채점";
-                localStorage.removeItem('wait_until');
-            }
+            banner.innerText = `⏳ 다음 제출 대기 중: ${m}:${s<10?'0'+s:s} 남음`;
+            if(sec-- <= 0) { clearInterval(waitInt); banner.style.display = 'none'; qBox.classList.remove('is-waiting'); sBtn.disabled = false; sBtn.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + document.getElementById("examSelect").value); }
         }, 1000);
     }
 
@@ -178,7 +203,8 @@
         const data = google.visualization.arrayToDataTable(chartData);
         new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, {
             legend: 'none', colors: ['#ff7675'],
-            vAxis: { direction: -1, gridlines: {count: 5}, minValue: 0 },
+            vAxis: { direction: -1, minValue: 0, gridlines: { count: 5 }, textStyle: { fontSize: 10 }, format: '0' },
+            hAxis: { textStyle: { fontSize: 10 } },
             chartArea: { width: '85%', height: '70%' },
             pointSize: 7
         });
