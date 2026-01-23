@@ -35,6 +35,7 @@
         .timer-display { text-align: right; color: #ff7675; font-weight: 800; margin-bottom: 10px; }
         .main-btn { width: 100%; padding: 22px; border: none; border-radius: 20px; font-size: 1.2em; font-weight: 800; cursor: pointer; margin-bottom: 15px; transition: 0.3s; }
         #submitBtn { background: var(--p); color: white; }
+        #submitBtn:disabled { background: #cbd5e0; cursor: not-allowed; }
         #kakaoBtn { background: #fee500; color: #3c1e1e; display: none; }
         #resultCard { display: none; margin-top: 30px; padding: 25px; border-radius: 25px; border: 3px solid var(--p); background: #fcfaff; }
         #chart_div { width: 100%; height: 250px; }
@@ -86,7 +87,7 @@
             id: "2601_03_LIT", 
             qCount: 31, 
             deadline: "2026-01-26 23:59:59", 
-            msg: "수정 답안을 꼭 하셔야 합니다.",
+            msg: "파이팅이야~!",
             pdf: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=rFfzXM",
             sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG"
         }
@@ -118,14 +119,15 @@
         const key = document.getElementById("examSelect").value;
         cur = TASKS[key]; curID = "HW_V67_" + cur.id;
         
-        // 🛠 신규 로드 시 UI 초기화 (이전 회차 결과 숨김)
         document.getElementById('resultCard').style.display = 'none';
         document.getElementById('resWrongs').style.display = 'none';
         document.getElementById('solLinkArea').style.display = 'none';
         document.getElementById('kakaoBtn').style.display = 'none';
-        document.getElementById('submitBtn').style.display = 'block';
-        document.getElementById('submitBtn').disabled = false;
-        document.getElementById('submitBtn').innerText = "제출 및 서버 채점";
+        
+        const btn = document.getElementById('submitBtn');
+        btn.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = "제출 및 서버 채점";
 
         document.getElementById('noticeArea').innerHTML = `<b>[공지]</b> ${cur.msg}<br>📅 <b>기한:</b> <span style="color:#e74c3c">${cur.deadline}</span>`;
         document.getElementById('linkArea').innerHTML = `<a href="${cur.pdf}" target="_blank" class="link-btn">📄 문제지 확인</a>`;
@@ -150,8 +152,11 @@
             if(!val) return alert(i + "번 정답을 선택하세요.");
             answers.push(Number(val));
         }
-        document.getElementById('submitBtn').disabled = true;
-        document.getElementById('submitBtn').innerText = "서버 분석 중...";
+        
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = "서버 분석 중...";
+
         try {
             const response = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: cur.id, examTitle: document.getElementById("examSelect").value, name, academy, answers }) });
             serverRes = await response.json();
@@ -160,16 +165,21 @@
             localStorage.setItem(curID + '_tries', serverRes.try);
             localStorage.setItem(curID + '_lock', serverRes.nextAvailableAt);
             
-            document.getElementById('submitBtn').style.display = 'none';
-            document.getElementById('kakaoBtn').style.display = 'block';
-            document.getElementById('kakaoBtn').innerText = "🟡 카톡 전송 후 결과 확인";
-            document.getElementById('kakaoBtn').style.background = "#fee500";
-            document.getElementById('kakaoBtn').style.color = "#3c1e1e";
-            // 💡 중요: 제출 성공 시 즉시 이전 결과창을 한 번 더 확실히 숨김
-            document.getElementById('resultCard').style.display = 'none';
+            btn.style.display = 'none';
+            const kBtn = document.getElementById('kakaoBtn');
+            kBtn.style.display = 'block';
+            kBtn.innerText = "🟡 카톡 전송 후 결과 확인";
+            kBtn.style.background = "#fee500";
+            kBtn.style.color = "#3c1e1e";
+            kBtn.onclick = shareAndUnlock; // 클릭 이벤트 초기화
 
+            document.getElementById('resultCard').style.display = 'none';
             alert("서버 채점 완료! 카톡 공유 후 결과를 확인하세요.");
-        } catch(e) { alert(e.message); document.getElementById('submitBtn').disabled = false; document.getElementById('submitBtn').innerText = "제출 및 서버 채점"; }
+        } catch(e) { 
+            alert(e.message); 
+            btn.disabled = false; 
+            btn.innerText = "제출 및 서버 채점"; 
+        }
     }
 
     function shareAndUnlock() {
@@ -195,12 +205,12 @@
             let f = `${serverRes.try}회차 제출 완료. `;
             const solArea = document.getElementById('solLinkArea');
 
-            if(serverRes.try < serverRes.max) {
+            if(serverRes.try < 3) { // max: 3 고정
                 f += `오답 개수: ${serverRes.wrongCount}개. 다시 한 번 검토해보세요!`;
                 document.getElementById('resWrongs').style.display = 'none';
                 solArea.style.display = 'none';
             } else {
-                f += `상세 오답을 확인하고 해설지를 참고하여 오답 정리를 하세요.`;
+                f += `최종 제출 완료. 상세 오답을 확인하고 해설지로 오답 정리를 하세요.`;
                 document.getElementById('resWrongs').innerText = `상세 오답 문항: ${serverRes.wrongs}`;
                 document.getElementById('resWrongs').style.display = 'block';
                 solArea.innerHTML = `<a href="${cur.sol}" target="_blank" class="link-btn sol-btn">📖 최종 해설지 확인하기</a>`;
@@ -212,7 +222,7 @@
     }
 
     function drawChart() {
-        if (!serverRes.history || serverRes.history.length < 2) return;
+        if (!serverRes || !serverRes.history || serverRes.history.length < 2) return;
         let dataArray = [['날짜', '점수']];
         serverRes.history.forEach(item => dataArray.push([item.date, item.score]));
         let data = google.visualization.arrayToDataTable(dataArray);
@@ -226,13 +236,30 @@
         const tries = parseInt(localStorage.getItem(curID + '_tries') || 0);
         const now = new Date().getTime();
         const disk = document.getElementById('timerDisplay');
-        if (new Date() > new Date(cur.deadline)) { disk.innerText = "⚠️ 제출 기한 종료"; document.getElementById('submitBtn').disabled = true; }
-        else if(tries >= 3) { disk.innerText = "⏱ 제출 횟수 초과"; document.getElementById('submitBtn').disabled = true; }
-        else if(lock && now < lock) { disk.innerText = `⏱ ${Math.ceil((lock-now)/1000)}초 후 가능`; document.getElementById('submitBtn').disabled = true; }
+        const btn = document.getElementById('submitBtn');
+
+        if (new Date() > new Date(cur.deadline)) { 
+            disk.innerText = "⚠️ 제출 기한 종료"; 
+            btn.disabled = true; 
+        }
+        else if(tries >= 3) { 
+            disk.innerText = "⏱ 제출 횟수 초과"; 
+            btn.disabled = true; 
+        }
+        else if(lock && now < lock) { 
+            const remain = Math.ceil((lock - now) / 1000);
+            disk.innerText = `⏱ ${remain}초 후 가능`; 
+            btn.disabled = true; 
+            btn.innerText = "대기 시간 경과 후 활성화";
+        }
         else { 
             disk.innerText = "⏱ 제출 가능"; 
-            // 💡 재응시가 가능해지는 시점에 이전 결과창이 열려있다면 자동으로 닫음
-            if(document.getElementById('submitBtn').style.display === 'block' && document.getElementById('resultCard').style.display === 'block') {
+            // ✅ 제출 가능 상태가 되면 버튼을 즉시 활성화하고 문구 복구
+            if(btn.style.display === 'block') {
+                btn.disabled = false;
+                btn.innerText = "제출 및 서버 채점";
+            }
+            if(document.getElementById('resultCard').style.display === 'block') {
                 document.getElementById('resultCard').style.display = 'none';
             }
         }
