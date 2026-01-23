@@ -71,7 +71,7 @@
     };
     let serverRes = null;
 
-    function getUserKey() { return "v75.6_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
+    function getUserKey() { return "v75.7_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
 
     window.onload = async () => {
         if (typeof Kakao !== 'undefined') Kakao.init(KAKAO_KEY);
@@ -123,12 +123,9 @@
     }
 
     function shareAndUnlock() {
-        // 🛡️ 1. 터치 차단막 및 버튼 상태 강제 해제
+        // 🛡️ [수정] 터치 차단 강제 해제 및 즉시 전송
         document.body.style.pointerEvents = 'auto';
         document.getElementById('questionsContainer').style.pointerEvents = 'auto';
-        document.getElementById('kakaoBtn').disabled = false;
-
-        // 🛡️ 2. 초기화 상태 즉시 확인 및 전송
         if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
         
         const currentTry = serverRes.try || 1, name = document.getElementById('stuName').value, academy = document.getElementById('academyName').value;
@@ -146,11 +143,10 @@
             kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callUrl, webUrl: callUrl } }];
         }
 
-        Kakao.Share.sendDefault(kakaoObj)
-            .then(() => {
-                setTimeout(() => { if (confirm("선생님 채팅방으로 전송 완료하셨습니까?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if (currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 800);
-            })
-            .catch(err => { alert("카톡 호출 지연. Safari 브라우저에서 다시 시도해 주세요."); });
+        try {
+            Kakao.Share.sendDefault(kakaoObj); // 🛡️ 단순화된 직접 호출 방식
+            setTimeout(() => { if (confirm("선생님 채팅방으로 전송 완료하셨습니까?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if (currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 1000);
+        } catch(e) { alert("카톡 호출 실패. Safari 브라우저를 사용해 주세요."); }
     }
 
     function displayResult() {
