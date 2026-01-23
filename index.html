@@ -87,7 +87,7 @@
             id: "2601_03_LIT", 
             qCount: 31, 
             deadline: "2026-01-26 23:59:59", 
-            msg: "파이팅이야~!",
+            msg: "수정 답안을 꼭 하셔야 합니다.",
             pdf: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=rFfzXM",
             sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG"
         }
@@ -119,6 +119,7 @@
         const key = document.getElementById("examSelect").value;
         cur = TASKS[key]; curID = "HW_V67_" + cur.id;
         
+        // UI 초기화
         document.getElementById('resultCard').style.display = 'none';
         document.getElementById('resWrongs').style.display = 'none';
         document.getElementById('solLinkArea').style.display = 'none';
@@ -171,7 +172,7 @@
             kBtn.innerText = "🟡 카톡 전송 후 결과 확인";
             kBtn.style.background = "#fee500";
             kBtn.style.color = "#3c1e1e";
-            kBtn.onclick = shareAndUnlock; // 클릭 이벤트 초기화
+            kBtn.onclick = shareAndUnlock; 
 
             document.getElementById('resultCard').style.display = 'none';
             alert("서버 채점 완료! 카톡 공유 후 결과를 확인하세요.");
@@ -183,17 +184,22 @@
     }
 
     function shareAndUnlock() {
+        const tryCount = serverRes ? serverRes.try : (localStorage.getItem(curID + '_tries') || '1');
+        const stuName = document.getElementById('stuName').value;
+        const examName = document.getElementById("examSelect").value;
+
+        // 🖼️ 카톡 공유 로고 비율 최적화 및 회차 정보 명시
         Kakao.Share.sendDefault({ 
             objectType: 'feed', 
             content: { 
-                title: `[과제 제출] ${document.getElementById("examSelect").value}`, 
-                description: `${document.getElementById('stuName').value} 학생 (${serverRes.try}회차) 제출 완료`, 
+                title: `[과제 제출] ${examName}`, 
+                description: `${stuName} 학생 (${tryCount}회차) 제출 완료`, 
                 imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg', 
-                imageWidth: 400, 
-                imageHeight: 210,
+                imageWidth: 800, 
+                imageHeight: 420,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href } 
             },
-            buttons: [{ title: '과제 확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
+            buttons: [{ title: '결과 확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
         });
         
         const kBtn = document.getElementById('kakaoBtn');
@@ -202,15 +208,18 @@
             const card = document.getElementById('resultCard'); card.style.display = 'block';
             document.getElementById('resScore').innerText = `내 점수: ${serverRes.score}점`;
             
-            let f = `${serverRes.try}회차 제출 완료. `;
             const solArea = document.getElementById('solLinkArea');
+            let f = `${serverRes.try}회차 제출 완료. `;
 
-            if(serverRes.try < 3) { // max: 3 고정
-                f += `오답 개수: ${serverRes.wrongCount}개. 다시 한 번 검토해보세요!`;
+            // 🚩 [핵심 로직] 회차별 오답 정보 차등 제공
+            if(serverRes.try < 3) {
+                // 1~2회차: 틀린 개수만 노출
+                f += `현재 오답 개수는 ${serverRes.wrongCount}개입니다. 틀린 문항을 다시 고민해 보세요!`;
                 document.getElementById('resWrongs').style.display = 'none';
                 solArea.style.display = 'none';
             } else {
-                f += `최종 제출 완료. 상세 오답을 확인하고 해설지로 오답 정리를 하세요.`;
+                // 마지막 3회차: 틀린 번호 + 해설지 버튼 노출
+                f += `모든 도전이 끝났습니다. 아래 오답 번호와 해설지를 확인하세요.`;
                 document.getElementById('resWrongs').innerText = `상세 오답 문항: ${serverRes.wrongs}`;
                 document.getElementById('resWrongs').style.display = 'block';
                 solArea.innerHTML = `<a href="${cur.sol}" target="_blank" class="link-btn sol-btn">📖 최종 해설지 확인하기</a>`;
@@ -254,7 +263,6 @@
         }
         else { 
             disk.innerText = "⏱ 제출 가능"; 
-            // ✅ 제출 가능 상태가 되면 버튼을 즉시 활성화하고 문구 복구
             if(btn.style.display === 'block') {
                 btn.disabled = false;
                 btn.innerText = "제출 및 서버 채점";
