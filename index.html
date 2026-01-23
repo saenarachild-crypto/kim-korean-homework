@@ -91,12 +91,13 @@ function loadExam(){
 
 async function submit(){
     const e=EXAMS[sel.value], answers=[];
+    // 🛡️ 서버가 기대하는 배열 길이로 정규화 전송
     e.all.forEach(n=>{ answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0); });
     const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.innerText="채점 중...";
     try {
         const res=await fetch(GAS_URL,{method:"POST",body:JSON.stringify({examId:e.id,name:document.getElementById("name").value.trim(),academy:document.getElementById("academy").value.trim(),answers})});
         serverRes=await res.json(); btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
-    } catch(e){ alert("채점 오류 발생. 데이터 확인 필요."); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
+    } catch(e){ alert("채점 오류 발생. 데이터 형식을 확인하세요."); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
 function share(){
