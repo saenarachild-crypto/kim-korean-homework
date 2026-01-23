@@ -33,6 +33,7 @@
         .main-btn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.1em; font-weight: 800; cursor: pointer; }
         #resultModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; overflow-y: auto; padding: 15px; box-sizing: border-box; }
         .modal-content { background: #fff; border-radius: 30px; padding: 25px; max-width: 500px; margin: 20px auto; }
+        #chart_div { width: 100%; height: 200px; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -53,7 +54,7 @@
         <button id="kakaoBtn" class="main-btn" onclick="shareAndUnlock()" style="display:none; background:#fee500; color:#3c1e1e;">🟡 카톡 전송 후 결과 확인</button>
     </div>
 </div>
-<div id="resultModal"><div class="modal-content"><h2 style="text-align:center;">📊 리포트</h2><div id="resSummary" style="font-weight:800; margin:20px 0; font-size:1.3em; text-align:center;"></div><div id="historyArea" style="display:none;"><div id="chart_div" style="width:100%; height:200px;"></div></div><div id="solArea"></div><button class="main-btn" style="background:#f1f2f6; color:#333; margin-top:20px;" onclick="closeModal()">결과창 닫기</button></div></div>
+<div id="resultModal"><div class="modal-content"><h2 style="text-align:center;">📊 리포트</h2><div id="resSummary" style="font-weight:800; margin:20px 0; font-size:1.3em; text-align:center;"></div><div id="historyArea" style="display:none;"><div id="chart_div"></div><p style="font-size:0.8em; color:#666; text-align:center;">* 위로 갈수록 오답이 적은(성적이 좋은) 그래프입니다.</p></div><div id="solArea"></div><button class="main-btn" style="background:#f1f2f6; color:#333; margin-top:20px; padding:15px;" onclick="closeModal()">결과창 닫기</button></div></div>
 
 <script>
     google.charts.load('current', {'packages':['corechart']});
@@ -76,7 +77,7 @@
         let html = "";
         cur.allNums.forEach(n => {
             const active = cur.activeNums.includes(n);
-            html += `<div class="q-card ${active ? '' : 'is-waiting'}"><b>${n}번</b><div class="ans-row">${[1,2,3,4,5].map(v => `<input type="radio" name="q${n}" value="${v}" id="q${n}_${v}" ${active ? '' : disabled}><label for="q${n}_${v}">${v}</label>`).join('')}</div></div>`;
+            html += `<div class="q-card ${active ? '' : 'is-waiting'}"><b>${n}번</b><div class="ans-row">${[1,2,3,4,5].map(v => `<input type="radio" name="q${n}" value="${v}" id="q${n}_${v}" ${active ? '' : 'disabled'}><label for="q${n}_${v}">${v}</label>`).join('')}</div></div>`;
         });
         document.getElementById('questionsContainer').innerHTML = html;
     }
@@ -94,34 +95,32 @@
     }
 
     function shareAndUnlock() {
-        // 🛡️ 카톡창을 띄우는 함수와 모달을 띄우는 함수를 엄격히 분리
-        const sendKakao = () => {
-            Kakao.Share.sendDefault({
-                objectType: 'feed',
-                content: {
-                    title: `[과제 제출] ${document.getElementById("stuName").value} 학생`,
-                    description: `${document.getElementById("examSelect").value} (${serverRes.try}회차)`,
-                    imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg',
-                    imageWidth: 400, imageHeight: 400, // 🐯 카톡 메시지 로고 크기 최적화
-                    link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
-                },
-                buttons: [{ title: '자세히 보기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
-            });
-        };
+        const logoUrlWithCacheBust = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + new Date().getTime();
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: `[과제 제출] ${document.getElementById("stuName").value} 학생`,
+                description: `${document.getElementById("examSelect").value} (${serverRes.try}회차)`,
+                imageUrl: logoUrlWithCacheBust,
+                imageWidth: 200, imageHeight: 200,
+                link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
+            },
+            buttons: [{ title: '분석 결과 확인', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
+        });
 
-        sendKakao();
-
-        // 🛡️ 카톡창으로 넘어가기 전 찰나의 순간에 결과가 뜨는 것을 방지하기 위해 지연 실행
         setTimeout(() => {
-            if(confirm("카카오톡으로 과제 제출을 완료하셨나요? (확인을 눌러야 결과가 표시됩니다)")) {
+            if(confirm("카카오톡 전송을 마쳤습니까?")) {
                 document.getElementById('resultModal').style.display = 'block';
-                document.getElementById('resSummary').innerHTML = `틀린 개수: ${serverRes.wrongCount}개`;
+                document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${serverRes.try}회차 제출 완료)</span>`;
                 if(serverRes.try >= 3) {
                     document.getElementById('historyArea').style.display = 'block';
-                    document.getElementById('solArea').innerHTML = `오답: ${serverRes.wrongs}<br><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank">해설지 보기</a>`;
-                    drawChart();
+                    document.getElementById('solArea').innerHTML = `
+                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:15px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
+                        <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center; padding:15px;">해설지 보기</a>`;
+                    setTimeout(drawChart, 200); // 🛠️ 모달이 완전히 열린 후 그래프 로드
                 } else {
-                    document.getElementById('solArea').innerHTML = `<p style="color:blue">3회차 제출 시 상세 정보 공개.</p>`;
+                    document.getElementById('historyArea').style.display = 'none';
+                    document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:15px;">3회차 제출 시 상세 분석이 공개됩니다.</p>`;
                 }
             }
         }, 1500); 
@@ -144,18 +143,29 @@
             sBtn.innerText = `재제출까지 ${m}:${s<10?'0'+s:s} 남음`;
             banner.innerText = `⏳ 다음 회차 대기 중: ${m}:${s<10?'0'+s:s}`;
             if(sec-- <= 0) {
-                clearInterval(waitInt);
-                banner.style.display = 'none';
-                qBox.classList.remove('is-waiting');
-                sBtn.disabled = false;
-                sBtn.innerText = "제출 및 서버 채점";
+                clearInterval(waitInt); banner.style.display = 'none'; qBox.classList.remove('is-waiting');
+                sBtn.disabled = false; sBtn.innerText = "제출 및 서버 채점";
             }
         }, 1000);
     }
 
     function drawChart() {
-        const data = google.visualization.arrayToDataTable([['날짜', '오답'], ...serverRes.history.map(h => [h.date, h.wrongCount])]);
-        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, { vAxis: { direction: -1 } });
+        // 🛠️ 차트 에러 해결: 데이터를 숫자로 확실히 변환 (Data column type string 해결)
+        const chartData = [['제출', '오답 개수']];
+        serverRes.history.forEach((h, idx) => {
+            chartData.push([ (idx+1) + "회", Number(h.wrongCount) ]);
+        });
+
+        const data = google.visualization.arrayToDataTable(chartData);
+        const options = {
+            legend: 'none',
+            colors: ['#ff7675'],
+            vAxis: { direction: -1, gridlines: {count: 5}, minValue: 0 }, // 0이 맨 위에 오도록 설정
+            hAxis: { textStyle: {fontSize: 10} },
+            chartArea: { width: '85%', height: '70%' },
+            pointSize: 5
+        };
+        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, options);
     }
     window.onload = () => { const sel = document.getElementById("examSelect"); Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); }); loadExam(); };
 </script>
