@@ -44,12 +44,12 @@
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg"></div>
         <div class="notice-card"><h3>📢 공지사항</h3><p>시험지를 선택하고 자정까지 제출하세요. 미제출 시 분석이 불가능합니다.</p></div>
         <div class="input-grid"><input type="text" id="academyName" placeholder="학원명"><input type="text" id="stuName" placeholder="학생 이름"></div>
-        <button class="main-btn" onclick="startExam()">본인 확인 완료 (과제 시작)</button>
+        <button id="startBtn" class="main-btn" onclick="checkServerBeforeStart()">본인 확인 완료 (과제 시작)</button>
     </div>
     <div id="examPage">
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg"></div>
         <div id="waitDisplay" class="wait-banner">⏳ 다시 고민할 시간입니다...</div>
-        <div id="finishMsg" class="finished-msg">✅ 3회차 최종 제출이 완료된 시험입니다.</div>
+        <div id="finishMsg" class="finished-msg">✅ 최종 제출이 완료된 시험입니다.</div>
         <div class="notice-card"><h3>📢 시험지 공지</h3><p id="examNotice"></p></div>
         <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
         <button id="pdfLinkBtn" class="pdf-btn" onclick="openCurrentPdf()">📄 원본 문제지 보기</button>
@@ -74,9 +74,26 @@
     window.onload = () => {
         const sel = document.getElementById("examSelect");
         Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
-        loadExam(); checkGlobalWait();
         if(window.location.search.includes('viewResult=true')) showLastResult();
     };
+
+    // 🛡️ [실시간 동기화] 시작 전 서버에서 회차 확인
+    async function checkServerBeforeStart() {
+        const name = document.getElementById('stuName').value.trim();
+        const academy = document.getElementById('academyName').value.trim();
+        const key = document.getElementById("examSelect").value;
+        if(!name) return alert("이름을 입력하세요.");
+        const btn = document.getElementById('startBtn'); btn.disabled = true; btn.innerText = "데이터 동기화 중...";
+        try {
+            const res = await fetch(GAS_URL + "?check=true&name=" + encodeURIComponent(name) + "&academy=" + encodeURIComponent(academy) + "&examId=" + TASKS[key].id);
+            const data = await res.json();
+            if(data.finished) {
+                localStorage.setItem('finished_' + key, 'true');
+                localStorage.setItem('last_res_' + key, JSON.stringify(data.lastRes));
+            }
+            startExam();
+        } catch(e) { startExam(); } // 서버 오류 시 일단 진행
+    }
 
     function openCurrentPdf() { window.open(TASKS[document.getElementById("examSelect").value].pdf, '_blank'); }
 
@@ -90,7 +107,7 @@
     }
 
     function lockExamPermanently() {
-        document.getElementById('questionsContainer').innerHTML = "<div style='text-align:center; padding:50px; color:#999; font-weight:700;'>3회차 최종 제출이 완료되어<br>답안지를 수정할 수 없습니다.</div>";
+        document.getElementById('questionsContainer').innerHTML = "<div style='text-align:center; padding:50px; color:#999; font-weight:700;'>이미 최종 제출을 완료하여<br>답안지를 수정할 수 없습니다.</div>";
         document.getElementById('submitBtn').style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'none';
         document.getElementById('reviewBtn').style.display = 'block'; document.getElementById('finishMsg').style.display = 'block';
     }
@@ -102,8 +119,8 @@
     }
 
     function startExam() {
-        if(!document.getElementById('stuName').value.trim()) return alert("이름을 입력하세요.");
         document.getElementById('introPage').classList.remove('show'); document.getElementById('examPage').classList.add('show');
+        loadExam();
     }
 
     function loadExam() {
@@ -138,8 +155,6 @@
         const currentTry = serverRes.try || 1;
         const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + Date.now();
         const callbackUrl = window.location.origin + window.location.pathname + "?viewResult=true";
-        
-        // 🛡️ 카톡 서버의 '기억(캐시)'을 무력화하기 위한 새로운 메시지 구성
         const kakaoObj = {
             objectType: 'feed',
             content: {
@@ -149,14 +164,8 @@
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
             }
         };
-
-        // 🛡️ 1~2회차엔 버튼 배열 자체를 아예 넣지 않음 (물리적 삭제)
-        if(currentTry >= 3) {
-            kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callbackUrl, webUrl: callbackUrl } }];
-        }
-
+        if(currentTry >= 3) kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callbackUrl, webUrl: callbackUrl } }];
         Kakao.Share.sendDefault(kakaoObj);
-
         setTimeout(() => {
             if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
                 const key = document.getElementById("examSelect").value;
@@ -171,7 +180,6 @@
         const currentTry = serverRes.try || 1;
         const count = serverRes.wrongCount !== undefined ? serverRes.wrongCount : 0;
         let html = `틀린 개수: <span style="color:var(--accent)">${count}개</span><br><span style="font-size:0.7em; color:#999;">(${currentTry}회차 제출 완료)</span>`;
-        
         if(currentTry === 1) {
             document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:15px;">2회차 제출 시 틀린 문항 번호가 공개됩니다.</p>`;
             document.getElementById('historyArea').style.display = 'none';
