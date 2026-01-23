@@ -66,11 +66,26 @@
     let serverRes = null, waitInt = null;
     if (KAKAO_KEY) Kakao.init(KAKAO_KEY);
 
+    window.onload = () => {
+        const sel = document.getElementById("examSelect");
+        Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
+        loadExam();
+        checkGlobalWait(); 
+    };
+
+    function checkGlobalWait() {
+        const until = localStorage.getItem('wait_until');
+        if (until && parseInt(until) > Date.now()) {
+            startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000));
+        }
+    }
+
     function startExam() {
         if(!document.getElementById('stuName').value.trim()) return alert("이름을 입력하세요.");
         document.getElementById('introPage').classList.remove('show');
         document.getElementById('examPage').classList.add('show');
     }
+
     function loadExam() {
         const cur = TASKS[document.getElementById("examSelect").value];
         document.getElementById('examNotice').innerText = cur.notice;
@@ -80,7 +95,9 @@
             html += `<div class="q-card ${active ? '' : 'is-waiting'}"><b>${n}번</b><div class="ans-row">${[1,2,3,4,5].map(v => `<input type="radio" name="q${n}" value="${v}" id="q${n}_${v}" ${active ? '' : 'disabled'}><label for="q${n}_${v}">${v}</label>`).join('')}</div></div>`;
         });
         document.getElementById('questionsContainer').innerHTML = html;
+        checkGlobalWait();
     }
+
     async function processSubmit() {
         const cur = TASKS[document.getElementById("examSelect").value];
         const answers = [];
@@ -95,11 +112,13 @@
 
     function shareAndUnlock() {
         const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + new Date().getTime();
+        
+        // 🐯 카톡 공유: 제목에 "선생님 제출용" 명시하여 부정 방지 유도
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
-                title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
-                description: `${document.getElementById("stuName").value} 학생 (${serverRes.try}회차) 제출 완료`,
+                title: `[${document.getElementById("academyName").value}] 김현석 국어 과제 제출`,
+                description: `${document.getElementById("stuName").value} 학생 - ${document.getElementById("examSelect").value} (${serverRes.try}회차)`,
                 imageUrl: bustUrl,
                 imageWidth: 200, imageHeight: 200,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
@@ -107,13 +126,20 @@
         });
 
         setTimeout(() => {
-            if(confirm("카카오톡 전송을 완료하셨습니까?")) {
+            // 🛡️ 더 강력한 문구로 심리적 차단
+            if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?\n(선생님께 전송하지 않은 것이 확인될 경우 성적이 무효 처리될 수 있습니다.)")) {
                 document.getElementById('resultModal').style.display = 'block';
                 document.getElementById('resSummary').innerHTML = `오답 개수: <span style="color:var(--accent)">${serverRes.wrongCount}개</span><br><span style="font-size:0.7em; color:#999;">(${serverRes.try}회차 제출 완료)</span>`;
+                
+                if(serverRes.try < 3) {
+                    const waitMin = TASKS[document.getElementById("examSelect").value].wait;
+                    localStorage.setItem('wait_until', Date.now() + (waitMin * 60 * 1000));
+                }
+
                 if(serverRes.try >= 3) {
                     document.getElementById('historyArea').style.display = 'block';
                     document.getElementById('solArea').innerHTML = `
-                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:20px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
+                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:15px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
                         <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
                     setTimeout(drawChart, 300);
                 } else {
@@ -126,13 +152,12 @@
 
     function closeModal() {
         document.getElementById('resultModal').style.display = 'none';
-        if(serverRes && serverRes.try < 3) startWaitTimer();
-        else location.reload();
+        checkGlobalWait();
+        if(serverRes && serverRes.try >= 3) location.reload();
     }
 
-    function startWaitTimer() {
-        const cur = TASKS[document.getElementById("examSelect").value];
-        let sec = cur.wait * 60;
+    function startWaitTimer(remainSec) {
+        let sec = remainSec;
         const banner = document.getElementById('waitDisplay'), qBox = document.getElementById('questionsContainer'), sBtn = document.getElementById('submitBtn'), kBtn = document.getElementById('kakaoBtn');
         banner.style.display = 'block'; qBox.classList.add('is-waiting'); kBtn.style.display = 'none'; sBtn.style.display = 'block'; sBtn.disabled = true;
         if(waitInt) clearInterval(waitInt);
@@ -143,12 +168,12 @@
             if(sec-- <= 0) {
                 clearInterval(waitInt); banner.style.display = 'none'; qBox.classList.remove('is-waiting');
                 sBtn.disabled = false; sBtn.innerText = "제출 및 서버 채점";
+                localStorage.removeItem('wait_until');
             }
         }, 1000);
     }
 
     function drawChart() {
-        // 데이터 숫자로 강제 변환하여 type string 오류 방지
         const chartData = [['회차', '오답 개수']];
         serverRes.history.forEach((h, idx) => { chartData.push([ (idx+1) + "회", Number(h.wrongCount) ]); });
         const data = google.visualization.arrayToDataTable(chartData);
@@ -159,7 +184,6 @@
             pointSize: 7
         });
     }
-    window.onload = () => { const sel = document.getElementById("examSelect"); Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); }); loadExam(); };
 </script>
 </body>
 </html>
