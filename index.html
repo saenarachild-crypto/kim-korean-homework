@@ -18,7 +18,6 @@
         .header-logo { text-align: center; margin-bottom: 20px; width: 100%; }
         .header-logo img { width: 100%; max-width: 300px; height: auto; object-fit: contain; border-radius: 15px; display: block; margin: 0 auto; }
         
-        /* 🛡️ 기본 골격 디자인 복구 */
         .wait-banner { display:none; background:#fff200; color:#000; text-align:center; padding:15px; border-radius:15px; font-weight:900; font-size:1.1em; margin-bottom:15px; border:3px solid #000; }
         .notice-card { background: #fff9f0; padding: 18px; border-radius: 20px; border: 2px dashed #ffcc80; margin-bottom: 20px; }
         .notice-card h3 { margin-top:0; font-size:1.1em; color:#e67e22; }
@@ -73,13 +72,12 @@
         "1월 3회차 문학": { id: "2601_03_LIT", wait: 1, notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", pdf: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", allNums: Array.from({length: 31}, (_, i) => i + 1), activeNums: Array.from({length: 31}, (_, i) => i + 1), sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" },
         "1월 3회차 독서": { id: "2601_03_READING", wait: 5, notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/2601_03_reading.pdf", allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" }
     };
-    let serverRes = null, waitInt = null;
-    function initKakao() { try { if (KAKAO_KEY && !Kakao.isInitialized()) Kakao.init(KAKAO_KEY); } catch(e) {} }
+    let serverRes = null;
 
-    function getUserKey() { return "v74.6_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
+    function getUserKey() { return "v74.8_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
 
     window.onload = async () => {
-        initKakao();
+        if (KAKAO_KEY) Kakao.init(KAKAO_KEY);
         const sel = document.getElementById("examSelect");
         Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
         const params = new URLSearchParams(window.location.search);
@@ -97,11 +95,7 @@
         try {
             const res = await fetch(GAS_URL + "?check=true&name=" + encodeURIComponent(name) + "&examId=" + TASKS[key].id);
             const data = await res.json();
-            if(data.finished) {
-                localStorage.setItem('finished_' + getUserKey(), 'true');
-                localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(data.lastRes));
-                if(direct) { startExam(); return showLastResult(); }
-            }
+            if(data.finished) { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(data.lastRes)); if(direct) { startExam(); return showLastResult(); } }
             startExam();
         } catch(e) { startExam(); }
     }
@@ -132,19 +126,24 @@
     }
 
     function shareAndUnlock() {
-        initKakao(); if (!Kakao.isInitialized()) return alert("카톡 연결 대기중...");
+        // 🛡️ 1. 터치 차단막 강제 해제
+        document.getElementById('questionsContainer').style.pointerEvents = 'auto';
+        document.getElementById('submitBtn').disabled = false;
+
+        // 🛡️ 2. 카카오 SDK 즉시 초기화 점검
+        if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
+        
         const currentTry = serverRes.try || 1, name = document.getElementById('stuName').value, academy = document.getElementById('academyName').value;
         const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg?v=' + Date.now();
         const callUrl = window.location.origin + window.location.pathname + "?viewResult=true&name=" + encodeURIComponent(name) + "&academy=" + encodeURIComponent(academy);
         
-        // 🛡️ content.link 삭제하여 '자세히 보기' 강제 차단
         const kakaoObj = { objectType: 'feed', content: { title: `[${academy}] 제출 완료`, description: `${name} 학생 (${currentTry}회차)`, imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400 } };
-        
-        // 🛡️ 3회차에만 결과 확인 버튼 생성
         if(currentTry >= 3) { kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callUrl, webUrl: callUrl } }]; }
 
-        Kakao.Share.sendDefault(kakaoObj);
-        setTimeout(() => { if(confirm("선생님께 전송 완료하셨습니까?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if(currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 1500);
+        try {
+            Kakao.Share.sendDefault(kakaoObj);
+            setTimeout(() => { if(confirm("선생님 채팅방으로 전송 완료?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if(currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 1500);
+        } catch(e) { alert("카톡 앱 실행 오류"); }
     }
 
     function displayResult() {
@@ -165,7 +164,7 @@
 
     function checkGlobalWait() { const key = getUserKey(), until = localStorage.getItem('wait_until_' + key); if (localStorage.getItem('finished_' + key) === 'true') lockExamPermanently(); else if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
     function lockExamPermanently() { document.getElementById('questionsContainer').innerHTML = "<div style='text-align:center; padding:50px; color:#999; font-weight:700;'>3회차 제출 완료로<br>수정할 수 없습니다.</div>"; document.getElementById('submitBtn').style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'none'; document.getElementById('reviewBtn').style.display = 'block'; document.getElementById('finishMsg').style.display = 'block'; }
-    function startWaitTimer(r) { const b = document.getElementById('waitDisplay'), q = document.getElementById('questionsContainer'), s = document.getElementById('submitBtn'); b.style.display = 'block'; q.style.pointerEvents = 'none'; s.disabled = true; if(waitInt) clearInterval(waitInt); waitInt = setInterval(() => { let m = Math.floor(r/60), sec = r%60; s.innerText = `재제출까지 ${m}:${sec<10?'0'+sec:sec} 남음`; b.innerText = `⏳ 다음 제출 대기 중: ${m}:${sec<10?'0'+sec:sec}`; if(r-- <= 0) { clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + getUserKey()); } }, 1000); }
+    function startWaitTimer(r) { const b = document.getElementById('waitDisplay'), q = document.getElementById('questionsContainer'), s = document.getElementById('submitBtn'); b.style.display = 'block'; q.style.pointerEvents = 'none'; s.disabled = true; let waitInt = setInterval(() => { let m = Math.floor(r/60), sec = r%60; s.innerText = `재제출까지 ${m}:${sec<10?'0'+sec:sec} 남음`; b.innerText = `⏳ 대기 중: ${m}:${sec<10?'0'+sec:sec}`; if(r-- <= 0) { clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + getUserKey()); } }, 1000); }
     function openCurrentPdf() { window.open(TASKS[document.getElementById("examSelect").value].pdf, '_blank'); }
     function showLastResult() { const saved = JSON.parse(localStorage.getItem('last_res_' + getUserKey())); if (saved) { serverRes = saved; displayResult(); document.getElementById('resultModal').style.display = 'block'; } }
     function closeModal() { document.getElementById('resultModal').style.display = 'none'; checkGlobalWait(); }
