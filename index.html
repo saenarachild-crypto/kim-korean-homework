@@ -19,6 +19,7 @@
         .header-logo img { width: 100%; max-width: 300px; height: auto; object-fit: contain; border-radius: 15px; display: block; margin: 0 auto; }
         .wait-banner { background: #fff200; color: #000; text-align: center; padding: 15px; border-radius: 15px; font-weight: 900; font-size: 1.1em; margin-bottom: 15px; display: none; border: 3px solid #000; }
         .notice-card { background: #fff9f0; padding: 18px; border-radius: 20px; border: 2px dashed #ffcc80; margin-bottom: 20px; }
+        .notice-card p { margin: 0; font-size: 0.95em; line-height: 1.6; color: #555; }
         .input-grid { display: flex !important; gap: 10px; margin-bottom: 20px; }
         input[type="text"] { flex: 1; width: 0; padding: 15px 10px; border: 1px solid var(--border); border-radius: 15px; font-size: 16px !important; text-align: center; background: #fdfdff; outline: none; height: 50px; box-sizing: border-box; }
         .selector-box { background: #eeebff; padding: 15px; border-radius: 20px; margin-bottom: 10px; }
@@ -81,9 +82,11 @@
 
     function checkGlobalWait() {
         const key = document.getElementById("examSelect").value;
-        const until = localStorage.getItem('wait_until_' + key);
         if (localStorage.getItem('finished_' + key) === 'true') lockExamPermanently();
-        else if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000));
+        else {
+            const until = localStorage.getItem('wait_until_' + key);
+            if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000));
+        }
     }
 
     function lockExamPermanently() {
@@ -107,7 +110,9 @@
         const key = document.getElementById("examSelect").value;
         const cur = TASKS[key];
         document.getElementById('examNotice').innerText = cur.notice;
-        document.getElementById('finishMsg').style.display = 'none'; document.getElementById('reviewBtn').style.display = 'none'; document.getElementById('submitBtn').style.display = 'block';
+        document.getElementById('finishMsg').style.display = 'none';
+        document.getElementById('reviewBtn').style.display = 'none';
+        document.getElementById('submitBtn').style.display = 'block';
         if(localStorage.getItem('finished_' + key) === 'true') { lockExamPermanently(); return; }
         let html = "";
         cur.allNums.forEach(n => {
@@ -133,6 +138,8 @@
         const currentTry = serverRes.try || 1;
         const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg?v=' + Date.now();
         const callbackUrl = window.location.origin + window.location.pathname + "?viewResult=true";
+        
+        // 🛡️ 카톡 서버의 '기억(캐시)'을 무력화하기 위한 새로운 메시지 구성
         const kakaoObj = {
             objectType: 'feed',
             content: {
@@ -142,8 +149,12 @@
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
             }
         };
-        if(currentTry >= 3) kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callbackUrl, webUrl: callbackUrl } }];
-        
+
+        // 🛡️ 1~2회차엔 버튼 배열 자체를 아예 넣지 않음 (물리적 삭제)
+        if(currentTry >= 3) {
+            kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callbackUrl, webUrl: callbackUrl } }];
+        }
+
         Kakao.Share.sendDefault(kakaoObj);
 
         setTimeout(() => {
@@ -153,7 +164,7 @@
                 if(currentTry < 3) localStorage.setItem('wait_until_' + key, Date.now() + (TASKS[key].wait * 60 * 1000));
                 else { localStorage.setItem('finished_' + key, 'true'); localStorage.setItem('last_res_' + key, JSON.stringify(serverRes)); }
             }
-        }, 2000); 
+        }, 1500); 
     }
 
     function displayResult() {
@@ -161,7 +172,6 @@
         const count = serverRes.wrongCount !== undefined ? serverRes.wrongCount : 0;
         let html = `틀린 개수: <span style="color:var(--accent)">${count}개</span><br><span style="font-size:0.7em; color:#999;">(${currentTry}회차 제출 완료)</span>`;
         
-        // 🛡️ 회차별 정보 공개 로직
         if(currentTry === 1) {
             document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:15px;">2회차 제출 시 틀린 문항 번호가 공개됩니다.</p>`;
             document.getElementById('historyArea').style.display = 'none';
