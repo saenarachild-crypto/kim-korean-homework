@@ -11,27 +11,27 @@
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; --accent: #ff7675; }
-        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 15px; color: #2d3436; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); box-sizing: border-box; }
+        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 15px; color: #2d3436; }
+        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
         #introPage, #examPage { display: none; }
         .show { display: block !important; }
-        .header-logo { text-align: center; margin-bottom: 20px; width: 100%; }
-        .header-logo img { width: 100%; max-width: 300px; height: auto; object-fit: contain; border-radius: 15px; display: block; margin: 0 auto; }
-        .wait-banner { display:none; background:#fff200; color:#000; text-align:center; padding:15px; border-radius:15px; font-weight:900; font-size:1.1em; margin-bottom:15px; border:3px solid #000; }
+        .header-logo { text-align: center; margin-bottom: 20px; }
+        .header-logo img { width: 100%; max-width: 300px; border-radius: 15px; }
+        .wait-banner { background: #fff200; color: #000; text-align: center; padding: 15px; border-radius: 15px; font-weight: 900; font-size: 1.1em; margin-bottom: 15px; display: none; border: 3px solid #000; }
         .notice-card { background: #fff9f0; padding: 18px; border-radius: 20px; border: 2px dashed #ffcc80; margin-bottom: 20px; }
         .notice-card p { margin: 0; font-size: 0.95em; line-height: 1.6; color: #555; }
-        .input-grid { display: flex !important; gap: 10px; margin-bottom: 20px; }
-        input[type="text"] { flex: 1; width: 0; padding: 15px 10px; border: 1px solid var(--border); border-radius: 15px; font-size: 16px !important; text-align: center; background: #fdfdff; outline: none; height: 50px; box-sizing: border-box; }
+        .input-grid { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 15px; border: 1px solid var(--border); border-radius: 15px; font-size: 16px; text-align: center; }
         .selector-box { background: #eeebff; padding: 15px; border-radius: 20px; margin-bottom: 10px; }
-        select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #c3b9ff; font-weight: 700; color: var(--p); font-size: 1em; outline: none; background: #fff; }
-        .pdf-btn { display: block; width: 100%; padding: 18px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 20px; font-weight: 800; font-size: 1.05em; margin-bottom: 20px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); border:none; cursor:pointer; }
+        select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #c3b9ff; font-weight: 700; color: var(--p); background: #fff; }
+        .pdf-btn { display: block; width: 100%; padding: 18px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 20px; font-weight: 800; margin-bottom: 20px; cursor:pointer; border:none; }
         .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; background: #fff; }
         .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; position: relative; }
         input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
-        .ans-row label { height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; }
+        .ans-row label { height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; }
         input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
         .main-btn { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.1em; font-weight: 800; cursor: pointer; }
-        #resultModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; overflow-y: auto; padding: 15px; box-sizing: border-box; }
+        #resultModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; overflow-y: auto; padding: 15px; box-sizing: border-box; }
         .modal-content { background: #fff; border-radius: 30px; padding: 25px; max-width: 500px; margin: 20px auto; }
         #chart_div { width: 100%; height: 200px; margin: 15px 0; }
         .wrong-box { background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:15px 0; line-height:1.6; font-size:0.9em; word-break: break-all; }
@@ -70,25 +70,23 @@
     };
     let serverRes = null;
 
-    function getUserKey() { return "v76.0_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
+    function getUserKey() { return "v76.1_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
 
     window.onload = () => {
         if (typeof Kakao !== 'undefined') Kakao.init(KAKAO_KEY);
         const sel = document.getElementById("examSelect");
         Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
-        if(window.location.search.includes('viewResult=true')) { document.getElementById('stuName').value = "리포트확인용"; showLastResult(); }
+        if(window.location.search.includes('viewResult=true')) { document.getElementById('stuName').value = "리포트확확인"; showLastResult(); }
     };
 
     async function checkServerBeforeStart() {
         const name = document.getElementById('stuName').value.trim(), academy = document.getElementById('academyName').value.trim(), key = document.getElementById("examSelect").value;
         if(!name) return alert("이름 입력!");
         const btn = document.getElementById('startBtn'); btn.disabled = true; btn.innerText = "서버 대조 중...";
-        const uKey = getUserKey();
         try {
-            const res = await fetch(GAS_URL + "?check=true&name=" + encodeURIComponent(name) + "&academy=" + encodeURIComponent(academy) + "&examId=" + TASKS[key].id);
+            const res = await fetch(GAS_URL + "?check=true&name=" + encodeURIComponent(name) + "&examId=" + TASKS[key].id);
             const data = await res.json();
-            if(data.finished) { localStorage.setItem('finished_' + uKey, 'true'); localStorage.setItem('last_res_' + uKey, JSON.stringify(data.lastRes)); }
-            else { localStorage.removeItem('finished_' + uKey); }
+            if(data.finished) { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(data.lastRes)); }
             startExam();
         } catch(e) { startExam(); }
     }
@@ -113,79 +111,57 @@
         const answers = []; cur.activeNums.forEach(n => { answers.push(document.querySelector(`input[name="q${n}"]:checked`)?.value || 0); });
         const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "채점 중...";
         try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: cur.id, name: document.getElementById('stuName').value.trim(), academy: document.getElementById('academyName').value.trim(), answers }) });
-            serverRes = await res.json();
-            btn.style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'block';
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: cur.id, name: document.getElementById('stuName').value, academy: document.getElementById('academyName').value, answers }) });
+            serverRes = await res.json(); btn.style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'block';
         } catch(e) { alert("오류"); btn.disabled = false; }
     }
 
     function shareAndUnlock() {
-        // 🛡️ [복구] 터치 제한 강제 해제 및 표준 카톡 호출
-        document.body.style.pointerEvents = 'auto';
-        document.getElementById('questionsContainer').style.pointerEvents = 'auto';
+        document.body.style.pointerEvents = 'auto'; // 🛡️ 터치 잠금 강제 해제
         if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
-
-        const currentTry = serverRes.try || 1, name = document.getElementById('stuName').value.trim(), academy = document.getElementById('academyName').value.trim();
-        const bustUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg?v=' + Date.now();
+        
+        const currentTry = serverRes.try || 1, name = document.getElementById('stuName').value, academy = document.getElementById('academyName').value;
+        const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg?v=' + Date.now();
         const callUrl = window.location.origin + window.location.pathname + "?viewResult=true";
         
+        // 🛡️ [선생님 설계 반영] 1~2회차 link 속성 삭제하여 버튼 자동 생성 봉쇄
         const kakaoObj = {
             objectType: 'feed',
-            content: {
-                title: `[${academy}] 제출 완료`,
-                description: `${name} 학생 (${currentTry}회차) 제출 완료`,
-                imageUrl: bustUrl, imageWidth: 400, imageHeight: 400
-                // 🔒 1~2회차 link 삭제: 카톡 '자세히 보기' 자동 생성 차단
-            },
+            content: { title: `제출 완료`, description: `${name} 학생 (${currentTry}회차)`, imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400 },
             buttons: [] 
         };
 
-        if(currentTry >= 3) {
+        if (currentTry >= 3) {
             kakaoObj.content.link = { mobileWebUrl: window.location.href, webUrl: window.location.href };
             kakaoObj.buttons = [{ title: '결과 확인하기', link: { mobileWebUrl: callUrl, webUrl: callUrl } }];
         }
 
         try {
-            // 🛡️ [복구] 브라우저 상관없이 작동하던 가장 안정적인 호출 방식
             Kakao.Share.sendDefault(kakaoObj);
-            setTimeout(() => {
-                if(confirm("주의: 선생님 채팅방으로 전송을 완료하셨습니까?")) {
-                    displayResult(); document.getElementById('resultModal').style.display = 'block';
-                    if(currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000));
-                    else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); }
-                }
-            }, 1000); 
-        } catch(e) { alert("카톡 앱을 호출할 수 없습니다."); }
+            setTimeout(() => { if (confirm("전송을 완료하셨습니까?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if (currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 1500);
+        } catch(e) { alert("카톡 호출 실패"); }
     }
 
     function displayResult() {
         const currentTry = serverRes.try || 1, count = serverRes.wrongCount || 0;
-        let html = `틀린 개수: <span style="color:var(--accent)">${count}개</span><br><span style="font-size:0.7em; color:#999;">(${currentTry}회차 제출 완료)</span>`;
-        if(currentTry === 1) { document.getElementById('solArea').innerHTML = `<p style="color:blue; text-align:center; margin-top:15px;">2회차 제출 시 틀린 문항 번호가 공개됩니다.</p>`; document.getElementById('historyArea').style.display = 'none'; }
-        else if(currentTry === 2) { document.getElementById('solArea').innerHTML = `<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><p style="color:blue; text-align:center;">3회차 제출 시 성적 그래프와 해설지가 공개됩니다.</p>`; document.getElementById('historyArea').style.display = 'none'; }
-        else {
+        document.getElementById('resSummary').innerHTML = `틀린 개수: ${count}개<br>(${currentTry}회차 제출)`;
+        if(currentTry >= 3) {
             document.getElementById('historyArea').style.display = 'block';
-            document.getElementById('solArea').innerHTML = `<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center; margin-bottom:10px;">최종 해설지 확인하기</a>`;
+            document.getElementById('solArea').innerHTML = `<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="text-decoration:none; text-align:center;">최종 해설지 확인</a>`;
             setTimeout(drawChart, 300);
-        }
-        document.getElementById('resSummary').innerHTML = html;
+        } else { document.getElementById('solArea').innerHTML = `<p>${currentTry === 1 ? '2회차에 틀린 문항이 공개됩니다.' : '틀린 문항: ' + serverRes.wrongs}</p>`; }
     }
 
     function drawChart() {
         const chartData = [['회차', '오답']]; serverRes.history.forEach((h, idx) => chartData.push([(idx+1)+"회", Number(h.wrongCount)]));
-        const maxVal = Math.max(...serverRes.history.map(h => Number(h.wrongCount))) + 1;
-        new google.visualization.LineChart(document.getElementById('chart_div')).draw(google.visualization.arrayToDataTable(chartData), {
-            legend: 'none', colors: ['#ff7675'],
-            vAxis: { direction: -1, minValue: 0, viewWindow: { min: 0, max: maxVal }, gridlines: { count: maxVal + 1 }, format: '0' },
-            chartArea: { width: '85%', height: '70%' }, pointSize: 7
-        });
+        new google.visualization.LineChart(document.getElementById('chart_div')).draw(google.visualization.arrayToDataTable(chartData), { legend: 'none', colors: ['#ff7675'], vAxis: { direction: -1, minValue: 0, format: '0' }, chartArea: { width: '85%', height: '70%' }, pointSize: 7 });
     }
 
-    function checkGlobalWait() { const uKey = getUserKey(), until = localStorage.getItem('wait_until_' + uKey); if (localStorage.getItem('finished_' + uKey) === 'true') lockExamPermanently(); else if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
-    function lockExamPermanently() { document.getElementById('questionsContainer').innerHTML = "<div style='text-align:center; padding:50px; color:#999; font-weight:700;'>3회차 제출 완료로<br>수정할 수 없습니다.</div>"; document.getElementById('submitBtn').style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'none'; document.getElementById('reviewBtn').style.display = 'block'; document.getElementById('finishMsg').style.display = 'block'; }
+    function checkGlobalWait() { const key = getUserKey(), until = localStorage.getItem('wait_until_' + key); if (localStorage.getItem('finished_' + key) === 'true') lockExamPermanently(); else if (until && parseInt(until) > Date.now()) startWaitTimer(Math.ceil((parseInt(until) - Date.now()) / 1000)); }
+    function lockExamPermanently() { document.getElementById('questionsContainer').innerHTML = "<div style='text-align:center; padding:50px;'>제출 완료로 수정 불가.</div>"; document.getElementById('submitBtn').style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'none'; document.getElementById('reviewBtn').style.display = 'block'; document.getElementById('finishMsg').style.display = 'block'; }
     function startWaitTimer(r) { const b = document.getElementById('waitDisplay'), q = document.getElementById('questionsContainer'), s = document.getElementById('submitBtn'); b.style.display = 'block'; q.style.pointerEvents = 'none'; s.disabled = true; let waitInt = setInterval(() => { let m = Math.floor(r/60), sec = r%60; s.innerText = `재제출까지 ${m}:${sec<10?'0'+sec:sec} 남음`; b.innerText = `⏳ 대기 중: ${m}:${sec<10?'0'+sec:sec}`; if(r-- <= 0) { clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + getUserKey()); } }, 1000); }
     function openCurrentPdf() { window.open(TASKS[document.getElementById("examSelect").value].pdf, '_blank'); }
-    function showLastResult() { const uKey = getUserKey(), saved = JSON.parse(localStorage.getItem('last_res_' + uKey)); if (saved) { serverRes = saved; displayResult(); document.getElementById('resultModal').style.display = 'block'; } }
+    function showLastResult() { const saved = JSON.parse(localStorage.getItem('last_res_' + getUserKey())); if (saved) { serverRes = saved; displayResult(); document.getElementById('resultModal').style.display = 'block'; } }
     function closeModal() { document.getElementById('resultModal').style.display = 'none'; checkGlobalWait(); }
 </script>
 </body>
