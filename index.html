@@ -12,12 +12,10 @@
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
         
-        /* 🚪 대문(Intro) 스타일 */
         #introPage { text-align: center; padding: 20px 0; }
         .intro-notice { background: #fff9f0; border: 2px dashed #ffcc80; border-radius: 20px; padding: 25px; margin: 25px 0; text-align: left; line-height: 1.6; }
         .start-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.25em; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3); }
 
-        /* 📝 시험지(Exam) 스타일 - 초기 숨김 */
         #examPage { display: none; } 
         .header-logo { text-align: center; margin-bottom: 25px; }
         .selector-box { background: #eeebff; padding: 18px; border-radius: 20px; border: 1.5px solid #d1ccff; margin-bottom: 25px; }
@@ -25,6 +23,7 @@
         .notice-box { background: #fff9f0; border-radius: 15px; padding: 20px; margin-bottom: 25px; font-size: 0.95em; border: 1px solid #ffecce; }
         .link-area { display: flex; gap: 10px; margin-bottom: 25px; }
         .link-btn { flex: 1; padding: 12px; text-align: center; background: #f1f3f5; border-radius: 10px; text-decoration: none; color: #495057; font-weight: 700; font-size: 0.85em; border: 1px solid #dee2e6; }
+        .sol-btn { background: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; } /* 해설지 버튼 전용 스타일 */
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         input { width: 100%; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 1em; box-sizing: border-box; outline: none; }
         .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; background: #fff; }
@@ -59,8 +58,7 @@
         <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
         <div id="examContent">
             <div class="notice-box" id="noticeArea"></div>
-            <div class="link-area" id="linkArea"></div>
-            <div id="timerDisplay" class="timer-display">⏱ 상태 확인 중...</div>
+            <div class="link-area" id="linkArea"></div> <div id="timerDisplay" class="timer-display">⏱ 상태 확인 중...</div>
             <div class="input-grid">
                 <input type="text" id="academyName" placeholder="학원명">
                 <input type="text" id="stuName" placeholder="학생 이름">
@@ -72,7 +70,7 @@
                 <h2 id="resScore" style="margin-top:0; color:var(--p); font-size: 1.6em;"></h2>
                 <p id="resFeedback" style="font-weight:700; font-size:1.1em;"></p>
                 <div id="resWrongs" style="color:#e74c3c; font-weight:bold; background:#fff0f0; padding:18px; border-radius:15px; margin-top:15px; display:none; word-break: break-all;"></div>
-                <div id="chart_div"></div>
+                <div id="solLinkArea" style="margin-top:20px; display:none;"></div> <div id="chart_div"></div>
             </div>
         </div>
     </div>
@@ -103,8 +101,6 @@
         const keys = Object.keys(TASKS);
         keys.forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
         sel.value = keys[keys.length - 1];
-        
-        // 대문 공지 설정
         document.getElementById('mainNotice').innerText = TASKS[sel.value].msg;
         loadExam();
     };
@@ -119,9 +115,10 @@
         if (tid) clearInterval(tid);
         const key = document.getElementById("examSelect").value;
         cur = TASKS[key]; curID = "HW_V67_" + cur.id;
-        
         document.getElementById('noticeArea').innerHTML = `<b>[공지]</b> ${cur.msg}<br>📅 <b>기한:</b> <span style="color:#e74c3c">${cur.deadline}</span>`;
-        document.getElementById('linkArea').innerHTML = `<a href="${cur.pdf}" target="_blank" class="link-btn">📄 문제지</a><a href="${cur.sol}" target="_blank" class="link-btn">📖 해설지</a>`;
+        
+        // 🔒 초기 로드 시 문제지만 표시 (해설지 제외)
+        document.getElementById('linkArea').innerHTML = `<a href="${cur.pdf}" target="_blank" class="link-btn">📄 문제지 확인</a>`;
         
         let html = "";
         for(let i=1; i<=cur.qCount; i++) {
@@ -131,7 +128,6 @@
         document.getElementById('resultCard').style.display = 'none';
         document.getElementById('submitBtn').style.display = 'block';
         document.getElementById('kakaoBtn').style.display = 'none';
-        
         updateTimerStatus();
         tid = setInterval(updateTimerStatus, 1000);
     }
@@ -162,15 +158,40 @@
     }
 
     function shareAndUnlock() {
-        Kakao.Share.sendDefault({ objectType: 'feed', content: { title: `[과제 제출] ${document.getElementById("examSelect").value}`, description: `${document.getElementById('stuName').value} 학생 (${serverRes.score}점)`, imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } } });
+        Kakao.Share.sendDefault({ 
+            objectType: 'feed', 
+            content: { 
+                title: `[과제 제출] ${document.getElementById("examSelect").value}`, 
+                description: `${document.getElementById('stuName').value} 학생 - 과제 제출 완료`, 
+                imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg', 
+                link: { mobileWebUrl: window.location.href, webUrl: window.location.href } 
+            } 
+        });
+        
         const kBtn = document.getElementById('kakaoBtn');
         kBtn.innerText = "✅ 전송 완료! 결과 확인"; kBtn.style.background = "#2ecc71"; kBtn.style.color = "#fff";
         kBtn.onclick = () => {
             const card = document.getElementById('resultCard'); card.style.display = 'block';
             document.getElementById('resScore').innerText = `내 점수: ${serverRes.score}점`;
+            
             let f = `${serverRes.try}회차 제출 완료. `;
-            if(serverRes.try < (serverRes.max - 1)) f += `오답 개수: ${serverRes.wrongCount}개.`;
-            else { f += `상세 오답: ${serverRes.wrongs}`; document.getElementById('resWrongs').innerText = `상세 오답: ${serverRes.wrongs}`; document.getElementById('resWrongs').style.display = 'block'; }
+            const solArea = document.getElementById('solLinkArea');
+
+            if(serverRes.try < serverRes.max) {
+                // 1~2회차: 오답 개수만, 해설지 숨김
+                f += `오답 개수: ${serverRes.wrongCount}개. 다시 풀며 실력을 키워보세요!`;
+                document.getElementById('resWrongs').style.display = 'none';
+                solArea.style.display = 'none';
+            } else {
+                // 마지막 회차: 상세 오답 공개 + 해설지 버튼 등장
+                f += `수고하셨습니다! 아래에서 상세 오답과 해설지를 확인하세요.`;
+                document.getElementById('resWrongs').innerText = `상세 오답 문항: ${serverRes.wrongs}`;
+                document.getElementById('resWrongs').style.display = 'block';
+                
+                // 🔓 해설지 버튼 활성화
+                solArea.innerHTML = `<a href="${cur.sol}" target="_blank" class="link-btn sol-btn">📖 최종 해설지 확인하기</a>`;
+                solArea.style.display = 'block';
+            }
             document.getElementById('resFeedback').innerText = f;
             drawChart(); card.scrollIntoView({ behavior: 'smooth' }); kBtn.style.display = 'none';
         };
@@ -181,7 +202,7 @@
         let dataArray = [['날짜', '점수']];
         serverRes.history.forEach(item => dataArray.push([item.date, item.score]));
         let data = google.visualization.arrayToDataTable(dataArray);
-        let options = { title: '성적 변화', curveType: 'function', legend: 'none', colors: ['#6c5ce7'] };
+        let options = { title: '성적 변화 추이', curveType: 'function', legend: 'none', colors: ['#6c5ce7'], vAxis: { minValue: 0, maxValue: 100 } };
         let chart = new google.visualization.LineChart(document.getElementById('chart_div'));
         chart.draw(data, options);
     }
