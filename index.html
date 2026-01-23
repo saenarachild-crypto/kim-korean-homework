@@ -19,25 +19,26 @@
         #introPage, #examPage { display: none; }
         .show { display: block !important; }
         .header-logo { text-align: center; margin-bottom: 25px; }
-        /* 🖼️ 로고가 칸에 딱 맞게 조절 */
         .header-logo img { width: 120px; height: 120px; object-fit: contain; border-radius: 20px; }
         
         .selector-box { background: #eeebff; padding: 18px; border-radius: 20px; margin-bottom: 25px; }
         select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #c3b9ff; font-weight: 700; color: var(--p); outline: none; }
         
-        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-        /* 🚫 비활성화 문항 스타일 */
+        /* 📋 입력란 스타일 */
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 1em; box-sizing: border-box; outline: none; font-family: inherit; }
+
+        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; background: #fff; }
         .q-disabled { background: #f1f3f5; opacity: 0.5; pointer-events: none; border-style: dashed; }
         
         .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         input[type="radio"] { position: absolute; opacity: 0; }
-        label { height: 48px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; }
+        label { height: 48px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; }
         input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
 
         .main-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.1em; font-weight: 800; cursor: pointer; margin-top: 15px; }
         #kakaoBtn { background: #fee500; color: #3c1e1e; display: none; }
         
-        /* 📊 결과 모달 */
         #resultModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
         .modal-content { background: #fff; border-radius: 30px; padding: 30px; max-width: 550px; margin: 0 auto; }
         #chart_div { width: 100%; height: 250px; }
@@ -50,7 +51,7 @@
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg"></div>
         <div style="background:#fff9f0; padding:25px; border-radius:20px; border:2px dashed #ffcc80; margin:20px 0;">
             <h3 style="margin-top:0; color:#e67e22;">📢 필수 공지</h3>
-            <p id="mainNotice">불러오는 중...</p>
+            <p id="mainNotice">수정 답안을 꼭 하셔야 합니다.</p>
         </div>
         <button class="main-btn" onclick="startApp()">과제 시작하기</button>
     </div>
@@ -58,6 +59,12 @@
     <div id="examPage">
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg"></div>
         <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
+        
+        <div class="input-grid">
+            <input type="text" id="academyName" placeholder="학원명">
+            <input type="text" id="stuName" placeholder="학생 이름">
+        </div>
+
         <div id="questionsContainer"></div>
         <button id="submitBtn" class="main-btn" onclick="processSubmit()">제출 및 서버 채점</button>
         <button id="kakaoBtn" class="main-btn" onclick="shareAndUnlock()">🟡 카톡 전송 후 결과 확인</button>
@@ -69,10 +76,6 @@
         <h2 id="resTitle" style="color:var(--p); margin-top:0;">📊 성적 리포트</h2>
         <div id="resSummary" style="font-weight:700; margin-bottom:20px;"></div>
         <div id="chart_div"></div>
-        <div id="unsubmittedSection" style="background:#fff5f5; padding:15px; border-radius:15px; margin:15px 0; display:none;">
-            <h4 style="color:#e74c3c; margin:0 0 10px 0;">⚠️ 미제출 과제</h4>
-            <div id="unsubmittedList" style="font-size:0.9em;"></div>
-        </div>
         <div id="solArea"></div>
         <button class="main-btn" style="background:#eee; color:#333;" onclick="location.reload()">닫기</button>
     </div>
@@ -111,6 +114,10 @@
     }
 
     async function processSubmit() {
+        const name = document.getElementById('stuName').value.trim();
+        const academy = document.getElementById('academyName').value.trim();
+        if(!name || !academy) return alert("학원명과 이름을 입력해주세요.");
+
         const key = document.getElementById("examSelect").value;
         const cur = TASKS[key];
         const answers = [];
@@ -120,20 +127,19 @@
         btn.disabled = true; btn.innerText = "분석 중...";
         
         try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: cur.id, examTitle: key, name: "학생", academy: "학원", answers, displayNums: cur.activeNums }) });
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: cur.id, examTitle: key, name: name, academy: academy, answers, displayNums: cur.activeNums }) });
             serverRes = await res.json();
             btn.style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'block';
         } catch(e) { alert("연결 오류"); btn.disabled = false; }
     }
 
     function shareAndUnlock() {
-        // 🔒 undefined 방지를 위해 serverRes.try 직접 참조
         const tryTxt = serverRes.try + "회차";
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
                 title: `[과제 제출] ${document.getElementById("examSelect").value}`,
-                description: `제출 완료 (${tryTxt})`,
+                description: `${document.getElementById('stuName').value} 학생 제출 완료 (${tryTxt})`,
                 imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg',
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
             }
@@ -143,16 +149,16 @@
         
         const solArea = document.getElementById('solArea');
         if(serverRes.try >= 3) {
-            solArea.innerHTML = `<p>❌ 오답: ${serverRes.wrongs}</p><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank">해설지 보기</a>`;
+            solArea.innerHTML = `<p style="color:#e74c3c; font-weight:bold;">❌ 오답 번호: ${serverRes.wrongs}</p><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 보기</a>`;
         } else {
-            solArea.innerHTML = `<p>💡 오답 개수: ${serverRes.wrongCount}개</p>`;
+            solArea.innerHTML = `<p style="color:var(--p); font-weight:bold;">💡 오답 개수: ${serverRes.wrongCount}개</p><p style="font-size:0.9em; color:#666;">3회차 제출 시 오답 번호가 공개됩니다.</p>`;
         }
         drawChart();
     }
 
     function drawChart() {
         const data = google.visualization.arrayToDataTable([['날짜', '점수'], ...serverRes.history.map(h => [h.date, h.score])]);
-        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, { legend: 'none', colors: ['#6c5ce7'] });
+        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, { legend: 'none', colors: ['#6c5ce7'], vAxis: {minValue: 0, maxValue: 100} });
     }
 </script>
 </body>
