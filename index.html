@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – 최종</title>
+<title>1교시 김현석 국어 – 최종 통합본</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -63,7 +63,7 @@ let serverRes=null, waitInt=null;
 const sel=document.getElementById("examSelect");
 Object.keys(EXAMS).filter(k=>k!=="해설지").forEach(k=>{let o=document.createElement("option");o.text=k;sel.add(o)});
 
-function getUserKey() { return `v76.6_${sel.value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v76.7_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
@@ -91,13 +91,24 @@ function loadExam(){
 
 async function submit(){
     const e=EXAMS[sel.value], answers=[];
-    // 🛡️ 서버가 기대하는 배열 길이로 정규화 전송
     e.all.forEach(n=>{ answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0); });
     const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.innerText="채점 중...";
+
+    // 🛡️ [통신 무결성] 서버가 즉시 읽을 수 있는 URLSearchParams 포장 방식 적용
+    const payload = new URLSearchParams();
+    payload.append("examId", e.id);
+    payload.append("name", document.getElementById("name").value.trim());
+    payload.append("academy", document.getElementById("academy").value.trim());
+    payload.append("answers", answers.join(",")); 
+
     try {
-        const res=await fetch(GAS_URL,{method:"POST",body:JSON.stringify({examId:e.id,name:document.getElementById("name").value.trim(),academy:document.getElementById("academy").value.trim(),answers})});
+        const res = await fetch(GAS_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: payload.toString()
+        });
         serverRes=await res.json(); btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
-    } catch(e){ alert("채점 오류 발생. 데이터 형식을 확인하세요."); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
+    } catch(e){ alert("서버 채점 오류가 발생했습니다. 잠시 후 다시 시도하세요."); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
 function share(){
@@ -108,7 +119,6 @@ function share(){
     const obj={ objectType:"text", text:msg, link:{mobileWebUrl:location.href, webUrl:location.href} };
     if(att>=3) obj.buttons=[{title:"결과 보기", link:{mobileWebUrl:location.href+"?viewResult=true", webUrl:location.href+"?viewResult=true"}}];
     
-    // 🛡️ [해결] 모든 브라우저에서 막힘없이 작동하는 표준 방식
     Kakao.Share.sendDefault(obj);
     setTimeout(()=>{ if(confirm("선생님께 카톡 전송 완료하셨습니까?")){ 
         displayResult(); document.getElementById('resultModal').style.display='block';
