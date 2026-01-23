@@ -19,7 +19,6 @@
         .header-logo img { width: 100%; max-width: 300px; border-radius: 15px; }
         .wait-banner { background: #fff200; color: #000; text-align: center; padding: 15px; border-radius: 15px; font-weight: 900; font-size: 1.1em; margin-bottom: 15px; display: none; border: 3px solid #000; }
         .notice-card { background: #fff9f0; padding: 18px; border-radius: 20px; border: 2px dashed #ffcc80; margin-bottom: 20px; }
-        .notice-card p { margin: 0; font-size: 0.95em; line-height: 1.6; color: #555; }
         .input-grid { display: flex; gap: 10px; margin-bottom: 20px; }
         input[type="text"] { flex: 1; padding: 15px; border: 1px solid var(--border); border-radius: 15px; font-size: 16px; text-align: center; }
         .selector-box { background: #eeebff; padding: 15px; border-radius: 20px; margin-bottom: 10px; }
@@ -69,14 +68,15 @@
         "1월 3회차 독서": { id: "2601_03_READING", wait: 5, notice: "지정 문항 풀이. 1/26 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/2601_03_reading.pdf", allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=bR0L3e" }
     };
     let serverRes = null;
+    function initKakao() { try { if (KAKAO_KEY && !Kakao.isInitialized()) Kakao.init(KAKAO_KEY); } catch(e) {} }
 
     function getUserKey() { return "v76.1_" + document.getElementById('examSelect').value + "_" + document.getElementById('stuName').value.trim(); }
 
     window.onload = () => {
-        if (typeof Kakao !== 'undefined') Kakao.init(KAKAO_KEY);
+        initKakao();
         const sel = document.getElementById("examSelect");
         Object.keys(TASKS).forEach(k => { let o = document.createElement("option"); o.value = k; o.innerText = k; sel.appendChild(o); });
-        if(window.location.search.includes('viewResult=true')) { document.getElementById('stuName').value = "리포트확확인"; showLastResult(); }
+        if(window.location.search.includes('viewResult=true')) { document.getElementById('stuName').value = "리포트확인용"; showLastResult(); }
     };
 
     async function checkServerBeforeStart() {
@@ -117,14 +117,13 @@
     }
 
     function shareAndUnlock() {
-        document.body.style.pointerEvents = 'auto'; // 🛡️ 터치 잠금 강제 해제
-        if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
-        
+        initKakao();
+        document.body.style.pointerEvents = 'auto'; 
         const currentTry = serverRes.try || 1, name = document.getElementById('stuName').value, academy = document.getElementById('academyName').value;
         const freshLogoUrl = 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg?v=' + Date.now();
         const callUrl = window.location.origin + window.location.pathname + "?viewResult=true";
         
-        // 🛡️ [선생님 설계 반영] 1~2회차 link 속성 삭제하여 버튼 자동 생성 봉쇄
+        // 🛡️ v72의 단순 호출 방식 + 1~2회차 link 삭제로 '자세히 보기' 봉쇄
         const kakaoObj = {
             objectType: 'feed',
             content: { title: `제출 완료`, description: `${name} 학생 (${currentTry}회차)`, imageUrl: freshLogoUrl, imageWidth: 400, imageHeight: 400 },
@@ -139,7 +138,7 @@
         try {
             Kakao.Share.sendDefault(kakaoObj);
             setTimeout(() => { if (confirm("전송을 완료하셨습니까?")) { displayResult(); document.getElementById('resultModal').style.display = 'block'; if (currentTry < 3) localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (TASKS[document.getElementById("examSelect").value].wait * 60 * 1000)); else { localStorage.setItem('finished_' + getUserKey(), 'true'); localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); } } }, 1500);
-        } catch(e) { alert("카톡 호출 실패"); }
+        } catch(e) { alert("카톡 호출 오류"); }
     }
 
     function displayResult() {
@@ -147,7 +146,7 @@
         document.getElementById('resSummary').innerHTML = `틀린 개수: ${count}개<br>(${currentTry}회차 제출)`;
         if(currentTry >= 3) {
             document.getElementById('historyArea').style.display = 'block';
-            document.getElementById('solArea').innerHTML = `<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="text-decoration:none; text-align:center;">최종 해설지 확인</a>`;
+            document.getElementById('solArea').innerHTML = `<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인</a>`;
             setTimeout(drawChart, 300);
         } else { document.getElementById('solArea').innerHTML = `<p>${currentTry === 1 ? '2회차에 틀린 문항이 공개됩니다.' : '틀린 문항: ' + serverRes.wrongs}</p>`; }
     }
