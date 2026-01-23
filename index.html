@@ -8,75 +8,86 @@
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; }
-        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; -webkit-tap-highlight-color: transparent; }
+        :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; --secondary: #a29bfe; }
+        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; }
         .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
-        #introPage { text-align: center; padding: 20px 0; }
-        .intro-notice { background: #fff9f0; border: 2px dashed #ffcc80; border-radius: 20px; padding: 25px; margin: 25px 0; text-align: left; line-height: 1.6; }
-        .start-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.25em; font-weight: 800; cursor: pointer; }
-        #examPage { display: none; } 
-        .header-logo { text-align: center; margin-bottom: 25px; }
-        .selector-box { background: #eeebff; padding: 18px; border-radius: 20px; border: 1.5px solid #d1ccff; margin-bottom: 25px; }
-        select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #c3b9ff; font-size: 1.1em; font-weight: 700; background: #fff; color: var(--p); outline: none; }
-        .notice-box { background: #fff9f0; border-radius: 15px; padding: 20px; margin-bottom: 25px; font-size: 0.95em; border: 1px solid #ffecce; }
-        .link-area { display: flex; gap: 10px; margin-bottom: 25px; }
-        .link-btn { flex: 1; padding: 12px; text-align: center; background: #f1f3f5; border-radius: 10px; text-decoration: none; color: #495057; font-weight: 700; font-size: 0.85em; border: 1px solid #dee2e6; }
-        .sol-btn { background: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        input { width: 100%; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 1em; box-sizing: border-box; outline: none; }
-        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; background: #fff; }
-        .q-num { font-weight: 800; font-size: 1.2em; margin-bottom: 15px; display: block; color: var(--p); }
-        .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
-        label { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; transition: 0.2s; }
-        input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3); }
-        /* 🚫 비활성화 문항 스타일 */
-        .q-disabled { background: #f1f3f5; opacity: 0.6; pointer-events: none; border-style: dashed; }
-        .q-disabled label { background: #e9ecef; color: #adb5bd; cursor: not-allowed; }
         
+        /* 🚪 대문 & 시험지 공통 */
+        #introPage, #examPage { display: none; }
+        .show { display: block !important; }
+        .intro-notice { background: #fff9f0; border: 2px dashed #ffcc80; border-radius: 20px; padding: 25px; margin: 25px 0; }
+        .start-btn, .main-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.1em; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .selector-box { background: #eeebff; padding: 18px; border-radius: 20px; margin-bottom: 25px; }
+        select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #c3b9ff; font-weight: 700; color: var(--p); outline: none; }
+        
+        /* 📝 문항 카드 */
+        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .q-num { font-weight: 800; color: var(--p); display: block; margin-bottom: 12px; }
+        .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        input[type="radio"] { position: absolute; opacity: 0; }
+        label { height: 48px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; }
+        input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
+        .q-disabled { background: #f1f3f5; opacity: 0.5; pointer-events: none; border-style: dashed; }
+
+        /* 📊 결과 리포트 창 (Modal) */
+        #resultModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto; padding: 20px 10px; box-sizing: border-box; }
+        .modal-content { background: #fff; max-width: 600px; margin: 0 auto; border-radius: 30px; padding: 30px; position: relative; }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #b2bec3; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 0.8em; font-weight: 700; margin-bottom: 10px; }
+        .badge-unsubmitted { background: #ffeaa7; color: #d35400; }
+        .unsubmitted-list { background: #fff5f5; border: 1px solid #ffdfdf; border-radius: 15px; padding: 15px; margin-top: 15px; }
+        .unsubmitted-item { color: #e74c3c; font-weight: 700; font-size: 0.9em; margin-bottom: 5px; }
+        #chart_div { width: 100%; height: 300px; margin: 20px 0; }
+        .link-btn { display: block; text-align: center; padding: 15px; background: #e8f0fe; color: #1a73e8; border-radius: 12px; text-decoration: none; font-weight: 700; margin-top: 15px; border: 1px solid #1a73e8; }
+
+        #kakaoBtn { background: #fee500; color: #3c1e1e; display: none; margin-top: 15px; }
         .timer-display { text-align: right; color: #ff7675; font-weight: 800; margin-bottom: 10px; }
-        .main-btn { width: 100%; padding: 22px; border: none; border-radius: 20px; font-size: 1.2em; font-weight: 800; cursor: pointer; margin-bottom: 15px; transition: 0.3s; }
-        #submitBtn { background: var(--p); color: white; }
-        #kakaoBtn { background: #fee500; color: #3c1e1e; display: none; }
-        #resultCard { display: none; margin-top: 30px; padding: 25px; border-radius: 25px; border: 3px solid var(--p); background: #fcfaff; }
-        #chart_div { width: 100%; height: 250px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="introPage">
-        <img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:140px; border-radius:25px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-        <h1 style="color:var(--p); margin-top:20px;">1교시 김현석 국어</h1>
+    <div id="introPage" class="show">
+        <img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:140px; border-radius:25px;">
+        <h1 style="color:var(--p);">1교시 김현석 국어</h1>
         <div class="intro-notice">
-            <h3 style="margin-top:0; color:#e67e22;">📢 이번 주 필수 공지</h3>
+            <h3 style="margin:0; color:#e67e22;">📢 필수 공지</h3>
             <p id="mainNotice">불러오는 중...</p>
         </div>
         <button class="start-btn" onclick="startApp()">확인했습니다. 과제 시작!</button>
     </div>
 
     <div id="examPage">
-        <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:110px; border-radius:15px;"></div>
+        <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:110px; border-radius:15px; margin-bottom:20px;"></div>
         <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
-        <div id="examContent">
-            <div class="notice-box" id="noticeArea"></div>
-            <div class="link-area" id="linkArea"></div>
-            <div id="timerDisplay" class="timer-display">⏱ 상태 확인 중...</div>
-            <div class="input-grid">
-                <input type="text" id="academyName" placeholder="학원명">
-                <input type="text" id="stuName" placeholder="학생 이름">
-            </div>
-            <div id="questionsContainer"></div>
-            <button type="button" id="submitBtn" class="main-btn" onclick="processSubmit()">제출 및 서버 채점</button>
-            <button type="button" id="kakaoBtn" class="main-btn" onclick="shareAndUnlock()">🟡 카톡 전송 후 결과 확인</button>
-            <div id="resultCard">
-                <h2 id="resScore" style="margin-top:0; color:var(--p); font-size: 1.6em;"></h2>
-                <p id="resFeedback" style="font-weight:700; font-size:1.1em;"></p>
-                <div id="resWrongs" style="color:#e74c3c; font-weight:bold; background:#fff0f0; padding:18px; border-radius:15px; margin-top:15px; display:none; word-break: break-all;"></div>
-                <div id="solLinkArea" style="margin-top:20px; display:none;"></div>
-                <div id="chart_div"></div>
-            </div>
+        <div class="notice-box" id="noticeArea" style="font-size:0.9em; margin-bottom:20px; line-height:1.6; color:#636e72;"></div>
+        <div id="timerDisplay" class="timer-display">⏱ 상태 확인 중...</div>
+        <div class="input-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+            <input type="text" id="academyName" placeholder="학원명" style="padding:15px; border-radius:12px; border:1px solid var(--border);">
+            <input type="text" id="stuName" placeholder="학생 이름" style="padding:15px; border-radius:12px; border:1px solid var(--border);">
         </div>
+        <div id="questionsContainer"></div>
+        <button type="button" id="submitBtn" class="main-btn" onclick="processSubmit()">제출 및 서버 채점</button>
+        <button type="button" id="kakaoBtn" class="main-btn" onclick="shareAndUnlock()">🟡 카톡 전송 후 결과 리포트 확인</button>
+    </div>
+</div>
+
+<div id="resultModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">×</span>
+        <h2 id="resTitle" style="color:var(--p); margin-top:0;">📊 나의 성적 리포트</h2>
+        <div id="resSummary" style="font-weight:700; font-size:1.1em; border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:15px;"></div>
+        
+        <h3 style="font-size:1em; margin-bottom:10px;">📈 과제별 정답률 추이</h3>
+        <div id="chart_div"></div>
+
+        <div id="unsubmittedSection" class="unsubmitted-list" style="display:none;">
+            <h3 style="margin-top:0; font-size:0.95em; color:#c0392b;">⚠️ 미제출 과제 목록</h3>
+            <div id="unsubmittedList"></div>
+        </div>
+
+        <div id="solArea"></div>
+        <button class="main-btn" style="margin-top:20px; background:#f1f3f5; color:#495057;" onclick="closeModal()">닫기</button>
     </div>
 </div>
 
@@ -95,10 +106,10 @@
         },
         "1월 3회차 독서": { 
             id: "2601_03_READING", 
-            allNums: Array.from({length: 39}, (_, i) => i + 1), // 전체 39문항 생성
-            activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], // 지정 지문만 활성화
+            allNums: Array.from({length: 39}, (_, i) => i + 1),
+            activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39],
             deadline: "2026-01-26 23:59:59", 
-            msg: "지정 지문 이외의 문제는 보지도 풀지도 마세요. (비활성화 처리됨)",
+            msg: "지정 지문 이외의 문제는 보지도 풀지도 마세요.",
             pdf: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC5xf-Z-XrcRKZRHFK77VR1AR04L4r74w6r8sNvYB7-j5c?e=Xs7KUr",
             sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG"
         }
@@ -118,28 +129,18 @@
         loadExam();
     };
 
-    function startApp() { document.getElementById('introPage').style.display = 'none'; document.getElementById('examPage').style.display = 'block'; window.scrollTo(0, 0); }
+    function startApp() { document.getElementById('introPage').classList.remove('show'); document.getElementById('examPage').classList.add('show'); window.scrollTo(0, 0); }
+    function closeModal() { document.getElementById('resultModal').style.display = 'none'; }
 
     function loadExam() {
         if (tid) clearInterval(tid);
         const key = document.getElementById("examSelect").value;
-        cur = TASKS[key]; curID = "HW_V67_" + cur.id;
-        
-        document.getElementById('resultCard').style.display = 'none';
-        document.getElementById('solLinkArea').style.display = 'none';
-        document.getElementById('kakaoBtn').style.display = 'none';
-        document.getElementById('submitBtn').style.display = 'block';
-
-        document.getElementById('noticeArea').innerHTML = `<b>[공지]</b> ${cur.msg}<br>📅 <b>기한:</b> <span style="color:#e74c3c">${cur.deadline}</span>`;
-        document.getElementById('linkArea').innerHTML = `<a href="${cur.pdf}" target="_blank" class="link-btn">📄 문제지 확인</a>`;
-        
+        cur = TASKS[key]; curID = "HW_V68_" + cur.id;
+        document.getElementById('noticeArea').innerHTML = `📅 <b>기한:</b> <span style="color:#e74c3c">${cur.deadline}</span><br>📢 <b>알림:</b> ${cur.msg}`;
         let html = "";
         cur.allNums.forEach(n => {
-            const isActive = cur.activeNums.includes(n);
-            html += `<div class="q-card ${isActive ? '' : 'q-disabled'}">
-                <span class="q-num">${n}번 ${isActive ? '' : '(풀이 제외)'}</span>
-                <div class="ans-row">${[1,2,3,4,5].map(v => `<input type="radio" name="q${n}" value="${v}" id="q${n}_${v}_${curID}" ${isActive ? '' : 'disabled'}><label for="q${n}_${v}_${curID}">${v}</label>`).join('')}</div>
-            </div>`;
+            const active = cur.activeNums.includes(n);
+            html += `<div class="q-card ${active ? '' : 'q-disabled'}"><span class="q-num">${n}번 ${active ? '' : '(제외)'}</span><div class="ans-row">${[1,2,3,4,5].map(v => `<input type="radio" name="q${n}" value="${v}" id="q${n}_${v}_${curID}" ${active ? '' : 'disabled'}><label for="q${n}_${v}_${curID}">${v}</label>`).join('')}</div></div>`;
         });
         document.getElementById('questionsContainer').innerHTML = html;
         updateTimerStatus(); tid = setInterval(updateTimerStatus, 1000);
@@ -149,66 +150,63 @@
         const name = document.getElementById('stuName').value.trim();
         const academy = document.getElementById('academyName').value.trim();
         if(!name || !academy) return alert("정보를 입력하세요.");
-        
         const answers = [];
-        cur.activeNums.forEach(n => {
-            const val = document.querySelector(`input[name="q${n}"]:checked`)?.value;
-            answers.push(val ? Number(val) : 0);
-        });
-        
+        cur.activeNums.forEach(n => { const val = document.querySelector(`input[name="q${n}"]:checked`)?.value; answers.push(val ? Number(val) : 0); });
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "서버 분석 중...";
-
         try {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ examId: cur.id, examTitle: document.getElementById("examSelect").value, name, academy, answers, displayNums: cur.activeNums }) });
             serverRes = await res.json();
             if(serverRes.result === "error") throw new Error(serverRes.msg);
             localStorage.setItem(curID + '_tries', serverRes.try);
             localStorage.setItem(curID + '_lock', serverRes.nextAvailableAt);
-            btn.style.display = 'none';
-            document.getElementById('kakaoBtn').style.display = 'block';
-            alert("서버 채점 완료! 카톡 공유 후 결과를 확인하세요.");
+            btn.style.display = 'none'; document.getElementById('kakaoBtn').style.display = 'block';
+            alert("분석 완료! 카톡 전송 후 상세 리포트를 확인하세요.");
         } catch(e) { alert(e.message); btn.disabled = false; btn.innerText = "제출 및 서버 채점"; }
     }
 
     function shareAndUnlock() {
-        const tryCount = serverRes ? serverRes.try : (localStorage.getItem(curID + '_tries') || '1');
         Kakao.Share.sendDefault({ 
             objectType: 'feed', 
-            content: { 
-                title: `[과제 제출] ${document.getElementById("examSelect").value}`, 
-                description: `${document.getElementById('stuName').value} 학생 (${tryCount}회차) 제출 완료`, 
-                imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg', 
-                imageWidth: 800, imageHeight: 420,
-                link: { mobileWebUrl: window.location.href, webUrl: window.location.href } 
-            },
-            buttons: [{ title: '결과 확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
+            content: { title: `[과제 제출] ${document.getElementById("examSelect").value}`, description: `${document.getElementById('stuName').value} 학생 (${serverRes.try}회차) 제출 완료`, imageUrl: 'https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg', imageWidth: 800, imageHeight: 420, link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }
         });
-        
         const kBtn = document.getElementById('kakaoBtn');
-        kBtn.innerText = "✅ 전송 완료! 결과 확인"; kBtn.style.background = "#2ecc71"; kBtn.style.color = "#fff";
+        kBtn.innerText = "✅ 전송 완료! 리포트 보기"; kBtn.style.background = "#2ecc71"; kBtn.style.color = "#fff";
         kBtn.onclick = () => {
-            const card = document.getElementById('resultCard'); card.style.display = 'block';
-            document.getElementById('resScore').innerText = `내 점수: ${serverRes.score}점`;
-            const solArea = document.getElementById('solLinkArea');
-            if(serverRes.try < 3) {
-                document.getElementById('resFeedback').innerText = `${serverRes.try}회차 제출 완료. 오답 개수: ${serverRes.wrongCount}개.`;
-                document.getElementById('resWrongs').style.display = 'none'; solArea.style.display = 'none';
-            } else {
-                document.getElementById('resFeedback').innerText = `3회차 제출 완료. 상세 오답을 확인하세요.`;
-                document.getElementById('resWrongs').innerText = `상세 오답 문항: ${serverRes.wrongs}`;
-                document.getElementById('resWrongs').style.display = 'block';
-                solArea.innerHTML = `<a href="${cur.sol}" target="_blank" class="link-btn sol-btn">📖 최종 해설지 확인하기</a>`;
-                solArea.style.display = 'block';
-            }
-            drawChart(); card.scrollIntoView({ behavior: 'smooth' }); kBtn.style.display = 'none';
+            document.getElementById('resultModal').style.display = 'block';
+            document.getElementById('resSummary').innerHTML = `<span style="color:var(--p)">${serverRes.score}점</span> (${serverRes.try}회차 제출)`;
+            
+            // 미제출 과제 체크
+            const submittedIds = [...new Set(serverRes.history.map(h => h.id))];
+            const unsubmitted = Object.values(TASKS).filter(t => !submittedIds.includes(t.id));
+            const unArea = document.getElementById('unsubmittedSection');
+            if(unsubmitted.length > 0) {
+                unArea.style.display = 'block';
+                document.getElementById('unsubmittedList').innerHTML = unsubmitted.map(t => `<div class="unsubmitted-item">📍 ${Object.keys(TASKS).find(k => TASKS[k].id === t.id)}</div>`).join('');
+            } else { unArea.style.display = 'none'; }
+
+            // 상세 오답 및 해설지 (3회차)
+            const solArea = document.getElementById('solArea');
+            if(serverRes.try >= 3) {
+                solArea.innerHTML = `<div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin-top:15px;">❌ 틀린 문항: ${serverRes.wrongs}</div><a href="${cur.sol}" target="_blank" class="link-btn">📖 최종 해설지 확인하기</a>`;
+            } else { solArea.innerHTML = `<div style="background:#f0f7ff; padding:15px; border-radius:12px; color:#0056b3; font-weight:700; margin-top:15px;">💡 오답 개수: ${serverRes.wrongCount}개</div>`; }
+            
+            drawChart();
         };
     }
 
     function drawChart() {
-        if (!serverRes || !serverRes.history || serverRes.history.length < 2) return;
-        let data = google.visualization.arrayToDataTable([['날짜', '점수'], ...serverRes.history.map(i => [i.date, i.score])]);
-        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, { title: '성적 변화', curveType: 'function', legend: 'none', colors: ['#6c5ce7'], vAxis: { minValue: 0, maxValue: 100 } });
+        // 과제명별 최고 점수 추출 로직
+        const bestScores = {};
+        serverRes.history.forEach(h => {
+            if(!bestScores[h.title] || h.score > bestScores[h.title]) bestScores[h.title] = h.score;
+        });
+        const dataArray = [['과제명', '최고점수']];
+        Object.keys(bestScores).forEach(title => dataArray.push([title.replace("1월 3회차 ",""), bestScores[title]]));
+        
+        const data = google.visualization.arrayToDataTable(dataArray);
+        const options = { curveType: 'function', legend: 'none', colors: ['#6c5ce7'], vAxis: { minValue: 0, maxValue: 100 }, hAxis: { textStyle: {fontSize: 10} }, chartArea: {width:'80%', height:'70%'} };
+        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, options);
     }
 
     function updateTimerStatus() {
