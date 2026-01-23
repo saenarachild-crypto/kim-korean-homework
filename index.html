@@ -24,6 +24,7 @@
         input[type="text"] { flex: 1; width: 0; padding: 15px 10px; border: 1px solid var(--border); border-radius: 15px; font-size: 16px !important; text-align: center; background: #fdfdff; outline: none; height: 50px; box-sizing: border-box; }
         .selector-box { background: #eeebff; padding: 15px; border-radius: 20px; margin-bottom: 20px; }
         select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #c3b9ff; font-weight: 700; color: var(--p); font-size: 1em; outline: none; background: #fff; }
+        .pdf-btn { display: block; width: 100%; padding: 12px; background: #2d3436; color: #fff; text-align: center; text-decoration: none; border-radius: 15px; font-weight: 700; font-size: 0.9em; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; background: #fff; }
         .is-waiting { opacity: 0.4 !important; pointer-events: none !important; }
         .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -49,6 +50,7 @@
         <div id="waitDisplay" class="wait-banner">⏳ 다시 고민할 시간입니다...</div>
         <div class="notice-card"><h3>📢 시험지 공지</h3><p id="examNotice"></p></div>
         <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
+        <a id="pdfLink" class="pdf-btn" target="_blank" href="#">📄 원본 문제지 보기</a>
         <div id="questionsContainer"></div>
         <button id="submitBtn" class="main-btn" onclick="processSubmit()">제출 및 서버 채점</button>
         <button id="kakaoBtn" class="main-btn" onclick="shareAndUnlock()" style="display:none; background:#fee500; color:#3c1e1e;">🟡 카톡 전송 후 결과 확인</button>
@@ -60,8 +62,8 @@
     google.charts.load('current', {'packages':['corechart']});
     const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001", GAS_URL = "https://script.google.com/macros/s/AKfycbxcT0dziBtsHKDZEPwzyBySOkZjfl3_B7nSysFX7DlXyDKiAD03zLI3jXI8ZBNbA31C/exec";
     const TASKS = {
-        "1월 3회차 문학": { id: "2601_03_LIT", wait: 1, notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", allNums: Array.from({length: 31}, (_, i) => i + 1), activeNums: Array.from({length: 31}, (_, i) => i + 1), sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" },
-        "1월 3회차 독서": { id: "2601_03_READING", wait: 5, notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" }
+        "1월 3회차 문학": { id: "2601_03_LIT", wait: 1, notice: "전 문항 모두 풀어서 제출할 것. 제출 기한: 1월 26일 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/exam1.pdf", allNums: Array.from({length: 31}, (_, i) => i + 1), activeNums: Array.from({length: 31}, (_, i) => i + 1), sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" },
+        "1월 3회차 독서": { id: "2601_03_READING", wait: 5, notice: "지정 문항만 풀어서 제출할 것. 제출기한: 1월 26일 자정까지", pdf: "https://saenarachild-crypto.github.io/kim-korean-homework/exam2.pdf", allNums: Array.from({length: 39}, (_, i) => i + 1), activeNums: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39], sol: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=V4g4JG" }
     };
     let serverRes = null, waitInt = null;
     if (KAKAO_KEY) Kakao.init(KAKAO_KEY);
@@ -87,8 +89,11 @@
     }
 
     function loadExam() {
-        const cur = TASKS[document.getElementById("examSelect").value];
+        const key = document.getElementById("examSelect").value;
+        const cur = TASKS[key];
         document.getElementById('examNotice').innerText = cur.notice;
+        document.getElementById('pdfLink').href = cur.pdf; // PDF 링크 업데이트
+        
         let html = "";
         cur.allNums.forEach(n => {
             const active = cur.activeNums.includes(n);
@@ -117,8 +122,7 @@
             content: {
                 title: `[${document.getElementById("academyName").value}] ${document.getElementById("examSelect").value}`,
                 description: `${document.getElementById("stuName").value} 학생 (${serverRes.try}회차) 제출 완료`,
-                imageUrl: bustUrl,
-                imageWidth: 200, imageHeight: 200,
+                imageUrl: bustUrl, imageWidth: 200, imageHeight: 200,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
             }
         });
@@ -135,7 +139,9 @@
 
                 if(serverRes.try >= 3) {
                     document.getElementById('historyArea').style.display = 'block';
-                    document.getElementById('solArea').innerHTML = `<div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:20px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div><a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
+                    document.getElementById('solArea').innerHTML = `
+                        <div style="background:#fff0f0; padding:15px; border-radius:12px; color:#c0392b; font-weight:700; margin:15px 0; line-height:1.6; font-size:0.9em;">❌ 오답 번호:<br>${serverRes.wrongs}</div>
+                        <a href="${TASKS[document.getElementById("examSelect").value].sol}" class="main-btn" target="_blank" style="display:block; text-decoration:none; text-align:center;">최종 해설지 확인하기</a>`;
                     setTimeout(drawChart, 300);
                 } else {
                     document.getElementById('historyArea').style.display = 'none';
@@ -172,7 +178,12 @@
         const chartData = [['회차', '오답 개수']];
         serverRes.history.forEach((h, idx) => { chartData.push([ (idx+1) + "회", Number(h.wrongCount) ]); });
         const data = google.visualization.arrayToDataTable(chartData);
-        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, { legend: 'none', colors: ['#ff7675'], vAxis: { direction: -1, gridlines: {count: 5}, minValue: 0 }, chartArea: { width: '85%', height: '70%' }, pointSize: 7 });
+        new google.visualization.LineChart(document.getElementById('chart_div')).draw(data, {
+            legend: 'none', colors: ['#ff7675'],
+            vAxis: { direction: -1, gridlines: {count: 5}, minValue: 0 },
+            chartArea: { width: '85%', height: '70%' },
+            pointSize: 7
+        });
     }
 </script>
 </body>
