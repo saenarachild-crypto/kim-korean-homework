@@ -18,8 +18,9 @@ body{background:var(--bg);font-family:Pretendard,system-ui;margin:0;padding:15px
 select{width:100%;padding:12px;border-radius:12px;border:1px solid #c3b9ff;font-weight:700;color:var(--p);background:#fff;margin-bottom:10px}
 .pdf-btn,.main-btn{width:100%;padding:18px;border-radius:20px;font-weight:800;border:none;cursor:pointer;box-sizing:border-box}
 .pdf-btn{background:#2d3436;color:#fff;margin-bottom:20px;display:block;text-align:center;text-decoration:none}
-.main-btn{background:var(--p);color:#fff}.q-card{border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:15px;background:#fff}
-.ans-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}input[type=radio]{display:none}
+.main-btn{background:var(--p);color:#fff}.q-card{border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:15px;background:#fff;transition:all 0.3s}
+.ans-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+input[type=radio]{display:none}
 label{height:45px;border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;background:#fff}
 input:checked+label{background:var(--p) !important;color:#fff !important}
 #resultModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:2000;overflow-y:auto;padding:15px;box-sizing:border-box}
@@ -72,7 +73,14 @@ Object.keys(EXAMS).filter(k => k !== "해설지").forEach(k => {
 let serverRes=null;
 const getParam = (n) => new URLSearchParams(location.search).get(n);
 
-window.onload = () => { if(getParam('viewResult')) { document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; setTimeout(showLastResult, 200); } };
+// 🛡️ [박제] 카톡 결과 보기 진입 시 채점기 스킵 후 즉시 리포트 팝업
+window.onload = () => { 
+    if(getParam('viewResult')) { 
+        document.getElementById("introPage").style.display="none"; 
+        document.getElementById("examPage").style.display="block";
+        setTimeout(showLastResult, 200); 
+    } 
+};
 
 function getUserKey() { return `v78.4_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
@@ -82,7 +90,10 @@ async function checkServerBeforeStart(){
     try {
         const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[sel.value].id);
         const data=await res.json();
-        if(data.finished){ localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(data.lastRes)); }
+        if(data.finished){ 
+            localStorage.setItem('finished_'+getUserKey(), 'true'); 
+            localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(data.lastRes)); 
+        }
         document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; loadExam();
     } catch(e){ document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; loadExam(); }
 }
@@ -117,29 +128,28 @@ async function submit(){
     } catch(e){ alert("서버 채점 오류: " + e.message); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
+// 🛡️ [박제] 카톡 공유 "복귀 즉시" 리포트 노출 로직
 function share(){
     if(!serverRes) return alert("데이터 오류");
-    const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
-    const attCount = serverRes.try || 1; // 🛡️ 서버가 확정한 제출 횟수 사용
-
-    let msg = attCount===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
-            : attCount===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
+    const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
+    let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
+            : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
             : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
 
     const pureUrl = location.href.split('?')[0];
     const kakaoObj = { objectType: "text", text: msg, link: { mobileWebUrl: pureUrl, webUrl: pureUrl } }; 
-    if (attCount >= 3) { 
+    if (att >= 3) { 
         kakaoObj.buttons = [{ title: "결과 보기", link: { mobileWebUrl: pureUrl + "?viewResult=true", webUrl: pureUrl + "?viewResult=true" } }];
     } else { kakaoObj.link = { mobileWebUrl: " ", webUrl: " " }; }
     
     Kakao.Share.sendDefault(kakaoObj);
     
-    // 🛡️ [복귀 즉시 리포트] 브라우저 활성화 감지 로직
-    const onReturn = () => {
+    // 🛡️ [수정] 복귀 즉시 실행 로직
+    const onReturnNow = () => {
         if (document.visibilityState === 'visible') {
             displayResult(); 
             document.getElementById('resultModal').style.display = 'block';
-            if(attCount < 3) {
+            if(att < 3) {
                 localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (EXAMS[sel.value].wait * 60000));
                 checkGlobalWait(); 
             } else { 
@@ -147,15 +157,16 @@ function share(){
                 localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); 
                 lockExam();
             }
-            document.removeEventListener('visibilitychange', onReturn);
+            document.removeEventListener('visibilitychange', onReturnNow);
         }
     };
-    document.addEventListener('visibilitychange', onReturn);
+    document.addEventListener('visibilitychange', onReturnNow);
 }
 
 function displayResult(){
     const att=serverRes.try||1, count=serverRes.wrongCount||0;
     document.getElementById('resSummary').innerHTML=`틀린 개수: <span style="color:var(--accent)">${count}개</span><br>(${att}회차 제출 완료)`;
+    
     if(att>=3){
         if(getParam('viewResult')) { 
             document.getElementById('historyArea').style.display='block';
