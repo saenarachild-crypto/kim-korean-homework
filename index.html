@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – v79.2 FINAL</title>
+<title>1교시 김현석 국어 – v79.3 FINAL</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -33,10 +33,9 @@ input:checked+label{background:var(--p) !important;color:#fff !important}
 <div class="container">
     <div id="introPage">
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg"></div>
-        <div class="notice-card"><p>시험지를 선택하고 자정까지 제출하세요. 미제출 시 분석이 불가능합니다.</p></div>
         <div class="input-grid"><input id="academy" placeholder="학원명"><input id="name" placeholder="학생 이름"></div>
         <button class="main-btn" onclick="checkServerBeforeStart()">본인 확인 완료 (과제 시작)</button>
-        <div class="version-tag">SYSTEM v79.2 FINAL</div>
+        <div class="version-tag">SYSTEM v79.3 FINAL</div>
     </div>
     <div id="examPage" style="display:none;">
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg"></div>
@@ -48,7 +47,6 @@ input:checked+label{background:var(--p) !important;color:#fff !important}
         <button class="main-btn" id="submitBtn" onclick="submit()">제출 및 서버 채점</button>
         <button class="main-btn" id="kakaoBtn" onclick="share()" style="display:none;background:#fee500;color:#3c1e1e">🟡 카톡 전송 후 결과 확인</button>
         <button class="main-btn" id="reviewBtn" style="display:none;background:#2f3542;" onclick="showLastResult()">📊 최종 리포트 다시 보기</button>
-        <div class="version-tag">SYSTEM v79.2 FINAL</div>
     </div>
 </div>
 <div id="resultModal"><div class="modal-content"><h2 style="text-align:center;">📊 리포트</h2><div id="resSummary" style="font-weight:800; margin:20px 0; font-size:1.3em; text-align:center;"></div><div id="historyArea" style="display:none;"><div id="chart_div"></div><div id="missionStatus" class="status-msg"></div></div><div id="solArea"></div><button class="main-btn" style="background:#f1f2f6; color:#333; margin-top:20px;" onclick="closeModal()">결과창 닫기</button></div></div>
@@ -78,7 +76,7 @@ window.onload = async () => {
         document.getElementById("introPage").style.display="none"; 
         document.getElementById("examPage").style.display="block";
         try {
-            const res = await fetch(GAS_URL + "?sync=true&name=" + encodeURIComponent(name) + "&examId=" + EXAMS[sel.value].id);
+            const res = await fetch(GAS_URL + "?name=" + encodeURIComponent(name) + "&examId=" + EXAMS[sel.value].id);
             const data = await res.json();
             serverRes = data.lastRes;
             serverRes.fullMission = data.fullMission;
@@ -88,7 +86,7 @@ window.onload = async () => {
     } 
 };
 
-function getUserKey() { return `v79.2_${sel.value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v79.3_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
@@ -108,10 +106,7 @@ function loadExam(){
     let h=""; e.all.forEach(n=>{
         const act=e.active.includes(n);
         h+=`<div class="q-card" style="${act?'':'opacity:0.3;pointer-events:none'}"><b>${n}번</b><div class="ans-row">`;
-        for(let j=1;j<=5;j++) {
-            const qId = `q${n}_${j}`;
-            h+=`<input type="radio" name="q${n}" id="${qId}" value="${j}" ${act?'':'disabled'}><label for="${qId}">${j}</label>`;
-        }
+        for(let j=1;j<=5;j++) h+=`<input type="radio" name="q${n}" id="q${n}_${j}" value="${j}" ${act?'':'disabled'}><label for="q${n}_${j}">${j}</label>`;
         h+=`</div></div>`;
     });
     document.getElementById("qBox").innerHTML=h; checkGlobalWait();
