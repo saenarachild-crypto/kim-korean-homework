@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – 과제 시스템 v76.7.1</title>
+<title>1교시 김현석 국어 – v76.7.2 최종 마스터</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -64,7 +64,7 @@ let serverRes=null, waitInt=null;
 const sel=document.getElementById("examSelect");
 Object.keys(EXAMS).filter(k=>k!=="해설지").forEach(k=>{let o=document.createElement("option");o.text=k;sel.add(o)});
 
-function getUserKey() { return `v76.7.1_${sel.value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v76.7.2_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
@@ -117,7 +117,6 @@ function share(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
     const callUrl = location.href + (location.href.includes('?') ? '&' : '?') + "viewResult=true";
     
-    // 🛡️ 지침 반영 카톡 메시지 구성
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
             : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
             : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
