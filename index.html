@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – v77.0</title>
+<title>1교시 김현석 국어 – v77.1</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -62,12 +62,11 @@ const EXAMS={
 };
 
 let serverRes=null;
-const getUrlParam = (n) => new URLSearchParams(location.search).get(n);
 
-// 🛡️ [수정] 3회차 결과 보기 버튼 클릭 시 자동 팝업 로직
-window.onload = () => { if(getUrlParam('viewResult')) { setTimeout(showLastResult, 1000); } };
+// 🛡️ [수정] 3회차 카톡 버튼 클릭 시 자동 리포트 로직
+window.onload = () => { if(new URLSearchParams(location.search).get('viewResult')) { setTimeout(showLastResult, 500); } };
 
-function getUserKey() { return `v77.0_${document.getElementById('examSelect').value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v77.1_${document.getElementById('examSelect').value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
@@ -111,28 +110,30 @@ function share(){
             : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
             : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
 
-    const currentUrl = location.href.split('?')[0]; // 파라미터 없는 순수 주소
+    // 🛡️ [해결] 1, 2회차에는 link를 완전히 비워 '자세히 보기' 자동 생성을 막음
+    const currentUrl = location.href.split('?')[0];
     const obj = { objectType: "text", text: msg, link: {} }; 
+    
     if (att >= 3) { 
         obj.link = { mobileWebUrl: currentUrl, webUrl: currentUrl };
         obj.buttons = [{ title: "결과 보기", link: { mobileWebUrl: currentUrl + "?viewResult=true", webUrl: currentUrl + "?viewResult=true" } }];
     }
     
+    // 카톡 전송 창 띄움
     Kakao.Share.sendDefault(obj);
     
-    // 🛡️ [수정] 전송 직후 로직 강제 실행
+    // 🛡️ [핵심] 카톡 앱으로 넘어가는 것과 상관없이 0.5초 뒤 사이트 화면을 결과창으로 강제 전환
     setTimeout(()=>{ 
         displayResult(); 
         document.getElementById('resultModal').style.display='block';
         if(att<3) {
-            const waitMin = EXAMS[document.getElementById('examSelect').value].wait;
-            localStorage.setItem('wait_until_'+getUserKey(), Date.now() + (waitMin * 60000));
+            localStorage.setItem('wait_until_'+getUserKey(), Date.now() + (EXAMS[document.getElementById('examSelect').value].wait * 60000));
         } else { 
             localStorage.setItem('finished_'+getUserKey(), 'true'); 
             localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); 
             lockExam();
         }
-    }, 1200); 
+    }, 500); 
 }
 
 function displayResult(){
@@ -144,7 +145,7 @@ function displayResult(){
         document.getElementById('solArea').innerHTML=`<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${EXAMS['해설지'].sol}" class="main-btn" target="_blank" style="display:block;text-align:center;text-decoration:none">최종 해설지 확인하기</a>`;
         setTimeout(drawChart, 300);
     } else { 
-        // 🛡️ 1회차: 문항 안알려줌 / 2회차: 문항 알려줌
+        // 1회차는 개수만, 2회차는 문항 번호까지 공개
         document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center;font-weight:bold;">${att===1?'2회차 제출 후 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p><p style="text-align:center;font-size:0.9em;">⏳ 대기 시간이 지나야 재입력이 가능합니다.</p>`; 
     }
 }
