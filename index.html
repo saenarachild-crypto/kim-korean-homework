@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – v77.5 최종</title>
+<title>1교시 김현석 국어 – v77.6</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -62,10 +62,9 @@ const EXAMS={
 };
 let serverRes=null;
 
-// ⭐ 3회차 카톡 버튼 유입 감지 로직
 window.onload = () => { if(new URLSearchParams(location.search).get('viewResult')) { setTimeout(showLastResult, 300); } };
 
-function getUserKey() { return `v77.5_${document.getElementById('examSelect').value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v77.6_${document.getElementById('examSelect').value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
@@ -103,7 +102,7 @@ async function submit(){
     } catch(e){ alert("서버 오류"); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
-// 🛡️ [수정] 카톡 전송 및 화면 즉시 전환 로직 (선생님 지시 완벽 반영)
+// 🛡️ [박제] 카톡 전송 및 결과창 강제 전환 로직 (수정본)
 function share(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
@@ -112,14 +111,14 @@ function share(){
 
     const pureUrl = location.href.split('?')[0];
     
-    // 🛡️ [박제] 1, 2회차에는 link 객체와 buttons 자체를 전달하지 않음
+    // 🛡️ [박제] 1, 2회차에는 link 객체와 buttons 자체를 아예 생성하지 않음
     const kakaoObj = { objectType: "text", text: msg }; 
     if (att >= 3) { 
         kakaoObj.link = { mobileWebUrl: pureUrl, webUrl: pureUrl };
         kakaoObj.buttons = [{ title: "결과 보기", link: { mobileWebUrl: pureUrl + "?viewResult=true", webUrl: pureUrl + "?viewResult=true" } }];
     }
     
-    // 🛡️ [박제] 카톡 창을 띄움과 동시에 브라우저 리포트 로직을 먼저 강제 실행
+    // 🛡️ [강제] 카톡 앱이 뜨기 전, 브라우저 화면을 먼저 결과 리포트로 바꿈
     displayResult(); 
     document.getElementById('resultModal').style.display = 'block';
     
@@ -131,7 +130,7 @@ function share(){
         lockExam();
     }
     
-    // 리포트 띄우고 아주 짧은 찰나 뒤 카톡 앱 호출
+    // 리포트 강제 노출 후 0.15초 뒤 카톡 창 호출
     setTimeout(() => Kakao.Share.sendDefault(kakaoObj), 150); 
 }
 
@@ -144,7 +143,7 @@ function displayResult(){
         document.getElementById('solArea').innerHTML=`<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${EXAMS['해설지'].sol}" class="main-btn" target="_blank" style="display:block;text-align:center;text-decoration:none">최종 해설지 확인하기</a>`;
         setTimeout(drawChart, 300);
     } else { 
-        // 1회차: 개수만 / 2회차: 문항 번호까지
+        // 1회차: 개수만 / 2회차: 문항 번호까지 공개
         document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center;font-weight:bold;">${att===1?'2회차 제출 후 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p><p style="text-align:center;font-size:0.9em;">⏳ 대기 시간이 지나야 재입력이 가능합니다.</p>`; 
     }
 }
