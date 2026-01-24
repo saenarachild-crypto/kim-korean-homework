@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – 최종 통합본</title>
+<title>1교시 김현석 국어 – 과제 시스템 v76.7.1</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -52,23 +52,23 @@ input:checked+label{background:var(--p);color:#fff}
 <script>
 google.charts.load('current',{packages:['corechart']});
 const KAKAO_KEY="f81d5eae0eaaf6fa2d0bdccbe6916001", 
-      GAS_URL="https://script.google.com/macros/s/AKfycbw-fQHefCxgUrEf5xryx6A8XQ3z-gJ_8vuenfo2_n4FDc77_mbZjxnykvmrys5hwM8L/exec";
+      GAS_URL="https://script.google.com/macros/s/AKfycbx2I0Zp24gnmdW_K6jhpbWLEu_BPQjRDXh2987HY2kBrqMXC6OqlEnflED7TDqF5aSD/exec";
 if(!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
 const EXAMS={
-  "1월 3회차 문학":{ id:"2601_03_LIT", wait:1, notice:"전 문항 모두 풀 것. 기한: 1/26 자정", pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", all:Array.from({length:31},(_,i)=>i+1), active:Array.from({length:31},(_,i)=>i+1) },
-  "1월 3회차 독서":{ id:"2601_03_READING", wait:5, notice:"지정 문항만 풀 것. 기한: 1/26 자정", pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC5xf-Z-XrcRKZRHFK77VR1AR04L4r74w6r8sNvYB7-j5c?e=gzGNQR", all:Array.from({length:42},(_,i)=>i+1), active:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39] },
+  "1월 3회차 문학":{ id:"2601_03_LIT", wait:1, notice:"전 문항 모두 풀어서 제출할 것. 기한: 1월 26일 자정까지", pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", all:Array.from({length:31},(_,i)=>i+1), active:Array.from({length:31},(_,i)=>i+1) },
+  "1월 3회차 독서":{ id:"2601_03_READING", wait:5, notice:"지정 문항만 풀어서 제출할 것. 기한: 1월 26일 자정까지", pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC5xf-Z-XrcRKZRHFK77VR1AR04L4r74w6r8sNvYB7-j5c?e=gzGNQR", all:Array.from({length:42},(_,i)=>i+1), active:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39] },
   "해설지":{ sol:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=Z182ND" }
 };
 let serverRes=null, waitInt=null;
 const sel=document.getElementById("examSelect");
 Object.keys(EXAMS).filter(k=>k!=="해설지").forEach(k=>{let o=document.createElement("option");o.text=k;sel.add(o)});
 
-function getUserKey() { return `v76.7_${sel.value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v76.7.1_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
-    if(!name||!academy) return alert("학원명/이름 입력!");
+    if(!name||!academy) return alert("학원명과 이름을 입력하세요!");
     const btn=event.target; btn.disabled=true; btn.innerText="동기화 중...";
     try {
         const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[sel.value].id);
@@ -95,7 +95,6 @@ async function submit(){
     e.all.forEach(n=>{ answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0); });
     const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.innerText="채점 중...";
 
-    // 🛡️ [최종 보강] URLSearchParams 데이터 직렬화 방식 적용
     const payload = new URLSearchParams();
     payload.append("examId", e.id);
     payload.append("name", document.getElementById("name").value.trim());
@@ -115,12 +114,16 @@ async function submit(){
 }
 
 function share(){
-    const name=document.getElementById("name").value, academy=document.getElementById("academy").value, att=serverRes.try||1;
+    const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
+    const callUrl = location.href + (location.href.includes('?') ? '&' : '?') + "viewResult=true";
+    
+    // 🛡️ 지침 반영 카톡 메시지 구성
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
-            : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라.]`
+            : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
             : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
+
     const obj={ objectType:"text", text:msg, link:{mobileWebUrl:location.href, webUrl:location.href} };
-    if(att>=3) obj.buttons=[{title:"결과 보기", link:{mobileWebUrl:location.href+"?viewResult=true", webUrl:location.href+"?viewResult=true"}}];
+    if(att>=3) obj.buttons=[{title:"결과 보기", link:{mobileWebUrl:callUrl, webUrl:callUrl}}];
     
     Kakao.Share.sendDefault(obj);
     setTimeout(()=>{ if(confirm("선생님께 카톡 전송 완료하셨습니까?")){ 
@@ -155,7 +158,7 @@ function startWaitTimer(r){
         if(r--<=0){ clearInterval(waitInt); b.style.display='none'; q.style.pointerEvents='auto'; s.disabled=false; s.innerText="제출 및 서버 채점"; localStorage.removeItem('wait_until_'+getUserKey()); }
     },1000);
 }
-function lockExam(){ document.getElementById('qBox').innerHTML="<div style='text-align:center;padding:50px;color:#999'>3회차 제출 완료로 수정 불가.</div>"; document.getElementById('submitBtn').style.display='none'; document.getElementById('kakaoBtn').style.display='none'; document.getElementById('reviewBtn').style.display='block'; }
+function lockExam() { document.getElementById('qBox').innerHTML="<div style='text-align:center;padding:50px;color:#999'>3회차 제출 완료로 수정 불가.</div>"; document.getElementById('submitBtn').style.display='none'; document.getElementById('kakaoBtn').style.display='none'; document.getElementById('reviewBtn').style.display='block'; }
 function openPdf(){ window.open(EXAMS[sel.value].pdf) }
 function showLastResult(){ const s=JSON.parse(localStorage.getItem('last_res_'+getUserKey())); if(s){serverRes=s; displayResult(); document.getElementById('resultModal').style.display='block';} }
 function closeModal(){ document.getElementById('resultModal').style.display='none'; checkGlobalWait(); }
