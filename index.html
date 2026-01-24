@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – v78.1 최종완결</title>
+<title>1교시 김현석 국어 – v78.2 FINAL</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -36,7 +36,7 @@ input:checked+label{background:var(--p) !important;color:#fff !important}
         <div class="notice-card"><p>시험지를 선택하고 자정까지 제출하세요. 미제출 시 분석이 불가능합니다.</p></div>
         <div class="input-grid"><input id="academy" placeholder="학원명"><input id="name" placeholder="학생 이름"></div>
         <button class="main-btn" onclick="checkServerBeforeStart()">본인 확인 완료 (과제 시작)</button>
-        <div class="version-tag">SYSTEM v78.1 FINAL</div>
+        <div class="version-tag">SYSTEM v78.2 FINAL</div>
     </div>
     <div id="examPage" style="display:none;">
         <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg"></div>
@@ -48,7 +48,7 @@ input:checked+label{background:var(--p) !important;color:#fff !important}
         <button class="main-btn" id="submitBtn" onclick="submit()">제출 및 서버 채점</button>
         <button class="main-btn" id="kakaoBtn" onclick="share()" style="display:none;background:#fee500;color:#3c1e1e">🟡 카톡 전송 후 결과 확인</button>
         <button class="main-btn" id="reviewBtn" style="display:none;background:#2f3542;" onclick="showLastResult()">📊 최종 리포트 다시 보기</button>
-        <div class="version-tag">SYSTEM v78.1 FINAL</div>
+        <div class="version-tag">SYSTEM v78.2 FINAL</div>
     </div>
 </div>
 <div id="resultModal"><div class="modal-content"><h2 style="text-align:center;">📊 리포트</h2><div id="resSummary" style="font-weight:800; margin:20px 0; font-size:1.3em; text-align:center;"></div><div id="historyArea" style="display:none;"><div id="chart_div"></div><p style="font-size:0.8em; color:#666; text-align:center;">* 위로 갈수록 성적이 좋아지는 그래프입니다.</p></div><div id="solArea"></div><button class="main-btn" style="background:#f1f2f6; color:#333; margin-top:20px;" onclick="closeModal()">결과창 닫기</button></div></div>
@@ -57,9 +57,7 @@ input:checked+label{background:var(--p) !important;color:#fff !important}
 google.charts.load('current',{packages:['corechart']});
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec"; 
 const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001";
-
-function initKakao() { if(!Kakao.isInitialized()) Kakao.init(KAKAO_KEY); }
-initKakao();
+if(!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
 const EXAMS={
   "1월 3회차 문학":{ id:"2601_03_LIT", wait:1, notice:"전 문항 모두 풀어서 제출할 것. 기한: 1월 26일 자정까지", pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB_NRszigFmTrQISqktkybTAQWFrLd2IPO-oUtUWmZJ6wM?e=SxadQk", all:Array.from({length:31},(_,i)=>i+1), active:Array.from({length:31},(_,i)=>i+1) },
@@ -75,9 +73,16 @@ Object.keys(EXAMS).filter(k => k !== "해설지").forEach(k => {
 let serverRes=null;
 const getParam = (n) => new URLSearchParams(location.search).get(n);
 
-window.onload = () => { if(getParam('viewResult')) { setTimeout(showLastResult, 500); } };
+// 🛡️ [수정] 3회차 결과 보기 진입 시 채점기 스킵 후 즉시 리포트 팝업
+window.onload = () => { 
+    if(getParam('viewResult')) { 
+        document.getElementById("introPage").style.display="none"; 
+        document.getElementById("examPage").style.display="block";
+        setTimeout(showLastResult, 600); 
+    } 
+};
 
-function getUserKey() { return `v78.1_${sel.value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v78.2_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
@@ -85,9 +90,18 @@ async function checkServerBeforeStart(){
     try {
         const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[sel.value].id);
         const data=await res.json();
-        if(data.finished){ localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(data.lastRes)); }
-        document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; loadExam();
-    } catch(e){ document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; loadExam(); }
+        if(data.finished){ 
+            localStorage.setItem('finished_'+getUserKey(), 'true'); 
+            localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(data.lastRes)); 
+        }
+        document.getElementById("introPage").style.display="none"; 
+        document.getElementById("examPage").style.display="block"; 
+        loadExam();
+    } catch(e){ 
+        document.getElementById("introPage").style.display="none"; 
+        document.getElementById("examPage").style.display="block"; 
+        loadExam(); 
+    }
 }
 
 function loadExam(){
@@ -102,7 +116,8 @@ function loadExam(){
         }
         h+=`</div></div>`;
     });
-    document.getElementById("qBox").innerHTML=h; checkGlobalWait();
+    document.getElementById("qBox").innerHTML=h; 
+    checkGlobalWait(); // 새로고침 시에도 대기 시간 체크
 }
 
 async function submit(){
@@ -120,10 +135,9 @@ async function submit(){
     } catch(e){ alert("서버 채점 오류: " + e.message); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
-// 🛡️ [핵심] 카톡 공유 후 리포트 노출 로직 (v78.1 보정)
+// 🛡️ [수정] 카톡 공유 "완료 후" 리포트 노출 로직
 function share(){
     if(!serverRes) return alert("데이터 오류");
-    initKakao();
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
             : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
@@ -135,28 +149,26 @@ function share(){
         kakaoObj.buttons = [{ title: "결과 보기", link: { mobileWebUrl: pureUrl + "?viewResult=true", webUrl: pureUrl + "?viewResult=true" } }];
     } else { kakaoObj.link = { mobileWebUrl: " ", webUrl: " " }; }
     
-    // 1. 카톡 전송 호출
+    // 카톡 전송 실행
     Kakao.Share.sendDefault(kakaoObj);
     
-    // 2. [강제] 다시 돌아올 때 리포트 팝업 트리거
-    const triggerReport = () => {
+    // 🛡️ 브라우저가 다시 활성화(카톡 전송 후 복귀)될 때만 정보 노출
+    const onReturn = () => {
         if (document.visibilityState === 'visible') {
             displayResult(); 
             document.getElementById('resultModal').style.display = 'block';
             if(att < 3) {
                 localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (EXAMS[sel.value].wait * 60000));
+                checkGlobalWait(); // 즉각 타이머 가동
             } else { 
                 localStorage.setItem('finished_' + getUserKey(), 'true'); 
                 localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); 
                 lockExam();
             }
-            document.removeEventListener('visibilitychange', triggerReport);
+            document.removeEventListener('visibilitychange', onReturn);
         }
     };
-    document.addEventListener('visibilitychange', triggerReport);
-    
-    // 모바일 엣지 케이스용 자동 트리거 (3초 후)
-    setTimeout(() => { if(document.getElementById('resultModal').style.display !== 'block') triggerReport(); }, 3000);
+    document.addEventListener('visibilitychange', onReturn);
 }
 
 function displayResult(){
@@ -164,15 +176,15 @@ function displayResult(){
     document.getElementById('resSummary').innerHTML=`틀린 개수: <span style="color:var(--accent)">${count}개</span><br>(${att}회차 제출 완료)`;
     
     if(att>=3){
-        if(getParam('viewResult')) { 
+        if(getParam('viewResult')) { // 🛡️ 3회차: 카톡 버튼 타고 왔을 때만 해설/그래프 공개
             document.getElementById('historyArea').style.display='block';
             document.getElementById('solArea').innerHTML=`<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${EXAMS['해설지'].sol}" class="main-btn" target="_blank" style="display:block;text-align:center;text-decoration:none">최종 해설지 확인하기</a>`;
             setTimeout(drawChart, 300);
         } else {
-            document.getElementById('solArea').innerHTML=`<p style="color:red; font-weight:bold;">카톡의 [결과 보기] 버튼을 통해 재접속해야<br>최종 그래프와 해설지가 공개됩니다.</p>`;
+            document.getElementById('solArea').innerHTML=`<p style="color:red; font-weight:bold;">카톡의 [결과 보기] 버튼을 통해 재접속해야<br>최종 리포트와 해설지가 활성화됩니다.</p>`;
         }
     } else { 
-        document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center;font-weight:bold;">${att===1?'2회차 제출 후 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p><p style="text-align:center;font-size:0.9em;">⏳ 대기 시간이 지나야 재입력이 가능합니다.</p>`; 
+        document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center;font-weight:bold;">${att===1?'2회차 제출 후 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p><p style="text-align:center;font-size:0.9em;">⏳ 대기 시간(시계)이 지나야 재입력이 가능합니다.</p>`; 
     }
 }
 
@@ -189,19 +201,28 @@ function checkGlobalWait(){
 
 function startWaitTimer(r){
     const b = document.getElementById('waitDisplay'), q = document.getElementById('qBox'), s = document.getElementById('submitBtn');
-    b.style.display = 'block'; q.style.pointerEvents = 'none'; q.style.opacity = '0.5'; s.disabled = true;
+    b.style.display = 'block'; 
+    q.style.pointerEvents = 'none'; q.style.opacity = '0.5'; 
+    s.disabled = true; s.style.backgroundColor = '#ccc';
+    
     let waitInt = setInterval(() => {
-        let m = Math.floor(r/60), sec = r%60; b.innerHTML = `⏳ <b>재입력 대기 중: ${m}:${sec<10?'0'+sec:sec}</b>`;
+        let m = Math.floor(r/60), sec = r%60; 
+        b.innerHTML = `⏳ <b>재입력 대기 중: ${m}:${sec<10?'0'+sec:sec}</b>`;
         if(r-- <= 0){ 
-            clearInterval(waitInt); b.style.display = 'none'; q.style.pointerEvents = 'auto'; q.style.opacity = '1'; 
-            s.disabled = false; s.innerText = "제출 및 서버 채점"; localStorage.removeItem('wait_until_' + getUserKey()); 
+            clearInterval(waitInt); b.style.display = 'none'; 
+            q.style.pointerEvents = 'auto'; q.style.opacity = '1'; 
+            s.disabled = false; s.style.backgroundColor = 'var(--p)'; 
+            s.innerText = "제출 및 서버 채점"; 
+            localStorage.removeItem('wait_until_' + getUserKey()); 
         }
     }, 1000);
 }
 
 function lockExam() { 
     document.getElementById('qBox').innerHTML="<div style='text-align:center;padding:50px;color:#999;font-weight:bold;'>3회차 제출 완료로 수정이 불가능합니다.<br>카톡 결과 보기를 확인하세요.</div>"; 
-    document.getElementById('submitBtn').style.display='none'; document.getElementById('kakaoBtn').style.display='none'; document.getElementById('reviewBtn').style.display='block'; 
+    document.getElementById('submitBtn').style.display='none'; 
+    document.getElementById('kakaoBtn').style.display='none'; 
+    document.getElementById('reviewBtn').style.display='block'; 
 }
 
 function openPdf(){ window.open(EXAMS[sel.value].pdf) }
