@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – v76.8</title>
+<title>1교시 김현석 국어 – v77.0</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -51,11 +51,8 @@ input:checked+label{background:var(--p);color:#fff}
 
 <script>
 google.charts.load('current',{packages:['corechart']});
-
-// ⭐ 선생님이 주신 웹 앱 주소를 여기에 반영했습니다.
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec"; 
 const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001";
-
 if(!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
 const EXAMS={
@@ -63,18 +60,20 @@ const EXAMS={
   "1월 3회차 독서":{ id:"2601_03_READING", wait:5, notice:"지정 문항만 풀어서 제출할 것. 기한: 1월 26일 자정까지", pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC5xf-Z-XrcRKZRHFK77VR1AR04L4r74w6r8sNvYB7-j5c?e=gzGNQR", all:Array.from({length:42},(_,i)=>i+1), active:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39] },
   "해설지":{ sol:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=Z182ND" }
 };
-let serverRes=null, waitInt=null;
-const sel=document.getElementById("examSelect");
-Object.keys(EXAMS).filter(k=>k!=="해설지").forEach(k=>{let o=document.createElement("option");o.text=k;sel.add(o)});
 
-function getUserKey() { return `v76.8_${sel.value}_${document.getElementById('name').value.trim()}`; }
+let serverRes=null;
+const getUrlParam = (n) => new URLSearchParams(location.search).get(n);
+
+// 🛡️ [수정] 3회차 결과 보기 버튼 클릭 시 자동 팝업 로직
+window.onload = () => { if(getUrlParam('viewResult')) { setTimeout(showLastResult, 1000); } };
+
+function getUserKey() { return `v77.0_${document.getElementById('examSelect').value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
     if(!name||!academy) return alert("학원명과 이름을 입력하세요!");
-    const btn=event.target; btn.disabled=true; btn.innerText="동기화 중...";
     try {
-        const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[sel.value].id);
+        const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[document.getElementById('examSelect').value].id);
         const data=await res.json();
         if(data.finished){ localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(data.lastRes)); }
         document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; loadExam();
@@ -82,7 +81,7 @@ async function checkServerBeforeStart(){
 }
 
 function loadExam(){
-    const e=EXAMS[sel.value]; document.getElementById("examNotice").innerText=e.notice;
+    const e=EXAMS[document.getElementById('examSelect').value]; document.getElementById("examNotice").innerText=e.notice;
     if(localStorage.getItem('finished_'+getUserKey())==='true'){ lockExam(); return; }
     let h=""; e.all.forEach(n=>{
         const act=e.active.includes(n);
@@ -94,57 +93,60 @@ function loadExam(){
 }
 
 async function submit(){
-    const e=EXAMS[sel.value], answers=[];
+    const e=EXAMS[document.getElementById('examSelect').value], answers=[];
     e.all.forEach(n=>{ answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0); });
     const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.innerText="채점 중...";
-
-    // 🛡️ [해결책 적용] 서버가 완벽히 이해하는 데이터 포장법 (URLSearchParams)
     const payload = new URLSearchParams();
-    payload.append("examId", e.id);
-    payload.append("name", document.getElementById("name").value.trim());
-    payload.append("academy", document.getElementById("academy").value.trim());
-    payload.append("answers", answers.join(",")); 
-
+    payload.append("examId", e.id); payload.append("name", document.getElementById("name").value.trim());
+    payload.append("academy", document.getElementById("academy").value.trim()); payload.append("answers", answers.join(",")); 
     try {
-        const res = await fetch(GAS_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: payload.toString()
-        });
-        serverRes=await res.json(); 
-        if(serverRes.error) throw new Error(serverRes.message);
-        btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
-    } catch(e){ alert("서버 채점 오류: " + e.message); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
+        const res = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: payload.toString() });
+        serverRes=await res.json(); btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
+    } catch(e){ alert("서버 오류"); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
 function share(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
-    const callUrl = location.href + (location.href.includes('?') ? '&' : '?') + "viewResult=true";
-    
-    // 🛡️ 지침 반영 카톡 메시지 구성
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
             : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
             : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
 
-    const obj={ objectType:"text", text:msg, link:{mobileWebUrl:location.href, webUrl:location.href} };
-    if(att>=3) obj.buttons=[{title:"결과 보기", link:{mobileWebUrl:callUrl, webUrl:callUrl}}];
+    const currentUrl = location.href.split('?')[0]; // 파라미터 없는 순수 주소
+    const obj = { objectType: "text", text: msg, link: {} }; 
+    if (att >= 3) { 
+        obj.link = { mobileWebUrl: currentUrl, webUrl: currentUrl };
+        obj.buttons = [{ title: "결과 보기", link: { mobileWebUrl: currentUrl + "?viewResult=true", webUrl: currentUrl + "?viewResult=true" } }];
+    }
     
     Kakao.Share.sendDefault(obj);
-    setTimeout(()=>{ if(confirm("선생님께 카톡 전송 완료하셨습니까?")){ 
-        displayResult(); document.getElementById('resultModal').style.display='block';
-        if(att<3) localStorage.setItem('wait_until_'+getUserKey(), Date.now()+(EXAMS[sel.value].wait * 60000));
-        else { localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); }
-    }}, 1500);
+    
+    // 🛡️ [수정] 전송 직후 로직 강제 실행
+    setTimeout(()=>{ 
+        displayResult(); 
+        document.getElementById('resultModal').style.display='block';
+        if(att<3) {
+            const waitMin = EXAMS[document.getElementById('examSelect').value].wait;
+            localStorage.setItem('wait_until_'+getUserKey(), Date.now() + (waitMin * 60000));
+        } else { 
+            localStorage.setItem('finished_'+getUserKey(), 'true'); 
+            localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); 
+            lockExam();
+        }
+    }, 1200); 
 }
 
 function displayResult(){
     const att=serverRes.try||1, count=serverRes.wrongCount||0;
     document.getElementById('resSummary').innerHTML=`틀린 개수: <span style="color:var(--accent)">${count}개</span><br>(${att}회차 제출 완료)`;
+    
     if(att>=3){
         document.getElementById('historyArea').style.display='block';
         document.getElementById('solArea').innerHTML=`<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${EXAMS['해설지'].sol}" class="main-btn" target="_blank" style="display:block;text-align:center;text-decoration:none">최종 해설지 확인하기</a>`;
         setTimeout(drawChart, 300);
-    } else { document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center">${att===1?'2회차에 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p>`; }
+    } else { 
+        // 🛡️ 1회차: 문항 안알려줌 / 2회차: 문항 알려줌
+        document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center;font-weight:bold;">${att===1?'2회차 제출 후 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p><p style="text-align:center;font-size:0.9em;">⏳ 대기 시간이 지나야 재입력이 가능합니다.</p>`; 
+    }
 }
 
 function drawChart(){
@@ -153,18 +155,36 @@ function drawChart(){
     new google.visualization.LineChart(document.getElementById('chart_div')).draw(data,{legend:'none',colors:['#ff7675'],vAxis:{direction:-1,minValue:0,format:'0'},chartArea:{width:'85%',height:'70%'},pointSize:7});
 }
 
-function checkGlobalWait(){ const u=localStorage.getItem('wait_until_'+getUserKey()); if(u && parseInt(u)>Date.now()) startWaitTimer(Math.ceil((parseInt(u)-Date.now())/1000)); }
+function checkGlobalWait(){ 
+    const u=localStorage.getItem('wait_until_'+getUserKey()); 
+    if(u && parseInt(u)>Date.now()) startWaitTimer(Math.ceil((parseInt(u)-Date.now())/1000)); 
+}
+
 function startWaitTimer(r){
     const b=document.getElementById('waitDisplay'), q=document.getElementById('qBox'), s=document.getElementById('submitBtn');
-    b.style.display='block'; q.style.pointerEvents='none'; s.disabled=true;
-    waitInt=setInterval(()=>{
-        let m=Math.floor(r/60), sec=r%60; b.innerText=`⏳ 대기 중: ${m}:${sec<10?'0'+sec:sec}`;
-        if(r--<=0){ clearInterval(waitInt); b.style.display='none'; q.style.pointerEvents='auto'; s.disabled=false; s.innerText="제출 및 서버 채점"; localStorage.removeItem('wait_until_'+getUserKey()); }
+    b.style.display='block'; q.style.pointerEvents='none'; q.style.opacity='0.5'; s.disabled=true;
+    let waitInt=setInterval(()=>{
+        let m=Math.floor(r/60), sec=r%60; b.innerText=`⏳ 재입력 대기 중: ${m}:${sec<10?'0'+sec:sec}`;
+        if(r--<=0){ 
+            clearInterval(waitInt); b.style.display='none'; q.style.pointerEvents='auto'; q.style.opacity='1'; 
+            s.disabled=false; s.innerText="제출 및 서버 채점"; localStorage.removeItem('wait_until_'+getUserKey()); 
+        }
     },1000);
 }
-function lockExam() { document.getElementById('qBox').innerHTML="<div style='text-align:center;padding:50px;color:#999'>3회차 제출 완료로 수정 불가.</div>"; document.getElementById('submitBtn').style.display='none'; document.getElementById('kakaoBtn').style.display='none'; document.getElementById('reviewBtn').style.display='block'; }
-function openPdf(){ window.open(EXAMS[sel.value].pdf) }
-function showLastResult(){ const s=JSON.parse(localStorage.getItem('last_res_'+getUserKey())); if(s){serverRes=s; displayResult(); document.getElementById('resultModal').style.display='block';} }
+
+function lockExam() { 
+    document.getElementById('qBox').innerHTML="<div style='text-align:center;padding:50px;color:#999;font-weight:bold;'>3회차 제출 완료로 수정이 불가능합니다.<br>리포트를 확인하세요.</div>"; 
+    document.getElementById('submitBtn').style.display='none'; 
+    document.getElementById('kakaoBtn').style.display='none'; 
+    document.getElementById('reviewBtn').style.display='block'; 
+}
+
+function openPdf(){ window.open(EXAMS[document.getElementById('examSelect').value].pdf) }
+function showLastResult(){ 
+    const s=JSON.parse(localStorage.getItem('last_res_'+getUserKey())); 
+    if(s){ serverRes=s; displayResult(); document.getElementById('resultModal').style.display='block'; }
+    else if(serverRes) { displayResult(); document.getElementById('resultModal').style.display='block'; }
+}
 function closeModal(){ document.getElementById('resultModal').style.display='none'; checkGlobalWait(); }
 </script>
 </body>
