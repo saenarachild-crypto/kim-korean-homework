@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – 최종 마스터 v76.7.2</title>
+<title>1교시 김현석 국어 – v76.8</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -51,8 +51,11 @@ input:checked+label{background:var(--p);color:#fff}
 
 <script>
 google.charts.load('current',{packages:['corechart']});
-const KAKAO_KEY="f81d5eae0eaaf6fa2d0bdccbe6916001", 
-      GAS_URL="https://script.google.com/macros/s/AKfycbx2I0Zp24gnmdW_K6jhpbWLEu_BPQjRDXh2987HY2kBrqMXC6OqlEnflED7TDqF5aSD/exec";
+
+// ⭐ 선생님이 주신 웹 앱 주소를 여기에 반영했습니다.
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec"; 
+const KAKAO_KEY = "f81d5eae0eaaf6fa2d0bdccbe6916001";
+
 if(!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
 const EXAMS={
@@ -64,7 +67,7 @@ let serverRes=null, waitInt=null;
 const sel=document.getElementById("examSelect");
 Object.keys(EXAMS).filter(k=>k!=="해설지").forEach(k=>{let o=document.createElement("option");o.text=k;sel.add(o)});
 
-function getUserKey() { return `v76.7.2_${sel.value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v76.8_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
@@ -95,6 +98,7 @@ async function submit(){
     e.all.forEach(n=>{ answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0); });
     const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.innerText="채점 중...";
 
+    // 🛡️ [해결책 적용] 서버가 완벽히 이해하는 데이터 포장법 (URLSearchParams)
     const payload = new URLSearchParams();
     payload.append("examId", e.id);
     payload.append("name", document.getElementById("name").value.trim());
@@ -128,7 +132,7 @@ function share(){
     Kakao.Share.sendDefault(obj);
     setTimeout(()=>{ if(confirm("선생님께 카톡 전송 완료하셨습니까?")){ 
         displayResult(); document.getElementById('resultModal').style.display='block';
-        if(att<3) localStorage.setItem('wait_until_'+getUserKey(), Date.now()+(EXAMS[sel.value].wait*60000));
+        if(att<3) localStorage.setItem('wait_until_'+getUserKey(), Date.now()+(EXAMS[sel.value].wait * 60000));
         else { localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); }
     }}, 1500);
 }
