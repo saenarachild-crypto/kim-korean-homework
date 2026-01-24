@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – v77.6</title>
+<title>1교시 김현석 국어 – v77.7 실전배포본</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -62,15 +62,21 @@ const EXAMS={
 };
 let serverRes=null;
 
+// 1️⃣ [버그 해결] examSelect 옵션 생성 코드 추가
+const sel = document.getElementById("examSelect");
+Object.keys(EXAMS).filter(k => k !== "해설지").forEach(k => {
+  const o = document.createElement("option"); o.text = k; sel.add(o);
+});
+
 window.onload = () => { if(new URLSearchParams(location.search).get('viewResult')) { setTimeout(showLastResult, 300); } };
 
-function getUserKey() { return `v77.6_${document.getElementById('examSelect').value}_${document.getElementById('name').value.trim()}`; }
+function getUserKey() { return `v77.7_${sel.value}_${document.getElementById('name').value.trim()}`; }
 
 async function checkServerBeforeStart(){
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim();
     if(!name||!academy) return alert("학원명과 이름을 입력하세요!");
     try {
-        const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[document.getElementById('examSelect').value].id);
+        const res=await fetch(GAS_URL+"?check=true&name="+encodeURIComponent(name)+"&examId="+EXAMS[sel.value].id);
         const data=await res.json();
         if(data.finished){ localStorage.setItem('finished_'+getUserKey(), 'true'); localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(data.lastRes)); }
         document.getElementById("introPage").style.display="none"; document.getElementById("examPage").style.display="block"; loadExam();
@@ -78,7 +84,7 @@ async function checkServerBeforeStart(){
 }
 
 function loadExam(){
-    const e=EXAMS[document.getElementById('examSelect').value]; document.getElementById("examNotice").innerText=e.notice;
+    const e=EXAMS[sel.value]; document.getElementById("examNotice").innerText=e.notice;
     if(localStorage.getItem('finished_'+getUserKey())==='true'){ lockExam(); return; }
     let h=""; e.all.forEach(n=>{
         const act=e.active.includes(n);
@@ -90,7 +96,7 @@ function loadExam(){
 }
 
 async function submit(){
-    const e=EXAMS[document.getElementById('examSelect').value], answers=[];
+    const e=EXAMS[sel.value], answers=[];
     e.all.forEach(n=>{ answers.push(document.querySelector(`input[name=q${n}]:checked`)?.value||0); });
     const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.innerText="채점 중...";
     const payload = new URLSearchParams();
@@ -98,52 +104,50 @@ async function submit(){
     payload.append("academy", document.getElementById("academy").value.trim()); payload.append("answers", answers.join(",")); 
     try {
         const res = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: payload.toString() });
-        serverRes=await res.json(); btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
-    } catch(e){ alert("서버 오류"); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
+        serverRes=await res.json(); 
+        // 6️⃣ [안정성 보강] 서버 에러 응답 방어
+        if(serverRes.error) throw new Error(serverRes.message || "채점 실패");
+        btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
+    } catch(e){ alert("서버 채점 오류: " + e.message); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
-// 🛡️ [박제] 카톡 전송 및 결과창 강제 전환 로직 (수정본)
 function share(){
+    // 6️⃣ [안정성 보강] serverRes null 방지
+    if(!serverRes){ alert("서버 응답이 없습니다."); return; }
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
             : att===2 ? `[${academy} ${name} 2회 도전 완료 - 틀린 문항을 알려주마. 백점을 고민하라. ]`
             : `[${academy} ${name} 3회 도전 완료 - 왔다! 정답 및 해설. 수고하셨습니다. 복습만이 살길입니다.]`;
 
     const pureUrl = location.href.split('?')[0];
-    
-    // 🛡️ [박제] 1, 2회차에는 link 객체와 buttons 자체를 아예 생성하지 않음
     const kakaoObj = { objectType: "text", text: msg }; 
     if (att >= 3) { 
         kakaoObj.link = { mobileWebUrl: pureUrl, webUrl: pureUrl };
         kakaoObj.buttons = [{ title: "결과 보기", link: { mobileWebUrl: pureUrl + "?viewResult=true", webUrl: pureUrl + "?viewResult=true" } }];
     }
     
-    // 🛡️ [강제] 카톡 앱이 뜨기 전, 브라우저 화면을 먼저 결과 리포트로 바꿈
+    // 4️⃣ [UX 최상] 리포트 강제 노출 로직
     displayResult(); 
     document.getElementById('resultModal').style.display = 'block';
     
     if(att < 3) {
-        localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (EXAMS[document.getElementById('examSelect').value].wait * 60000));
+        localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (EXAMS[sel.value].wait * 60000));
     } else { 
         localStorage.setItem('finished_' + getUserKey(), 'true'); 
-        localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); 
+        localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); 
         lockExam();
     }
-    
-    // 리포트 강제 노출 후 0.15초 뒤 카톡 창 호출
     setTimeout(() => Kakao.Share.sendDefault(kakaoObj), 150); 
 }
 
 function displayResult(){
     const att=serverRes.try||1, count=serverRes.wrongCount||0;
     document.getElementById('resSummary').innerHTML=`틀린 개수: <span style="color:var(--accent)">${count}개</span><br>(${att}회차 제출 완료)`;
-    
     if(att>=3){
         document.getElementById('historyArea').style.display='block';
         document.getElementById('solArea').innerHTML=`<div class="wrong-box">❌ 틀린 문항:<br>${serverRes.wrongs}</div><a href="${EXAMS['해설지'].sol}" class="main-btn" target="_blank" style="display:block;text-align:center;text-decoration:none">최종 해설지 확인하기</a>`;
         setTimeout(drawChart, 300);
     } else { 
-        // 1회차: 개수만 / 2회차: 문항 번호까지 공개
         document.getElementById('solArea').innerHTML=`<p style="color:blue;text-align:center;font-weight:bold;">${att===1?'2회차 제출 후 틀린 번호가 공개됩니다.':'❌ 틀린 문항: '+serverRes.wrongs}</p><p style="text-align:center;font-size:0.9em;">⏳ 대기 시간이 지나야 재입력이 가능합니다.</p>`; 
     }
 }
@@ -178,7 +182,7 @@ function lockExam() {
     document.getElementById('reviewBtn').style.display='block'; 
 }
 
-function openPdf(){ window.open(EXAMS[document.getElementById('examSelect').value].pdf) }
+function openPdf(){ window.open(EXAMS[sel.value].pdf) }
 function showLastResult(){ 
     const s=JSON.parse(localStorage.getItem('last_res_'+getUserKey())); 
     if(s){ serverRes=s; displayResult(); document.getElementById('resultModal').style.display='block'; }
