@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>1교시 김현석 국어 – v77.7 실전배포본</title>
+<title>1교시 김현석 국어 – v77.7 최종본</title>
 <link rel="icon" href="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpeg">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -60,13 +60,14 @@ const EXAMS={
   "1월 3회차 독서":{ id:"2601_03_READING", wait:5, notice:"지정 문항만 풀어서 제출할 것. 기한: 1월 26일 자정까지", pdf:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC5xf-Z-XrcRKZRHFK77VR1AR04L4r74w6r8sNvYB7-j5c?e=gzGNQR", all:Array.from({length:42},(_,i)=>i+1), active:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22,23,24,25,26,27,28,29,30,37,38,39] },
   "해설지":{ sol:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=Z182ND" }
 };
-let serverRes=null;
 
-// 1️⃣ [버그 해결] examSelect 옵션 생성 코드 추가
+// ✅ [해결] 스크립트 실행 즉시 선택 상자를 생성합니다.
 const sel = document.getElementById("examSelect");
 Object.keys(EXAMS).filter(k => k !== "해설지").forEach(k => {
   const o = document.createElement("option"); o.text = k; sel.add(o);
 });
+
+let serverRes=null;
 
 window.onload = () => { if(new URLSearchParams(location.search).get('viewResult')) { setTimeout(showLastResult, 300); } };
 
@@ -105,14 +106,12 @@ async function submit(){
     try {
         const res = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: payload.toString() });
         serverRes=await res.json(); 
-        // 6️⃣ [안정성 보강] 서버 에러 응답 방어
         if(serverRes.error) throw new Error(serverRes.message || "채점 실패");
         btn.style.display="none"; document.getElementById("kakaoBtn").style.display="block";
     } catch(e){ alert("서버 채점 오류: " + e.message); btn.disabled=false; btn.innerText="제출 및 서버 채점"; }
 }
 
 function share(){
-    // 6️⃣ [안정성 보강] serverRes null 방지
     if(!serverRes){ alert("서버 응답이 없습니다."); return; }
     const name=document.getElementById("name").value.trim(), academy=document.getElementById("academy").value.trim(), att=serverRes.try||1;
     let msg = att===1 ? `[${academy} ${name} 1회 도전 완료 - 스스로를 의심하라. 틀린 문항을 정확히 찾아보자.]`
@@ -126,7 +125,7 @@ function share(){
         kakaoObj.buttons = [{ title: "결과 보기", link: { mobileWebUrl: pureUrl + "?viewResult=true", webUrl: pureUrl + "?viewResult=true" } }];
     }
     
-    // 4️⃣ [UX 최상] 리포트 강제 노출 로직
+    // 🛡️ [박제] 카톡 창을 띄움과 동시에 브라우저 리포트 로직을 먼저 강제 실행
     displayResult(); 
     document.getElementById('resultModal').style.display = 'block';
     
@@ -134,7 +133,7 @@ function share(){
         localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (EXAMS[sel.value].wait * 60000));
     } else { 
         localStorage.setItem('finished_' + getUserKey(), 'true'); 
-        localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); 
+        localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); 
         lockExam();
     }
     setTimeout(() => Kakao.Share.sendDefault(kakaoObj), 150); 
