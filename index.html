@@ -61,7 +61,7 @@ const EXAMS={
   "해설지":{ sol:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQC55ZuoL-2GSrdGKtWFXkzyARIkd0dBWnPkWxekrIjZznY?e=Z182ND" }
 };
 
-// ✅ [해결] 스크립트 실행 즉시 선택 상자를 생성합니다.
+// 🛡️ [박제] 스크립트 실행 즉시 선택 상자를 생성하여 JS 정지를 방지합니다.
 const sel = document.getElementById("examSelect");
 Object.keys(EXAMS).filter(k => k !== "해설지").forEach(k => {
   const o = document.createElement("option"); o.text = k; sel.add(o);
@@ -133,7 +133,7 @@ function share(){
         localStorage.setItem('wait_until_' + getUserKey(), Date.now() + (EXAMS[sel.value].wait * 60000));
     } else { 
         localStorage.setItem('finished_' + getUserKey(), 'true'); 
-        localStorage.setItem('last_res_' + getUserKey(), JSON.stringify(serverRes)); 
+        localStorage.setItem('last_res_'+getUserKey(), JSON.stringify(serverRes)); 
         lockExam();
     }
     setTimeout(() => Kakao.Share.sendDefault(kakaoObj), 150); 
