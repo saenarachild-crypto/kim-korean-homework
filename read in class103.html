@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>1월 3주차 독서 수업 교재</title>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+<style>
+:root{--p:#6c5ce7;--bg:#f8f9fc}body{font-family:-apple-system,sans-serif;background:var(--bg);padding:15px;margin:0}.container{max-width:600px;margin:0 auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}.notice-box{background:#fff3e0;padding:15px;border-radius:12px;margin-bottom:20px;font-size:0.9rem;color:#5d4037;line-height:1.6}.q-card{background:#fff;border:1.5px solid #eee;border-radius:15px;padding:20px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}.opt-label{height:45px;border:1.5px solid #eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:0.2s;position:relative;z-index:1}.opt-input:checked+.opt-label{background:var(--p);color:#fff;box-shadow:0 5px 12px rgba(108,92,231,0.3)}.opt-input:disabled+.opt-label{background:#eee;color:#bbb;cursor:not-allowed;border:none}#timer{font-weight:bold;color:#ff6b6b;text-align:right;font-size:1.0rem;margin-bottom:10px}#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99;align-items:center;justify-content:center}input,select{padding:12px;border:1px solid #ddd;border-radius:10px;width:100%;box-sizing:border-box;outline:none}
+</style>
+<script>
+window.onload = function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has("admin_view")){
+    const data = JSON.parse(decodeURIComponent(urlParams.get("admin_view")));
+    document.body.innerHTML = "<div class='container' style='margin-top:50px; text-align:center; box-shadow: 0 0 100px rgba(0,0,0,0.2); border: 3px solid #6c5ce7;'><h2>📊 성적 확인</h2><div class='notice-box' style='text-align:left; font-size:1.1rem; line-height:2;'><b>👤 이름:</b> "+data.name+"<br><b>🏫 학원:</b> "+data.class+"<br><b>🔄 도전:</b> "+data.att+"회차<br><b>❌ 오답:</b> <span style='color:red'>"+data.wrongCount+"개</span><br><b>📍 번호:</b> "+(data.wrongList||"없음")+"</div><button onclick='location.href=location.href.split(\"?\")[0]' style='width:100%;padding:15px;background:#6c5ce7;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer'>돌아가기</button></div>";
+    return;
+  }
+  initPage();
+};
+</script>
+</head><body><div id="overlay"></div><div class="container"><h2 style="text-align:center">1월 3주차 독서 수업 교재</h2><div id="timer">⏱ <span id="timeText">--분 --초 남음</span></div><div class="notice-box"><b>[공지]</b> - 독서 기본 구조 파악 하기<br>- 시간 제한 30분/ 전 문항 도전하기 / 지문마다 시간 체크하면서 풀어나가기/ <br>- 정답만 찾고 바로 넘어가기<br>📅 기한: 2026-01-24 ~ 2026-01-27<br>🔄 총 3회 도전 가능</div><div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQAtlVQEHc6fQ43nv8GaI0R9Afaq2mm_kQ0qOuIcB-LAiyA?e=3xjCgn" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 제출 확인</button><div id="resArea" style="display:none;margin-top:20px"></div></div><script>
+let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="", isPerfect=false, wrongListStr="";
+const masterAnswers = [0, ..."41452224332443553335".split("").map(Number)];
+const activeList = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+const totalQ = 20;
+const maxT=3, waitMin=3;
+const startDay="2026-01-24", endDay="2026-01-27";
+const ansLink = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBi52qAlZC2QIIJmSQWEa6GAQwil3kkjBfFqdf06xYZDkE?e=X6kM9w", HW_ID = "HW_1월3주차독서수업교재", ADMIN_BASE = "https://saenarachild-crypto.github.io/kim-korean-homework/read in class103.html", GAS_URL = "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec";
+try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}
+function initPage(){
+  const sel=document.getElementById("sD"); 
+  const now=new Date(); now.setHours(0,0,0,0);
+  const end=new Date(endDay); end.setHours(0,0,0,0);
+  let loopDate = new Date(now);
+  if (loopDate > end) { } 
+  else {
+    for(let d=loopDate; d<=end; d.setDate(d.getDate()+1)){ 
+      let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); 
+      let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); 
+    }
+  }
+  let h=""; for(let n=1; n<=totalQ; n++){
+    const dis = activeList.includes(n) ? "" : "disabled";
+    h+="<div class='q-card'><div style='font-weight:bold;margin-bottom:15px;font-size:1.1rem'>"+n+"번</div><div class='options'>";
+    for(let j=1;j<=5;j++){ h+="<input type='radio' name='q"+n+"' id='q"+n+"_"+j+"' value='"+j+"' class='opt-input' "+dis+"><label for='q"+n+"_"+j+"' class='opt-label'>"+j+"</label>"; }
+    h+="</div></div>";
+  } document.getElementById("qC").innerHTML=h; checkDateLimit();
+}
+function submit(){
+  if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("정보 입력!"); return;}
+  w=0; let d=[]; activeList.forEach(qNum => { let s=document.querySelector("input[name='q"+qNum+"']:checked"); let v=s?parseInt(s.value):0; if(v!==masterAnswers[qNum]){w++; d.push(qNum);} });
+  isPerfect=(w===0); wrongListStr=d.join(","); const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key,att); if(isPerfect) localStorage.setItem("perf_"+sN+"_"+HW_ID,"true");
+  resT="["+"1월 3주차 독서 수업 교재"+"]\n"+sN+"("+att+"회차) 제출 완료"; alert("카톡 전송 후 [완료] 클릭!"); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
+  fetch(GAS_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"1월 3주차 독서 수업 교재",name:sN,class:cN,attempt:att,wrongCount:w,wrongList:wrongListStr})});
+}
+function checkDateLimit(){ 
+  const now=new Date(); now.setHours(0,0,0,0); 
+  const sDate=new Date(startDay); sDate.setHours(0,0,0,0); 
+  const eDate=new Date(endDay); eDate.setHours(23,59,59,999); 
+  const msg=document.getElementById("limitMsg"); const btn=document.getElementById("subBtn"); 
+  if(now < sDate){ isBlocked=true; btn.style.display="none"; msg.style.display="block"; msg.innerText="⏳ 제출 기간이 아닙니다."; } 
+  else if(now > eDate){ isBlocked=true; btn.style.display="none"; msg.style.display="block"; msg.innerText="🚫 제출 기한이 마감되었습니다."; } 
+  else { isBlocked=false; btn.style.display="block"; msg.style.display="none"; }
+}
+function checkLimit(){ if(isBlocked) return; const sN=document.getElementById("sN").value.trim().replace(/\s/g,""), sD=document.getElementById("sD").value; if(sN.length<2||!sD){document.getElementById("subBtn").style.display="block"; return;} const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0); if(localStorage.getItem("perf_"+sN+"_"+HW_ID)=="true"){isBlocked=true; showFinalResult("백점 달성!"); return;} if(maxT>0 && att>=maxT){isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; document.getElementById("limitMsg").innerText="🚫 모든 기회를 사용했습니다."; showFinalResult("기회 소진");} }
+function startWaitTimer(){
+  if(timerInterval) clearInterval(timerInterval); timeLeft = waitMin * 60; const btn=document.getElementById("subBtn"); btn.style.opacity="0.5"; btn.innerText="대기 중..."; btn.disabled=true;
+  timerInterval = setInterval(()=>{
+    if(timeLeft<=0){ clearInterval(timerInterval); timerInterval=null; btn.style.opacity="1"; btn.innerText="📝 답안 제출하기"; btn.disabled=false; document.getElementById("timeText").innerText="입력 가능"; return; }
+    timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeText").innerText="다음 도전까지 "+m+"분 "+(s<10?"0"+s:s)+"초 남음";
+  }, 1000);
+}
+function done(){ document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; if(isPerfect){showFinalResult("백점 달성!"); return;} if(att >= maxT){showFinalResult("기회 소진"); return;} alert("📊 "+att+"회차 결과: 오답 "+w+"개" + (att === maxT - 1 ? "\n📍 틀린 번호 힌트: " + (wrongListStr||"없음") : "")); document.querySelectorAll(".opt-input").forEach(rb=>{if(!rb.disabled) rb.checked=false;}); document.getElementById("subBtn").style.display="block"; startWaitTimer(); }
+function showFinalResult(msg){ const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style='padding:25px;background:#eeebff;border-radius:15px;text-align:center'><h3>🏁 "+msg+"</h3><p>과제가 마감되었습니다.</p><a href='"+ansLink+"' target='_blank' style='display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold'>📘 해설지 보기</a></div>"; document.getElementById("subBtn").style.display="none"; }
+function share(){ Kakao.Share.sendDefault({ objectType: "text", text: resT, link: { mobileWebUrl: ADMIN_BASE, webUrl: ADMIN_BASE } }); setTimeout(()=>{const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML="<div style='background:white;padding:30px;border-radius:20px;text-align:center'><p style='font-weight:bold'>카톡으로 전송하셨나요?</p><button onclick='done()' style='width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer'>네, 완료했습니다</button></div>";},1500); }
+</script></body></html>
