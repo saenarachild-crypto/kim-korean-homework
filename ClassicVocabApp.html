@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고전 어휘 마스터 - 6일 완성</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 6s linear infinite; }
+    </style>
+</head>
+<body class="bg-stone-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // 아이콘을 직접 SVG로 정의하여 오류 방지
+        const Icon = ({ name, size = 24, color = "currentColor", className = "" }) => {
+            const icons = {
+                BookOpen: <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />,
+                Search: <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
+                List: <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></>,
+                Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>,
+                Bookmark: <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>,
+                Info: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></>,
+                RotateCcw: <><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></>,
+                ChevronRight: <path d="m9 18 6-6-6-6"/>,
+                Calendar: <><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>
+            };
+
+            return (
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={size}
+                    height={size}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={className}
+                >
+                    {icons[name]}
+                </svg>
+            );
+        };
+
+        const VOCAB_DATA = [
+            // DAY 1: 상춘곡 & 면앙정가
+            { id: 1, day: 1, word: '홍진(紅塵)', meaning: '속세의 번거로운 일 (붉은 먼지)', source: '상춘곡', example: '홍진(紅塵)에 뭇친 분네 이내 생애(生涯) 엇더혼고', detail: '번거로운 인간 세상을 비유적으로 이르는 말.' },
+            { id: 2, day: 1, word: '생애(生涯)', meaning: '살아 있는 동안의 생활', source: '상춘곡', example: '이내 생애(生涯) 엇더혼고', detail: '자신의 삶이나 생활 형편을 의미함.' },
+            { id: 3, day: 1, word: '풍류(風流)', source: '상춘곡', meaning: '멋스럽고 풍치 있게 노는 일', example: '사람 풍류(風流)를 미출가 및 미출가', detail: '자연을 즐기며 시를 읊는 선비의 태도.' },
+            { id: 4, day: 1, word: '지락(至樂)', source: '상춘곡', meaning: '지극한 즐거움', example: '산림(山림)에 이셔 지락(至樂)을 모를 것가', detail: '자연 속에서 누리는 최고의 기쁨.' },
+            { id: 5, day: 1, word: '수간모옥(數間茅屋)', source: '상춘곡', meaning: '두어 칸밖에 안 되는 작은 초가집', example: '수간모옥(數間茅屋)을 벽계수(碧溪水) 앎퓌 두고', detail: '청빈한 선비의 거처를 상징함.' },
+            { id: 6, day: 1, word: '벽계수(碧溪水)', source: '상춘곡', meaning: '푸른 시냇물', example: '수간모옥(數間茅屋)을 벽계수(碧溪수) 앎퓌 두고', detail: '맑고 깨끗한 자연의 흐름.' },
+            { id: 7, day: 1, word: '풍월주인(風月主人)', source: '상춘곡', meaning: '맑은 바람과 밝은 달을 즐기는 주인', example: '풍월주인(風月主人) 되여셔라', detail: '자연의 주인이 되어 여유를 누리는 화자.' },
+            { id: 8, day: 1, word: '조화신공(造化神功)', source: '상춘곡', meaning: '조물주의 신비로운 솜씨', example: '조화 신공(造化神功)이 물물(物物)마다 헌스럽다', detail: '자연 만물의 경이로운 모습을 찬양함.' },
+            { id: 9, day: 1, word: '물아일체(物가一體)', source: '상춘곡', meaning: '사물과 내가 하나가 됨', example: '물아일체(物我一體)어니 흥(興)이이 다릴소냐', detail: '자연과 인간이 교감하는 경지.' },
+            { id: 10, day: 1, word: '소요음영(逍遙吟詠)', source: '상춘곡', meaning: '천천히 거닐며 시를 읊조림', example: '소요음영(逍遙吟詠)호야 산일(山日)이 적적(寂寂)한뒤', detail: '한가로운 산중 생활의 모습.' },
+            { id: 11, day: 1, word: '한중진미(閑中眞味)', source: '상춘곡', meaning: '한가한 가운데 느끼는 참된 맛', example: '한중진미(閑中眞味) 알 니 업시 호재로다', detail: '자연 속의 한가로움이 주는 진정한 가치.' },
+            { id: 12, day: 1, word: '답청(踏靑)', source: '상춘곡', meaning: '봄에 파랗게 난 풀을 밟으며 산책함', example: '답청(踏靑)으란 오늘 학고', detail: '봄철의 민속놀이이자 풍류.' },
+            { id: 13, day: 1, word: '욕기(浴沂)', source: '상춘곡', meaning: '기수에서 목욕함 (풍류적 삶)', example: '욕기(浴沂)란 내일(來日) 후새', detail: '논어에 나오는 고사를 인용하여 풍류를 표현.' },
+            { id: 14, day: 1, word: '무변대야(無邊大野)', source: '면앙정가', meaning: '끝없이 넓은 들판', example: '무변대야(無邊大野)의 므솜 짐작 노라', detail: '정자 앞에서 바라본 광활한 풍경.' },
+            { id: 15, day: 1, word: '옥천(玉泉)', source: '면앙정가', meaning: '구슬같이 맑은 샘물', example: '옥천산(玉泉山) 용천산(龍泉山) 느린 물히', detail: '산에서 내려오는 맑은 물줄기.' },
+            { id: 16, day: 1, word: '만경(萬頃)', source: '면앙정가', meaning: '만 이랑의 넓은 논 (아주 넓은 들)', example: '황운(黃雲)은 엇지 만경(萬頃)의 편거지요', detail: '누렇게 익은 곡식이 끝없이 펼쳐진 상태.' },
+            { id: 17, day: 1, word: '경궁요대(瓊宮瑤臺)', source: '면앙정가', meaning: '옥으로 만든 궁궐과 누대', example: '경궁요대(瓊宮瑤臺)와 옥해은산이 안저에 버러셰라', detail: '눈 덮인 산과 자연을 화려한 궁궐에 비유.' },
+            { id: 18, day: 1, word: '건곤(乾坤)', source: '면앙정가', meaning: '하늘과 땅, 온 세상', example: '건곤(乾坤)도 가운 열샤 간 대마다 경이로다', detail: '대자연의 조화와 풍요로움을 의미.' },
+            { id: 19, day: 1, word: '번로(煩勞)', source: '면앙정가', meaning: '번거롭고 수고로움 (근심)', example: '번로(煩勞)훈움의 브릴 일리 아조 업다', detail: '세속적인 걱정이나 수고로움.' },
+            { id: 20, day: 1, word: '취흥(醉興)', source: '면앙정가', meaning: '술에 취해 일어나는 흥취', example: '온가짓 소리로 취흥(醉興)을 비야거니', detail: '풍류의 절정에서 느끼는 즐거움.' },
+
+            // DAY 2: 관동별곡 & 사미인곡
+            { id: 21, day: 2, word: '성은(聖恩)', source: '관동별곡', meaning: '임금님의 은혜', example: '어와 성은(聖恩)이야 가디록 망극(罔極)흐다', detail: '관찰사 임명을 받은 화자의 감사 인사.' },
+            { id: 22, day: 2, word: '하직(下直)', source: '관동별곡', meaning: '먼 길을 떠날 때 작별 인사를 함', example: '하직(下直)고 믈너나니 옥절(玉節)이 알픽 셧다', detail: '임금께 물러남을 고하는 예의.' },
+            { id: 23, day: 2, word: '옥절(玉節)', source: '관동별곡', meaning: '임금이 주신 신표', example: '옥절(玉節)이 알픽 셧다', detail: '지방 관리로 임명되었음을 나타내는 상징물.' },
+            { id: 24, day: 2, word: '고신(孤臣)', source: '관동별곡', meaning: '외로운 신하', example: '고신거국(孤臣去國)에 빅발(白髮)도 하도 할샤', detail: '임금 곁을 떠나는 화자 자신의 처지를 비유.' },
+            { id: 25, day: 2, word: '흥망(興亡)', source: '관동별곡', meaning: '나라가 일어나고 망함', example: '천고(千古) 흥망(興亡)을 아는다 몰잇는다', detail: '역사의 무상함을 느끼는 대목.' },
+            { id: 26, day: 2, word: '조화옹(造化翁)', source: '관동별곡', meaning: '조물주', example: '어와 조화옹(造化翁)이 헌스토 현스홀샤', detail: '자연 만물을 만든 신령스러운 존재.' },
+            { id: 27, day: 2, word: '부용(芙蓉)', source: '관동별곡', meaning: '연꽃', example: '부용(芙蓉)을 고잣는 듯 빅옥(白玉)을 짓는 듯', detail: '수려한 봉우리를 연꽃에 비유함.' },
+            { id: 28, day: 2, word: '인걸(人傑)', source: '관동별곡', meaning: '뛰어난 인재', example: '더 괴운 흐터 내야 인걸(人傑)을 문들고쟈', detail: '나라를 위한 인재 양성의 염원.' },
+            { id: 29, day: 2, word: '비로봉(毗盧峰)', source: '관동별곡', meaning: '금강산의 최고봉', example: '비로봉(毗盧峰) 샹샹두의 올라 보니 뉘신고', detail: '최고의 경지를 상징.' },
+            { id: 30, day: 2, word: '화룡소(化龍沼)', source: '관동별곡', meaning: '용이 살았다는 연못', example: '그 알찍 너러바회 화룡쇠(化龍沼) 되여셰라', detail: '선정의 포부가 담긴 공간.' },
+            { id: 31, day: 2, word: '창생(蒼生)', source: '관동별곡', meaning: '모든 백성', example: '억만(億萬) 창생(蒼生)을 다 취케 밍근 후의', detail: '애민 정신의 핵심 단어.' },
+            { id: 32, day: 2, word: '연분(緣分)', source: '사미인곡', meaning: '인연의 분량', example: '혼성 연분(緣分)이며 하늘 모를 일이런가', detail: '임과의 운명적 만남.' },
+            { id: 33, day: 2, word: '광한전(廣寒殿)', source: '사미인곡', meaning: '달나라의 궁전 (한양 궁궐)', example: '엇그제 님을 뫼셔 광한면(廣寒殿)의 올낫더니', detail: '임금이 계신 곳을 미화함.' },
+            { id: 34, day: 2, word: '적설(積雪)', source: '사미인곡', meaning: '쌓인 눈', example: '동풍이 건듯 부러 적셜(積雪)을 혜뎌 내니', detail: '시련이나 지난 세월을 상징.' },
+            { id: 35, day: 2, word: '암향(暗香)', source: '사미인곡', meaning: '은은한 향기 (매화 향기)', example: '득 넣담(冷淡) 암향(暗香)은 므스 일고', detail: '임에 대한 변치 않는 충심.' },
+            { id: 36, day: 2, word: '녹음(綠陰)', source: '사미인곡', meaning: '푸른 나무 그늘 (여름)', example: '디고 새 닙 나니 녹음(綠陰)이 실렸는데', detail: '계절의 변화를 나타냄.' },
+            { id: 37, day: 2, word: '산호수(珊瑚樹)', source: '사미인곡', meaning: '산호 나무 (귀한 물건)', example: '산호슈(珊瑚樹)지게 우히 빅옥함의 다마 두고', detail: '임에게 보낼 정성스러운 선물.' },
+            { id: 38, day: 2, word: '양춘(陽春)', source: '사미인곡', meaning: '따뜻한 봄 기운', example: '양춘(陽春)을 부쳐 내여 님 겨신 뒤 쓰이고져', detail: '임금에 대한 사랑과 배려.' },
+            { id: 39, day: 2, word: '골수(骨髓)', source: '사미인곡', meaning: '뼈의 속 (마음 깊은 곳)', example: '무움의 미쳐 이셔 골슈(骨髓)의 쎄텨시니', detail: '병이 깊음을 강조함.' },
+            { id: 40, day: 2, word: '연지분(臙脂粉)', source: '사미인곡', meaning: '여자의 화장품', example: '연지분(臙脂粉) 잇니마는 눌 위호야 고이 홀고', detail: '단장할 의욕을 잃은 슬픔.' },
+
+            // DAY 3: 속미인곡 & 만분가 & 규원가
+            { id: 41, day: 3, word: '백옥경(白玉京)', source: '속미인곡', meaning: '옥황상제가 사는 서울 (궁궐)', example: '천상(天上) 백옥경(白玉京)을 엇디흐야 니별학고', detail: '임금이 계신 곳을 그리워함.' },
+            { id: 42, day: 3, word: '자청전(紫淸殿)', source: '만분가', meaning: '신선이 사는 궁궐', example: '오색운 깁픈 곳의 자청전(紫淸殿)이 그려시니', detail: '임금의 거처를 높여 부르는 말.' },
+            { id: 43, day: 3, word: '상심(傷心)', source: '만분가', meaning: '마음을 상함 (큰 슬픔)', example: '상심(傷心)도 이 업고 가태전의 넉시런가', detail: '유배객의 깊은 고뇌.' },
+            { id: 44, day: 3, word: '환해(宦海)', source: '만분가', meaning: '벼슬길의 험난함', example: '무단혼 양각풍이 환해중(宦海中)의 나리나니', detail: '정치적 풍파를 바다에 비유.' },
+            { id: 45, day: 3, word: '옥석(玉石)', source: '만분가', meaning: '옥과 돌 (선과 악)', example: '성문 모던 블의 옥석(玉石)이 홈 트니', detail: '모함으로 인한 무고한 희생.' },
+            { id: 46, day: 3, word: '관산만리(關山萬里)', source: '만분가', meaning: '멀리 떨어진 고향산천', example: '관산만리(關山萬里) 길이 눈의 암암 불피는 듯', detail: '고향에 대한 그리움.' },
+            { id: 47, day: 3, word: '생리사별(生離死別)', source: '만분가', meaning: '살아서 이별하고 죽어서 헤어짐', example: '생리 사별(生離死別)을 몸의 혼자 맛다', detail: '극심한 이별의 고통.' },
+            { id: 48, day: 3, word: '만리붕정(萬리鵬程)', source: '만분가', meaning: '먼 앞길 (붕새의 여정)', example: '만리 붕정(萬里鵬程)을 멀리곰 견주더니', detail: '원대한 포부와 그 좌절.' },
+            { id: 49, day: 3, word: '삼년대한(三年大旱)', source: '만분가', meaning: '3년 동안의 큰 가뭄', example: '삼년대한(三年大旱)도 원기로 니뢰도다', detail: '화자의 원한이 깊음을 상징.' },
+            { id: 50, day: 3, word: '구회간장(九回肝腸)', source: '만분가', meaning: '아홉 번 꼬인 간장 (깊은 시름)', example: '구회간장(九回肝腸)이 굽의굽의 그쳐셰라', detail: '애타는 슬픔.' },
+            { id: 51, day: 3, word: '박명(薄命)', source: '만분가/규원가', meaning: '기구한 운명', example: '첩여 소군이 박명(薄命) 몸이런가', detail: '자신의 신세를 한탄함.' },
+            { id: 52, day: 3, word: '처분(處分)', source: '만분가', meaning: '결정하여 다스림', example: '이 몸이 녹아져도 옥황상제 처분(處分)이라', detail: '임금의 결정에 순응하는 태도.' },
+            { id: 53, day: 3, word: '천지만물(天地萬物)', source: '만분가', meaning: '세상의 모든 사물', example: '천지만물(天地萬物) 삼긴 뜻을 주공을 꿈의 뵈와', detail: '세상 이치에 대한 의문.' },
+            { id: 54, day: 3, word: '백세교유(百歲交遊)', source: '만분가', meaning: '백 년 동안의 사귐', example: '백세교유(百歲交遊) 만세상감흐리라', detail: '영원한 교감의 소망.' },
+            { id: 55, day: 3, word: '소년행락(少年行樂)', source: '규원가', meaning: '어린 시절의 즐거움', example: '소년 행락(少年行樂) 생각하니 일러도 속절업다', detail: '지나간 과거에 대한 회상.' },
+            { id: 56, day: 3, word: '백년기약(百年期約)', source: '규원가', meaning: '평생을 함께할 약속', example: '이 얼골 이 태도로 백년기약(百年期約) 얏더니', detail: '결혼 당시의 맹세.' },
+            { id: 57, day: 3, word: '면목가증(面目可憎)', source: '규원가', meaning: '얼굴 모습이 밉살스러움', example: '설빈 화안 어디 두고 면목가증(面目可憎) 되거고나', detail: '늙고 초라해진 자신에 대한 비탄.' },
+            { id: 58, day: 3, word: '삼춘화류(三春花柳)', source: '규원가', meaning: '봄철의 꽃과 버들 (좋은 시절)', example: '삼춘화류(三春花柳) 호시절의 경물이 시름업다', detail: '아름다운 풍경도 슬프게 보임.' },
+            { id: 59, day: 3, word: '초로(草露)', source: '규원가', meaning: '풀잎에 맺힌 이슬', example: '초로(草露)는 맷쳐 잇고 모운이 디나갈 제', detail: '인생의 허무함이나 눈물을 상징.' },
+            { id: 60, day: 3, word: '참괴(慚愧)하다', source: '규원가', meaning: '스스로 부끄러워함', example: '스스로 참괴(慚愧)니 누구를 원망흐리', detail: '자신의 처지에 대한 자책.' },
+
+            // DAY 4: 누항사 & 탄궁가
+            { id: 61, day: 4, word: '길흉화복(吉凶禍福)', source: '누항사', meaning: '길함과 흉함, 화와 복', example: '길흉화복(吉凶禍福)을 하날 부쳐 두고', detail: '운명을 하늘의 뜻에 맡기는 자세.' },
+            { id: 62, day: 4, word: '풍조우석(風朝雨夕)', source: '누항사', meaning: '바람 부는 아침과 비 오는 저녁', example: '풍조우석(風朝雨夕)에 석은 딥히 섭히 되야', detail: '고생스러운 날씨나 세월을 의미.' },
+            { id: 63, day: 4, word: '안빈일념(安貧一念)', source: '누항사', meaning: '가난 속에서도 편안함을 찾는 일념', example: '안빈일념(安貧一念)을 적을망정 품고 이셔', detail: '선비의 청빈한 절개.' },
+            { id: 64, day: 4, word: '부족(不足)', source: '누항사', meaning: '모자람, 넉넉하지 못함', example: '가을이 부족(不足)거든 봄이라 유여흐며', detail: '극심한 경제적 곤궁함.' },
+            { id: 65, day: 4, word: '빈곤(貧困)하다', source: '누항사', meaning: '가난하고 살기가 어려움', example: '빈곤(貧困)혼 인생이 천지간의 나뿐이라', detail: '화자의 가난한 처지를 강조.' },
+            { id: 66, day: 4, word: '기한(飢寒)', source: '누항사', meaning: '배고픔과 추위', example: '기한(飢寒)이 절신한다 일단심을 이질는가', detail: '육체적 고통보다 정신적 가치를 중시함.' },
+            { id: 67, day: 4, word: '분의망신(奮義忘身)', source: '누항사', meaning: '의에 분발하여 자신의 몸을 잊음', example: '분의망신(奮義忘身)호야 죽어야 말녀 너겨', detail: '전쟁터에서 나라를 위해 싸운 충성심.' },
+            { id: 68, day: 4, word: '이시섭혈(履尸涉血)', source: '누항사', meaning: '시체를 밟고 피를 건넘 (치열한 전쟁)', example: '이시섭혈(履尸涉血)호야 몇 백전을 지닌연고', detail: '임진왜란 당시의 참혹한 참전 경험.' },
+            { id: 69, day: 4, word: '여가(餘暇)', source: '누항사', meaning: '일이 없는 한가한 시간', example: '일신이 여가(餘暇) 잇사 일가를 도라보랴', detail: '전쟁 중이라 집안을 돌볼 틈이 없었음.' },
+            { id: 70, day: 4, word: '경당문노(耕當問奴)', source: '누항사', meaning: '농사일은 머슴에게 물어야 함', example: '경당문노(耕當問奴)인들 눌드려 물룰는고', detail: '집에 머슴도 없는 처참한 가난.' },
+            { id: 71, day: 4, word: '궁경가색(躬耕稼穡)', source: '누항사', meaning: '몸소 농사를 지음', example: '궁경가색(躬耕稼穡)이 너 분인 줄 알 리로다', detail: '선비가 직접 쟁기를 잡아야 하는 현실.' },
+            { id: 72, day: 4, word: '한기태심(旱氣太甚)', source: '누항사', meaning: '가뭄의 기운이 매우 심함', example: '한기태심(旱氣太甚)호야 시절이 다 느즌 계', detail: '농사를 망치게 된 자연적 상황.' },
+            { id: 73, day: 4, word: '황혼(黃昏)', source: '누항사', meaning: '해가 지고 어둑어둑한 때', example: '달 업슨 황혼(黃昏)의 허위허위 다라가셔', detail: '소 빌리러 가는 화자의 부끄러움.' },
+            { id: 74, day: 4, word: '염치(廉恥)', source: '누항사', meaning: '부끄러움을 아는 마음', example: '어화 긔 뉘신고 염치(廉恥) 업산 너옵노라', detail: '궁핍함 때문에 염치를 무릅쓰고 소를 빌리러 감.' },
+            { id: 75, day: 4, word: '구차(苟且)하다', source: '누항사', meaning: '살림이 몹시 가난함', example: '년년에 이러기 구차(苟且)혼 줄 알건만', detail: '매번 부탁해야 하는 처량한 신세.' },
+            { id: 77, day: 4, word: '세정(世情)', source: '누항사', meaning: '세상 돌아가는 형편', example: '세정(世情) 모른 한숨은 그칠 줄을 모르는다', detail: '박절한 세상 인심에 대한 한탄.' },
+            { id: 78, day: 4, word: '빈이무원(貧而無怨)', source: '누항사', meaning: '가난하지만 원망하지 않음', example: '빈이무원(貧而無怨)을 어렵다 호건마는', detail: '가난을 운명으로 받아들이는 자세.' },
+            { id: 79, day: 4, word: '단사표음(簞食瓢飮)', source: '누항사', meaning: '소박한 생활 (대바구니 밥과 바가지 물)', example: '단사표음(簞食瓢飮)을 이도 족히 너기로라', detail: '안분지족의 정신.' },
+            { id: 80, day: 4, word: '태평천하(太平天下)', source: '누항사', meaning: '평온하고 근심이 없는 세상', example: '태평천하(太平天下)애 충효를 일을 삼아', detail: '지키고자 하는 도덕적 가치.' },
+
+            // DAY 5: 만언사 & 일동장유가 & 연행가
+            { id: 81, day: 5, word: '역녀(逆旅)', source: '만언사', meaning: '여관 (세상을 비유)', example: '역녀(逆旅) 건곤의 지나는 손이로다', detail: '인생을 잠시 머물다 가는 나그네에 비유.' },
+            { id: 82, day: 5, word: '불충불효(不忠不孝)', source: '만언사', meaning: '충성스럽지 못하고 효도하지 않음', example: '번 일을 그릇흐니 불충불효(不忠不孝) 다되엿다', detail: '자신의 죄를 뉘우치는 화자.' },
+            { id: 83, day: 5, word: '성은(聖恩)', source: '만언사', meaning: '임금님의 은혜', example: '어와 성은(聖恩)이야 가지록 망극다', detail: '목숨을 보존함에 감사함.' },
+            { id: 84, day: 5, word: '부모친척(父母親戚)', source: '만언사', meaning: '부모와 친척', example: '부모친척(父母親戚) 이별혼계', detail: '유배지로 떠나며 느끼는 생이별의 고통.' },
+            { id: 85, day: 5, word: '조반(朝飯)', source: '만언사', meaning: '아침밥', example: '눈물노 밤을 시와 아줌의 죠반(朝飯) 쥬니', detail: '유배지의 초라한 식사.' },
+            { id: 86, day: 5, word: '옥식진찬(玉食珍饌)', source: '만언사', meaning: '구슬 같은 밥과 맛있는 반찬', example: '옥식진찬(玉食珍饌) 어디 가고 믹반염장 되여시며', detail: '과거의 화려했던 생활과 현재를 대비.' },
+            { id: 87, day: 5, word: '인생고락(人生苦樂)', source: '만언사', meaning: '인생의 괴로움과 즐거움', example: '인성 고락(人生苦樂)이 슈우잠의 꿈이로다', detail: '인생사의 덧없음을 깨달음.' },
+            { id: 88, day: 5, word: '고진감래(苦盡甘來)', source: '만언사', meaning: '고생 끝에 낙이 옴', example: '고진감래(苦盡甘來) 언제홀고', detail: '유배 생활이 끝나기를 소망함.' },
+            { id: 89, day: 5, word: '서용(敍용)', source: '만언사', meaning: '죄를 사면하여 다시 관직에 씀', example: '그만져만 셔용(敍用)호스', detail: '관직 복귀에 대한 간절한 소망.' },
+            { id: 90, day: 5, word: '공명(功名)', source: '일동장유가', meaning: '공적과 이름 (입신양명)', example: '공명(功名)의 쁘디 업닉', detail: '출세에 욕심이 없음을 나타냄.' },
+            { id: 91, day: 5, word: '통신사(通信使)', source: '일동장유가', meaning: '일본으로 보내던 사절단', example: '관빅이 죽다 ㅎ고 통신스(通信使) 청혼다니', detail: '작품의 배경이 되는 역사적 사건.' },
+            { id: 92, day: 5, word: '북궐(北闕)', source: '일동장유가', meaning: '경복궁 (임금의 거처)', example: '북궐(北闕)의 하딕호고 남대문 내드라셔', detail: '여정의 시작점.' },
+            { id: 93, day: 5, word: '인산인해(人山人海)', source: '일동장유가', meaning: '수많은 인파', example: '좌우 전후 뫼와 들어 인산인히(人山인海) 되여시니', detail: '사신단을 구경하러 모인 인파.' },
+            { id: 94, day: 5, word: '국서(國書)', source: '일동장유가', meaning: '국가 간 공식 문서', example: '절월 전비 군관 국셔(國書) 인도하고', detail: '통신사의 막중한 임무.' },
+            { id: 95, day: 5, word: '창망(蒼茫)하다', source: '일동장유가', meaning: '넓고 멀어서 아득하다', example: '고국을 도라보니 야식이 창망(蒼茫)호야', detail: '고국을 떠나며 느끼는 아득함.' },
+            { id: 96, day: 5, word: '대풍(大風)', source: '일동장유가', meaning: '큰 바람', example: '굿둑이 심난혼뒤 대풍(大風)이 니러나니', detail: '항해 중 겪은 험난한 날씨.' },
+            { id: 97, day: 5, word: '장관(壯觀)', source: '일동장유가', meaning: '웅장하고 훌륭한 구경거리', example: '이윽고 히 돗거늘 장관(壯觀)을 호여 보시', detail: '바다 위 해돋이의 장엄한 모습.' },
+            { id: 98, day: 5, word: '우주(宇宙)', source: '일동장유가', meaning: '무한한 시공간', example: '구만 니 우듀(宇宙) 속의 큰 물결분이로시', detail: '대자연 앞에서 느끼는 경외감.' },
+            { id: 99, day: 5, word: '기절(奇絶)하다', source: '일동장유가', meaning: '기이하고 뛰어나다', example: '봉만이 삭닙호야 경치가 기절(奇絶)한다', detail: '일본의 수려한 풍경 감탄.' },
+            { id: 100, day: 5, word: '방물(方物)', source: '연행가', meaning: '임금께 바치는 지역 특산물', example: '방물(方物)을 정검하고 힘장을 슈습하여', detail: '사신이 가져가는 예물.' },
+
+            // DAY 6: 우부가 & 용부가 & 황계사 & 가사 종합
+            { id: 101, day: 6, word: '남녀노복(男女老僕)', source: '용부가', meaning: '남녀 종들', example: '드셰도다 남녀노복(男女老僕) 들며나며 흥구덕에', detail: '집안의 어수선한 분위기.' },
+            { id: 102, day: 6, word: '모함(謀陷)', source: '용부가', meaning: '남을 해치려고 일을 꾸며냄', example: '여긔져져 살셜이요 구석구석 모함(謀陷)이라', detail: '용부의 악행.' },
+            { id: 103, day: 6, word: '음담패설(淫談悖說)', source: '용부가', meaning: '음탕하고 상스러운 말', example: '이집져 집 이간질과 음담픽셜(淫談悖說) 일숨는다', detail: '도덕적으로 타락한 모습.' },
+            { id: 104, day: 6, word: '무식(無識)하다', source: '용부가', meaning: '배운 것이 없어 아는 것이 없음', example: '무식(無識)현 창싱드라 져 거동을 보쇼', detail: '경계심을 주는 표현.' },
+            { id: 105, day: 6, word: '호의호식(好衣好식)', source: '우부가', meaning: '좋은 옷과 좋은 음식', example: '호의호식(好衣好식) 무식하고 미련허고', detail: '부모 덕에 흥청망청 지내는 모습.' },
+            { id: 106, day: 6, word: '반복소인(反復小人)', source: '우부가', meaning: '언행이 잦고 간사한 사람', example: '승기즈를 염지허니 반복소인(反復小人) 허기진다', detail: '부정적 인물형 묘사.' },
+            { id: 107, day: 6, word: '용전여수(用錢如水)', source: '우부가', meaning: '돈을 물 쓰듯 함', example: '날 업는 용전여수(用錢如水) 상하팅석호야 가니', detail: '무절제한 낭비 비판.' },
+            { id: 108, day: 6, word: '일조걸식(一朝乞食)', source: '우부가', meaning: '하루아침에 거지가 됨', example: '가련타 져 인성아 일죠걸긱(一朝乞食)이라', detail: '방탕한 결과에 대한 경고.' },
+            { id: 109, day: 6, word: '사택망처(徙宅忘妻)', source: '상사곡', meaning: '이사하며 아내를 잊음 (건망증)', example: '사택망처(徙宅忘妻)는 엇떤 사람인고', detail: '임에 대한 그리움 강조.' },
+            { id: 110, day: 6, word: '비익조(比翼鳥)', source: '상사곡', meaning: '부부 사이가 좋은 새', example: '비익조(比翼鳥) 부부되야 연리지 숩풀 아래', detail: '영원한 사랑의 맹세.' },
+            { id: 111, day: 6, word: '연리지(連理枝)', source: '상사곡', meaning: '사랑하는 연인 사이 (가지가 이어진 나무)', example: '비익조 부부되야 연리지(連理枝) 숩풀 아래', detail: '부부의 깊은 화합.' },
+            { id: 112, day: 6, word: '수화상극(水火相克)', source: '상사곡', meaning: '물과 불이 서로 맞지 않음', example: '수화상극(水火相克)도 거줏말이 되엿고야', detail: '마음 속 모순된 감정.' },
+            { id: 113, day: 6, word: '춘풍추월(春風秋月)', source: '상사곡', meaning: '봄바람과 가을 달 (아름다운 세월)', example: '어디 뉘 말이 춘풍추월(春風秋月)을 흥 만타 후던 게오', detail: '임이 없으면 경치도 슬픔.' },
+            { id: 114, day: 6, word: '이합(離合)', source: '상사곡', meaning: '헤어짐과 만남', example: '수잇는 이합(離合)을 힘대로 후로소냐', detail: '운명적인 만남과 이별.' },
+            { id: 115, day: 6, word: '불한불열(不寒不熱)', source: '화전가', meaning: '춥지도 덥지도 않음', example: '불한불열(不寒不熱) 삼춘이라', detail: '화전놀이 가기 좋은 봄날씨.' },
+            { id: 116, day: 6, word: '수륙진미(수륙진미)', source: '화전가', meaning: '온갖 맛있는 음식', example: '집에 앉아 수륙진미(水陸珍味) 보기는 하려니와', detail: '소박한 화전의 즐거움 강조.' },
+            { id: 117, day: 6, word: '시화세풍(時和歲豊)', source: '화전가', meaning: '태평성대 (나라가 평화롭고 풍년이 듦)', example: '시화세풍(時和歲豊) 하거들랑 창안백발 흩날리고', detail: '국가의 안녕을 바라는 마음.' },
+            { id: 118, day: 6, word: '일조낭군(一朝郎君)', source: '황계사', meaning: '어느 날 아침 갑자기 이별한 남편', example: '일조낭군(一朝郎君) 이별 후에 소식 돈절흐야', detail: '이별의 안타까움.' },
+            { id: 119, day: 6, word: '돈절(頓絶)하다', source: '황계사', meaning: '소식이 끊어지다', example: '소식 돈절(頓絶)흐야', detail: '기별이 없는 상태.' },
+            { id: 120, day: 6, word: '추월(秋月)', source: '황계사', meaning: '가을 달', example: '추월(秋月)이 양명휘후니 달이 발가 못 오돈가', detail: '임을 기다리는 절박한 정서.' }
+        ];
+
+        const App = () => {
+            const [selectedDay, setSelectedDay] = useState(1);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [viewMode, setViewMode] = useState('list');
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [isFlipped, setIsFlipped] = useState(false);
+
+            const filteredData = useMemo(() => {
+                return VOCAB_DATA.filter(v => {
+                    const matchesDay = v.day === selectedDay;
+                    const matchesSearch = v.word.includes(searchTerm) || v.meaning.includes(searchTerm) || v.source.includes(searchTerm);
+                    return matchesDay && matchesSearch;
+                });
+            }, [selectedDay, searchTerm]);
+
+            useEffect(() => {
+                setCurrentIndex(0);
+                setIsFlipped(false);
+            }, [selectedDay, searchTerm]);
+
+            const handleNext = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentIndex((prev) => (prev + 1) % filteredData.length);
+                }, 150);
+            };
+
+            const handlePrev = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentIndex((prev) => (prev - 1 + filteredData.length) % filteredData.length);
+                }, 150);
+            };
+
+            return (
+                <div className="min-h-screen bg-stone-50 text-stone-800 p-4 md:p-8">
+                    <div className="max-w-4xl mx-auto">
+                        <header className="mb-8 text-center bg-white p-8 rounded-3xl shadow-sm border border-stone-100">
+                            <h1 className="text-3xl font-black text-stone-900 mb-2 flex items-center justify-center gap-3">
+                                <Icon name="BookOpen" size={36} color="#b45309" className="stroke-[2.5]" />
+                                고전 한자 어휘 6일 완성
+                            </h1>
+                            <p className="text-stone-500 font-medium tracking-tight">가사 원문 자료집 기반 필수 한자어 120선</p>
+                        </header>
+
+                        {/* Day Selector */}
+                        <div className="mb-8 overflow-x-auto flex justify-center">
+                            <div className="inline-flex p-1.5 bg-stone-200/50 rounded-2xl">
+                                {[1, 2, 3, 4, 5, 6].map((day) => (
+                                    <button
+                                        key={day}
+                                        onClick={() => setSelectedDay(day)}
+                                        className={`py-3 px-6 rounded-xl text-sm font-bold transition-all ${selectedDay === day ? 'bg-amber-700 text-white shadow-md' : 'text-stone-500 hover:bg-white/60'}`}
+                                    >
+                                        DAY {day}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex flex-col md:flex-row gap-4 mb-8">
+                            <div className="relative flex-grow">
+                                <Icon name="Search" size={20} color="#a8a29e" className="absolute left-4 top-1/2 -translate-y-1/2" />
+                                <input
+                                    type="text"
+                                    placeholder="한자, 뜻, 작품명 검색..."
+                                    className="w-full pl-12 pr-4 py-4 bg-white border border-stone-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-amber-500 outline-none"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={() => setViewMode('list')} className={`px-6 py-4 rounded-2xl font-bold flex items-center gap-2 border-2 ${viewMode === 'list' ? 'bg-amber-100 border-amber-200 text-amber-800' : 'bg-white border-stone-200 text-stone-500'}`}>
+                                    <Icon name="List" size={20} /> 리스트
+                                </button>
+                                <button onClick={() => setViewMode('flashcard')} className={`px-6 py-4 rounded-2xl font-bold flex items-center gap-2 border-2 ${viewMode === 'flashcard' ? 'bg-amber-100 border-amber-200 text-amber-800' : 'bg-white border-stone-200 text-stone-500'}`}>
+                                    <Icon name="Zap" size={20} /> 카드
+                                </button>
+                            </div>
+                        </div>
+
+                        {filteredData.length === 0 ? (
+                            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-stone-300">
+                                <p className="text-stone-400 font-bold">해당 일차 또는 검색어에 대한 데이터가 없습니다.</p>
+                            </div>
+                        ) : (
+                            <>
+                                {viewMode === 'list' ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {filteredData.map((item, idx) => (
+                                            <div key={item.id} className="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 hover:border-amber-200 transition-all">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded border border-amber-100 uppercase">#{idx + 1} | {item.source}</span>
+                                                    <Icon name="Bookmark" size={16} color="#d6d3d1" />
+                                                </div>
+                                                <h3 className="text-2xl font-bold text-stone-800 mb-1">{item.word}</h3>
+                                                <p className="text-amber-800 font-semibold mb-4">{item.meaning}</p>
+                                                <div className="bg-stone-50 p-3 rounded-xl text-xs text-stone-600 italic leading-relaxed">"{item.example}"</div>
+                                                <div className="mt-4 pt-3 border-t border-stone-100 text-[11px] text-stone-400 flex gap-1 items-start">
+                                                    <Icon name="Info" size={12} color="#e7e5e4" className="mt-0.5" />
+                                                    {item.detail}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-full max-w-sm aspect-[3/4] perspective-1000 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+                                            <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+                                                {/* Front */}
+                                                <div className="absolute w-full h-full backface-hidden bg-white rounded-3xl shadow-xl border-4 border-stone-100 flex flex-col items-center justify-center p-8">
+                                                    <div className="absolute top-8 text-xs font-bold text-stone-300 uppercase tracking-widest">DAY {selectedDay} · {filteredData[currentIndex].source}</div>
+                                                    <h2 className="text-5xl font-black text-stone-800 mb-8">{filteredData[currentIndex].word}</h2>
+                                                    <div className="flex flex-col items-center gap-2 text-stone-300 animate-pulse">
+                                                        <Icon name="RotateCcw" size={24} />
+                                                        <p className="text-xs font-bold uppercase">Click to Reveal</p>
+                                                    </div>
+                                                </div>
+                                                {/* Back */}
+                                                <div className="absolute w-full h-full backface-hidden bg-amber-50 rounded-3xl shadow-xl border-4 border-amber-200 rotate-y-180 flex flex-col p-10">
+                                                    <div className="flex-1 flex flex-col justify-center text-center">
+                                                        <p className="text-xs font-black text-amber-600 uppercase mb-4 tracking-tighter">뜻풀이 및 예문</p>
+                                                        <h3 className="text-3xl font-black text-stone-800 mb-6">{filteredData[currentIndex].meaning}</h3>
+                                                        <div className="bg-white/80 p-5 rounded-2xl shadow-sm border border-amber-100 mb-6 italic text-sm text-stone-700">
+                                                            "{filteredData[currentIndex].example}"
+                                                        </div>
+                                                        <p className="text-xs text-stone-500 leading-relaxed font-medium">
+                                                            {filteredData[currentIndex].detail}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-10 flex items-center gap-8">
+                                            <button onClick={handlePrev} className="p-4 bg-white rounded-full shadow hover:bg-stone-100 transition-all border border-stone-200 active:scale-95">
+                                                <Icon name="ChevronRight" size={24} className="rotate-180" />
+                                            </button>
+                                            <div className="font-black text-stone-400"><span className="text-amber-700 text-2xl">{currentIndex + 1}</span> / {filteredData.length}</div>
+                                            <button onClick={handleNext} className="p-4 bg-white rounded-full shadow hover:bg-stone-100 transition-all border border-stone-200 active:scale-95">
+                                                <Icon name="ChevronRight" size={24} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                        
+                        <footer className="mt-16 text-center text-stone-400 text-xs border-t pt-8 pb-12">
+                            <p className="mb-2 font-bold text-stone-500 italic">"한자 어휘를 알아야 고전이 읽힙니다."</p>
+                            <p>© 2025 고전 어휘 마스터 프로젝트 - 학생들의 열공을 응원합니다!</p>
+                        </footer>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
