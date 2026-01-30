@@ -19,33 +19,28 @@ window.onload = function() {
   initPage();
 };
 </script>
-</head><body><div id="overlay"></div><div class="container"><h2 style="text-align:center">1월 3주차 독서 수업 교재</h2><div id="timer">⏱ <span id="timeText">--분 --초 남음</span></div><div class="notice-box"><b>[공지]</b> 독서 기본 구조 파악, 시간 제한 30분, 전 문항 도전, 지문별 시간 체크, 정답만 찾기<br>📅 기한: 2026-01-25 ~ 2026-01-27<br>🔄 총 3회 도전 가능</div><div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQAtlVQEHc6fQ43nv8GaI0R9Afaq2mm_kQ0qOuIcB-LAiyA?e=3xjCgn" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 제출 확인</button><div id="resArea" style="display:none;margin-top:20px"></div></div><script>
+</head><body><div id="overlay"></div><div class="container"><h2 style="text-align:center">1월 3주차 독서 수업 교재</h2><div id="timer">⏱ <span id="timeText">--분 --초 남음</span></div><div class="notice-box"><b>[공지]</b> 독서 기본 구조 파악, 시간 제한 30분, 전 문항 도전, 지문별 시간 체크, 정답만 찾기<br>📅 상시 제출 가능<br>🔄 총 3회 도전 가능</div><div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><input type="text" id="cN" placeholder="학원명"> <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px"><select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select><a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQAtlVQEHc6fQ43nv8GaI0R9Afaq2mm_kQ0qOuIcB-LAiyA?e=3xjCgn" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지</a></div><div id="qC"></div><button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button><button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 제출 확인</button><div id="resArea" style="display:none;margin-top:20px"></div></div><script>
 let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="", isPerfect=false, wrongListStr="";
 const masterAnswers = [0, ..."41452224332443553335".split("").map(Number)];
 const activeList = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
 const totalQ = 20;
 const maxT=3, waitMin=3;
-const startDay="2026-01-25", endDay="2026-01-27";
 const ansLink = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBi52qAlZC2QIIJmSQWEa6GAQwil3kkjBfFqdf06xYZDkE?e=X6kM9w", HW_ID = "HW_1월3주차독서수업교재", ADMIN_BASE = "https://saenarachild-crypto.github.io/kim-korean-homework/read_in_class_103.htm", GAS_URL = "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec";
 try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){console.error(e);}
 function initPage(){
   const sel=document.getElementById("sD"); 
-  const now=new Date(); now.setHours(0,0,0,0);
-  const end=new Date(endDay); end.setHours(0,0,0,0);
-  let loopDate = new Date(now);
-  if (loopDate > end) { } 
-  else {
-    for(let d=loopDate; d<=end; d.setDate(d.getDate()+1)){ 
-      let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); 
-      let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); 
-    }
+  const now=new Date(); 
+  for(let i=-7; i<=7; i++){ // 오늘 기준 전후 7일을 선택지로 제공
+    let d = new Date(); d.setDate(now.getDate()+i);
+    let s=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); 
+    let opt=document.createElement("option"); opt.value=s; opt.innerText=s; if(i===0) opt.selected=true; sel.appendChild(opt); 
   }
   let h=""; for(let n=1; n<=totalQ; n++){
     const dis = activeList.includes(n) ? "" : "disabled";
     h+="<div class='q-card'><div style='font-weight:bold;margin-bottom:15px;font-size:1.1rem'>"+n+"번</div><div class='options'>";
     for(let j=1;j<=5;j++){ h+="<input type='radio' name='q"+n+"' id='q"+n+"_"+j+"' value='"+j+"' class='opt-input' "+dis+"><label for='q"+n+"_"+j+"' class='opt-label'>"+j+"</label>"; }
     h+="</div></div>";
-  } document.getElementById("qC").innerHTML=h; checkDateLimit();
+  } document.getElementById("qC").innerHTML=h;
 }
 function submit(){
   if(isBlocked) return; const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\s/g,""), sD=document.getElementById("sD").value; if(!cN||!sN||!sD){alert("정보 입력!"); return;}
@@ -53,15 +48,6 @@ function submit(){
   isPerfect=(w===0); wrongListStr=d.join(","); const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key,att); if(isPerfect) localStorage.setItem("perf_"+sN+"_"+HW_ID,"true");
   resT="["+"1월 3주차 독서 수업 교재"+"]\n"+sN+"("+att+"회차) 제출 완료"; alert("카톡 전송 후 [완료] 클릭!"); document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
   fetch(GAS_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:"1월 3주차 독서 수업 교재",name:sN,class:cN,attempt:att,wrongCount:w,wrongList:wrongListStr})});
-}
-function checkDateLimit(){ 
-  const now=new Date(); now.setHours(0,0,0,0); 
-  const sDate=new Date(startDay); sDate.setHours(0,0,0,0); 
-  const eDate=new Date(endDay); eDate.setHours(23,59,59,999); 
-  const msg=document.getElementById("limitMsg"); const btn=document.getElementById("subBtn"); 
-  if(now < sDate){ isBlocked=true; btn.style.display="none"; msg.style.display="block"; msg.innerText="⏳ 제출 기간이 아닙니다."; } 
-  else if(now > eDate){ isBlocked=true; btn.style.display="none"; msg.style.display="block"; msg.innerText="🚫 제출 기한이 마감되었습니다."; } 
-  else { isBlocked=false; btn.style.display="block"; msg.style.display="none"; }
 }
 function checkLimit(){ if(isBlocked) return; const sN=document.getElementById("sN").value.trim().replace(/\s/g,""), sD=document.getElementById("sD").value; if(sN.length<2||!sD){document.getElementById("subBtn").style.display="block"; return;} const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0); if(localStorage.getItem("perf_"+sN+"_"+HW_ID)=="true"){isBlocked=true; showFinalResult("백점 달성!"); return;} if(maxT>0 && att>=maxT){isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; document.getElementById("limitMsg").innerText="🚫 모든 기회를 사용했습니다."; showFinalResult("기회 소진");} }
 function startWaitTimer(){
