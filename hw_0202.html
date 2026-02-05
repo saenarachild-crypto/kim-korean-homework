@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2월 2회차 주간 과제 - 김현석 국어</title>
+    <meta property="og:title" content="김현석 국어 - 2월 2회차 주간 과제">
+    <link rel="stylesheet" href="https://kim-korean.netlify.app/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>2월 2회차 주간 과제 (독서·문학)</h2>
+        <div id="status-bar">정보 입력 후 정답을 체크해 주세요. (제출 기한: ~다음주 화요일 24시)</div>
+        
+        <form id="quiz-form">
+            <div class="info-input">
+                <input type="text" id="student-id" placeholder="학번 (예: 10101)" required>
+                <input type="text" id="student-name" placeholder="이름" required>
+            </div>
+
+            <div class="tab-menu">
+                <button type="button" class="tab-btn active" onclick="showSection('reading')">독서</button>
+                <button type="button" class="tab-btn" onclick="showSection('literature')">문학</button>
+            </div>
+
+            <div id="reading-section" class="quiz-section">
+                <h3 class="section-title">독서 (정해진 문항만 입력 가능)</h3>
+                <div id="reading-grid" class="quiz-grid"></div>
+            </div>
+
+            <div id="literature-section" class="quiz-section" style="display:none;">
+                <h3 class="section-title">문학 (1~31번)</h3>
+                <div id="literature-grid" class="quiz-grid"></div>
+            </div>
+
+            <button type="submit" id="submit-btn">제출 및 채점하기</button>
+        </form>
+        
+        <div id="result-area" style="display:none;">
+            <h3>채점 결과</h3>
+            <p id="score-display"></p>
+            <div id="wrong-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // 정답 설정
+        const ansR = "414434455141123354353134123451513".split("");
+        const ansL = "1342344245242425251244231412445".split("");
+        
+        // 독서 활성화 문항 번호: 5-8, 13-16, 17-20, 21-24, 25-30
+        const activeR = [5,6,7,8, 13,14,15,16, 17,18,19,20, 21,22,23,24, 25,26,27,28,29,30];
+
+        // 그리드 생성 함수
+        function initGrid() {
+            const rGrid = document.getElementById('reading-grid');
+            const lGrid = document.getElementById('literature-grid');
+
+            // 독서 생성 (33문항)
+            for (let i = 1; i <= 33; i++) {
+                const isActive = activeR.includes(i);
+                rGrid.innerHTML += `
+                    <div class="quiz-item ${isActive ? '' : 'disabled'}">
+                        <span class="q-num">${i}</span>
+                        <div class="options" data-type="R" data-q="${i}">
+                            ${[1,2,3,4,5].map(n => `
+                                <button type="button" class="opt" data-val="${n}" ${isActive ? '' : 'disabled'}>${n}</button>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }
+
+            // 문학 생성 (31문항)
+            for (let i = 1; i <= 31; i++) {
+                lGrid.innerHTML += `
+                    <div class="quiz-item">
+                        <span class="q-num">${i}</span>
+                        <div class="options" data-type="L" data-q="${i}">
+                            ${[1,2,3,4,5].map(n => `<button type="button" class="opt" data-val="${n}">${n}</button>`).join('')}
+                        </div>
+                    </div>`;
+            }
+        }
+
+        // 탭 전환
+        function showSection(sec) {
+            document.querySelectorAll('.quiz-section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(sec + '-section').style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        // 클릭 이벤트
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('opt') && !e.target.disabled) {
+                const opts = e.target.parentElement.querySelectorAll('.opt');
+                opts.forEach(o => o.classList.remove('selected'));
+                e.target.classList.add('selected');
+            }
+        });
+
+        // 제출 로직 (제한 횟수 3회, 대기 3분 포함)
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyM-8CmijrbV5PmgSebU_AP_lztEHlyNdXq7cRyfratLdj2y0BP9inAZJyING1oZiIt/exec";
+
+        document.getElementById('quiz-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('student-id').value;
+            const name = document.getElementById('student-name').value;
+
+            // 중복 제출 및 대기 시간 체크 (로컬 스토리지 활용)
+            const lastTime = localStorage.getItem(`last_${id}`);
+            const count = parseInt(localStorage.getItem(`cnt_${id}`) || 0);
+            
+            if (count >= 3) return alert("최대 제출 횟수(3회)를 초과했습니다.");
+            if (lastTime && (Date.now() - lastTime < 180000)) return alert("제출 후 3분이 지나야 다시 제출할 수 있습니다.");
+
+            let rWrong = [], lWrong = [];
+            
+            // 독서 채점
+            activeR.forEach(qIdx => {
+                const sel = document.querySelector(`.options[data-type="R"][data-q="${qIdx}"] .selected`);
+                if (!sel || sel.dataset.val !== ansR[qIdx-1]) rWrong.push(qIdx);
+            });
+
+            // 문학 채점
+            for(let i=1; i<=31; i++) {
+                const sel = document.querySelector(`.options[data-type="L"][data-q="${i}"] .selected`);
+                if (!sel || sel.dataset.val !== ansL[i-1]) lWrong.push(i);
+            }
+
+            // 점수 계산 (활성화 문항 대비)
+            const totalTarget = activeR.length + 31;
+            const correctCount = totalTarget - (rWrong.length + lWrong.length);
+            const score = Math.round((correctCount / totalTarget) * 100);
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    body: JSON.stringify({
+                        title: "2월 2회차 주간과제", id, name, score,
+                        wrong: `독서:${rWrong.join("/")}, 문학:${lWrong.join("/")}`
+                    })
+                });
+
+                localStorage.setItem(`last_${id}`, Date.now());
+                localStorage.setItem(`cnt_${id}`, count + 1);
+
+                alert(`제출 완료! 점수: ${score}점`);
+                document.getElementById('result-area').style.display = 'block';
+                document.getElementById('score-display').innerText = `${name} 학생 - ${score}점 (총 ${totalTarget}문항 중 ${correctCount}문항 정답)`;
+            } catch(e) { alert("서버 연결에 실패했습니다."); }
+        };
+
+        initGrid();
+    </script>
+</body>
+</html>
