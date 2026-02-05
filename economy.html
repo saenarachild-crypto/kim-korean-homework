@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <title>1교시 김현석 국어</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; }
+        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
+        
+        /* 🚪 대문(Intro) 스타일 */
+        #introPage { text-align: center; padding: 20px 0; }
+        .intro-notice { background: #fff9f0; border: 2px dashed #ffcc80; border-radius: 20px; padding: 25px; margin: 25px 0; text-align: left; }
+        .intro-notice h3 { margin-top: 0; color: #e67e22; }
+        .start-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.25em; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .start-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* 📝 시험지(Exam) 스타일 */
+        #examPage { display: none; } 
+        .selector-box { background: #eeebff; padding: 18px; border-radius: 20px; border: 1.5px solid #d1ccff; margin-bottom: 25px; }
+        .notice-area { background: #f1f3f5; padding: 15px; border-radius: 15px; font-size: 0.95em; margin-bottom: 20px; color: #4b6584; line-height: 1.6; border-left: 5px solid var(--p); }
+        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; background: #fff; }
+        .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        input[type="radio"] { position: absolute; opacity: 0; }
+        label { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; transition: 0.2s; }
+        input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
+        .main-btn { width:100%; padding:20px; border-radius:20px; background:var(--p); color:white; font-weight:800; border:none; cursor:pointer; font-size:1.1em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="introPage">
+        <img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:140px; border-radius:25px; margin-bottom: 15px;">
+        <h1 style="font-size: 1.6em; margin-bottom: 5px;">1교시 김현석 국어</h1>
+        <p style="color: #636e72; margin-bottom: 25px;">주간 과제 온라인 제출 시스템</p>
+        <div class="intro-notice">
+            <h3>📢 필수 공지사항</h3>
+            <p id="mainNotice" style="word-break: keep-all;">과제를 불러오는 중입니다...</p>
+        </div>
+        <button class="start-btn" onclick="startApp()">공지를 확인했습니다. 과제 시작!</button>
+    </div>
+
+    <div id="examPage">
+        <div class="selector-box">
+            <select id="examSelect" onchange="loadExam()" style="width:100%; padding:10px; border-radius:10px; border:none; font-weight:700; font-size: 1em; background: transparent; outline: none;"></select>
+        </div>
+        <div id="noticeArea" class="notice-area"></div>
+        <div id="questionsContainer"></div>
+        <button type="button" id="submitBtn" class="main-btn" onclick="processSubmit()">제출 및 서버 채점</button>
+    </div>
+</div>
+
+<script>
+    const TASKS = {
+        "TASK_2026_02_08": {
+            name: "마침내 국어 경제 심화",
+            ans: "34325453554225344252425252224232545",
+            msg: "문제만 풀지 말고 지문을 반드시 통독하고 단락별로 단기 기억 연습 꼭 하세요.",
+            maxTry: 3,
+            waitTime: 3
+        }
+    };
+
+    let currentTaskKey = "TASK_2026_02_08";
+
+    window.onload = function() {
+        const select = document.getElementById('examSelect');
+        const keys = Object.keys(TASKS);
+        keys.forEach(key => {
+            let opt = document.createElement('option');
+            opt.value = key;
+            opt.innerText = TASKS[key].name;
+            select.appendChild(opt);
+        });
+        // 가장 최근 과제를 기본 선택
+        select.value = keys[keys.length - 1];
+        updateNotice();
+    };
+
+    function updateNotice() {
+        const key = document.getElementById('examSelect').value;
+        const msg = TASKS[key].msg;
+        document.getElementById('mainNotice').innerText = msg;
+        document.getElementById('noticeArea').innerHTML = "<strong>💡 필독:</strong> " + msg;
+    }
+
+    function startApp() {
+        document.getElementById('introPage').style.display = 'none';
+        document.getElementById('examPage').style.display = 'block';
+        loadExam();
+    }
+
+    function loadExam() {
+        currentTaskKey = document.getElementById('examSelect').value;
+        updateNotice();
+        const task = TASKS[currentTaskKey];
+        const container = document.getElementById('questionsContainer');
+        container.innerHTML = '';
+
+        for (let i = 1; i <= task.ans.length; i++) {
+            let html = `
+                <div class="q-card">
+                    <strong>${i}번 문제</strong>
+                    <div class="ans-row">
+                        ${[1,2,3,4,5].map(a => `
+                            <input type="radio" name="q${i}" id="q${i}_${a}" value="${a}">
+                            <label for="q${i}_${a}">${a}</label>
+                        `).join('')}
+                    </div>
+                </div>`;
+            container.innerHTML += html;
+        }
+        window.scrollTo(0, 0);
+    }
+
+    function processSubmit() {
+        const task = TASKS[currentTaskKey];
+        let userAns = "";
+        for (let i = 1; i <= task.ans.length; i++) {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            userAns += selected ? selected.value : "0"; // 비워두기 허용 (0으로 기록)
+        }
+
+        // 횟수 제한 로직 (날짜 리셋 없이 영구 누적)
+        const storageKey = "STRICT_TRY_" + currentTaskKey;
+        let tryCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+        if (tryCount >= task.maxTry) {
+            alert("이미 최대 도전 횟수(" + task.maxTry + "회)를 모두 사용했습니다.");
+            return;
+        }
+
+        const userName = prompt("이름을 입력하세요 (제출 후 수정 불가):");
+        if (!userName || userName.trim() === "") {
+            alert("이름을 입력해야 제출이 가능합니다.");
+            return;
+        }
+
+        let score = 0;
+        for (let i = 0; i < task.ans.length; i++) {
+            if (userAns[i] === task.ans[i]) score++;
+        }
+        let finalScore = Math.round((score / task.ans.length) * 100);
+
+        document.getElementById('submitBtn').innerText = "제출 중...";
+        document.getElementById('submitBtn').disabled = true;
+
+        google.script.run.withSuccessHandler(() => {
+            tryCount++;
+            localStorage.setItem(storageKey, tryCount);
+            alert(`[제출 성공] ${userName}님!\n점수: ${finalScore}점 (${score}/${task.ans.length})\n남은 기회: ${task.maxTry - tryCount}회`);
+            location.reload(); // 리로드하여 대문으로 이동
+        }).submitScore({
+            userName: userName,
+            taskName: task.name,
+            score: finalScore,
+            userAns: userAns,
+            tryCount: tryCount + 1
+        });
+    }
+</script>
+</body>
+</html>
