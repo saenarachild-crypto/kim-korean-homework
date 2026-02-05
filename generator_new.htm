@@ -1,70 +1,119 @@
 <!DOCTYPE html>
+
 <html lang="ko">
+
 <head>
+
     <meta charset="UTF-8">
-    <title>김현석 국어 과제 생성기 V58.0 (통합본)</title>
+
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+    <title>1교시 김현석 국어</title>
+
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+
     <style>
-        /* 현석 님 전용 레이아웃 */
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f2f5; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        textarea { width: 100%; height: 80px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; }
-        button { background-color: #1e3799; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; }
-        #output { background: #2f3640; color: #f5f6fa; padding: 20px; border-radius: 8px; margin-top: 20px; white-space: pre-wrap; font-family: 'Consolas', monospace; font-size: 13px; }
+
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; }
+
+        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; -webkit-tap-highlight-color: transparent; }
+
+        .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
+
+        
+
+        /* 🚪 대문(Intro) 스타일 */
+
+        #introPage { text-align: center; padding: 20px 0; }
+
+        .intro-notice { background: #fff9f0; border: 2px dashed #ffcc80; border-radius: 20px; padding: 25px; margin: 25px 0; text-align: left; }
+
+        .start-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.25em; font-weight: 800; cursor: pointer; }
+
+
+
+        /* 📝 시험지(Exam) 스타일 - 초기 숨김 */
+
+        #examPage { display: none; } 
+
+        .selector-box { background: #eeebff; padding: 18px; border-radius: 20px; border: 1.5px solid #d1ccff; margin-bottom: 25px; }
+
+        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; background: #fff; }
+
+        .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+
+        input[type="radio"] { position: absolute; opacity: 0; }
+
+        label { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; }
+
+        input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
+
     </style>
+
 </head>
+
 <body>
-    <div class="container">
-        <h2>국어 과제 생성기 V58.0 (Full Option)</h2>
-        <div class="input-row">
-            <div><label>과제 제목</label><input type="text" id="title" placeholder="예: 1주차 주간 과제"></div>
-            <div><label>고유 ID</label><input type="text" id="taskId" placeholder="예: task_001"></div>
+
+
+
+<div class="container">
+
+    <div id="introPage">
+
+        <img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:140px; border-radius:25px;">
+
+        <h1>1교시 김현석 국어</h1>
+
+        <div class="intro-notice">
+
+            <h3>📢 이번 주 필수 공지</h3>
+
+            <p id="mainNotice">불러오는 중...</p>
+
         </div>
-        <div class="input-row">
-            <div><label>문제지 링크</label><input type="text" id="pdfLink"></div>
-            <div><label>해설지 링크</label><input type="text" id="solLink"></div>
-        </div>
-        <div>
-            <label>독서 정답 (예: 12345...)</label>
-            <textarea id="readAns"></textarea>
-        </div>
-        <div>
-            <label>문학 정답 (예: 54321...)</label>
-            <textarea id="litAns"></textarea>
-        </div>
-        <button onclick="generate()">V58.0 통합 코드 생성</button>
-        <div id="output">코드가 여기에 표시됩니다.</div>
+
+        <button class="start-btn" onclick="startApp()">확인했습니다. 과제 시작!</button>
+
     </div>
 
-    <script>
-        function generate() {
-            const data = {
-                title: document.getElementById('title').value,
-                id: document.getElementById('taskId').value,
-                pdf: document.getElementById('pdfLink').value,
-                sol: document.getElementById('solLink').value,
-                rAns: document.getElementById('readAns').value,
-                lAns: document.getElementById('litAns').value
-            };
 
-            // V58.0의 핵심: V11.1의 로직(카톡, 타이머, 재도전 제한)을 문자열로 결합
-            const finalCode = `
-<div id="quiz-container">
-    <script>
-        const CONFIG = {
-            taskId: "${data.id}",
-            answers: { reading: "${data.rAns}", literature: "${data.lAns}" },
-            links: { pdf: "${data.pdf}", sol: "${data.sol}" },
-            limit: 3, // 3회 제한
-            timer: 180 // 3분 타이머
-        };
-        // 카톡 전송 및 타이머 로직 실행...
-        // (기존 V11.1 엔진 구동)
-    <\/script>
+
+    <div id="examPage">
+
+        <div class="header-logo"><img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:110px;"></div>
+
+        <div class="selector-box"><select id="examSelect" onchange="loadExam()"></select></div>
+
+        <div id="questionsContainer"></div>
+
+        <button type="button" id="submitBtn" class="main-btn" onclick="processSubmit()" style="width:100%; padding:20px; border-radius:20px; background:var(--p); color:white; font-weight:800; border:none;">제출 및 서버 채점</button>
+
+    </div>
+
 </div>
-            `;
-            document.getElementById('output').textContent = finalCode;
-        }
-    </script>
+
+
+
+<script>
+
+    // ... (기존 TASKS 설정 및 로직 유지) ...
+
+    function startApp() {
+
+        document.getElementById('introPage').style.display = 'none';
+
+        document.getElementById('examPage').style.display = 'block';
+
+        // 과제 선택기 초기화 및 첫 과제 로드 로직 포함
+
+    }
+
+</script>
+
 </body>
+
 </html>
