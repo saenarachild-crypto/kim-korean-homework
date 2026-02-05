@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마침내 모의고사 코드 생성기 (V11.1)</title>
+    <style>
+        :root { --p: #6c5ce7; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; line-height: 1.6; }
+        .gen-container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { color: var(--p); border-bottom: 2px solid var(--p); padding-bottom: 10px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        textarea { height: 80px; resize: vertical; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        button { width: 100%; padding: 20px; background: var(--p); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #codeOutput { width: 100%; height: 300px; margin-top: 20px; display: none; font-family: monospace; background: #2d3436; color: #dfe6e9; padding: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="gen-container">
+    <h1>📝 마침내 모의고사 코드 생성기</h1>
+    <p>설정값을 입력하면 선생님의 <b>완벽한 모의고사 양식</b>으로 코드가 생성됩니다.</p>
+
+    <div class="grid">
+        <div class="input-group">
+            <label>과제 제목</label>
+            <input type="text" id="title" placeholder="예: 2월 1주차 마침내 모의고사">
+        </div>
+        <div class="input-group">
+            <label>과제 고유 ID (영문/숫자)</label>
+            <input type="text" id="hwPrefix" placeholder="예: HW_FEB_WEEK1_">
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="input-group">
+            <label>시작일 (YYYY-MM-DD)</label>
+            <input type="date" id="startDay">
+        </div>
+        <div class="input-group">
+            <label>마감일 (YYYY-MM-DD)</label>
+            <input type="date" id="endDay">
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="input-group">
+            <label>언어와 매체 정답 (45자리 숫자만)</label>
+            <textarea id="ans_unm" placeholder="예: 554141..."></textarea>
+        </div>
+        <div class="input-group">
+            <label>화법과 작문 정답 (45자리 숫자만)</label>
+            <textarea id="ans_hwj" placeholder="예: 554141..."></textarea>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="input-group">
+            <label>문제지 링크 (SharePoint 등)</label>
+            <input type="text" id="paperLink">
+        </div>
+        <div class="input-group">
+            <label>해설지 링크</label>
+            <input type="text" id="ansLink">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>대문 공지사항 (HTML 사용 가능)</label>
+        <textarea id="mainNotice">🗓️ 기한 내에 제출해 주세요.<br>본인의 선택 과목(언매/화작)을 확인 후 제출해 주세요.</textarea>
+    </div>
+
+    <button onclick="generateCode()">🚀 모의고사 코드 생성하기</button>
+
+    <textarea id="codeOutput" readonly></textarea>
+    <p id="copyMsg" style="text-align:center; color: var(--p); font-weight:bold; display:none;">코드가 복사되었습니다! .html 파일로 저장하세요.</p>
+</div>
+
+<script>
+    function generateCode() {
+        const title = document.getElementById('title').value;
+        const hwPrefix = document.getElementById('hwPrefix').value;
+        const startDay = document.getElementById('startDay').value;
+        const endDay = document.getElementById('endDay').value;
+        const ans_unm = document.getElementById('ans_unm').value.trim();
+        const ans_hwj = document.getElementById('ans_hwj').value.trim();
+        const paperLink = document.getElementById('paperLink').value;
+        const ansLink = document.getElementById('ansLink').value;
+        const mainNotice = document.getElementById('mainNotice').value.replace(/\n/g, '<br>');
+
+        const template = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <title>${title} | 김현석 국어</title>
+    <meta property="og:title" content="김현석 국어 - ${title}">
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; }
+        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
+        #introPage { text-align: center; padding: 20px 0; }
+        .intro-notice { background: #fff9f0; border: 2px dashed #ffcc80; border-radius: 20px; padding: 25px; margin: 25px 0; text-align: left; }
+        .start-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.25em; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        #examPage { display: none; } 
+        .notice-box { background: #fff3e0; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.9rem; color: #5d4037; line-height: 1.6; border: 1px solid #ffcc80; }
+        .subject-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .sub-btn { padding: 15px; border: 2px solid #eee; border-radius: 12px; background: #fff; font-weight: bold; cursor: pointer; }
+        .sub-btn.active { border-color: var(--p); background: #f0edff; color: var(--p); }
+        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; background: #fff; }
+        .options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .opt-input { position: absolute; opacity: 0; }
+        .opt-label { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; }
+        .opt-input:checked + .opt-label { background: var(--p); color: white; border-color: var(--p); }
+        #timer { font-weight: bold; color: #ff6b6b; text-align: right; margin-bottom: 10px; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99; align-items: center; justify-content: center; }
+        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 10px; width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+<div id="overlay"></div>
+<div class="container">
+    <div id="introPage">
+        <img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:140px; border-radius:25px;">
+        <h1 style="margin-top:20px;">김현석 국어</h1>
+        <div class="intro-notice">
+            <h3 style="margin-top:0;">📢 이번 주 필수 공지</h3>
+            <p>${mainNotice}</p>
+        </div>
+        <button class="start-btn" onclick="startApp()">확인했습니다. 과제 시작!</button>
+    </div>
+    <div id="examPage">
+        <h2 style="text-align:center">${title}</h2>
+        <div id="timer">⏱ <span id="timeText">입력 가능</span></div>
+        <div class="subject-selector">
+            <button id="btn_unm" class="sub-btn active" onclick="setSubject('unm')">언어와 매체</button>
+            <button id="btn_hwj" class="sub-btn" onclick="setSubject('hwj')">화법과 작문</button>
+        </div>
+        <div class="notice-box"><b>[공지]</b> 기한 엄수! 🎯 도전 기회: 총 3회</div>
+        <div id="limitMsg" style="display:none;color:#d63031;font-weight:bold;text-align:center;margin-bottom:20px;padding:15px;background:#fab1a0;border-radius:12px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
+            <input type="text" id="cN" placeholder="학원명">
+            <input type="text" id="sN" placeholder="학생 이름" oninput="checkLimit()">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
+            <select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select>
+            <a href="${paperLink}" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지</a>
+        </div>
+        <div id="qC"></div>
+        <button id="subBtn" onclick="submit()" style="width:100%;padding:20px;background:#ff6b6b;color:white;border:none;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">📝 답안 제출하기</button>
+        <button id="kakaoBtn" onclick="share()" style="display:none;width:100%;background:#fee500;color:#3c1e1e;border:none;padding:20px;border-radius:15px;font-weight:bold;margin-top:20px;cursor:pointer;font-size:1.1rem">🟡 카톡으로 제출 확인</button>
+        <div id="resArea" style="display:none;margin-top:20px"></div>
+    </div>
+</div>
+<script>
+let timeLeft, timerInterval = null, w=0, att=0, isBlocked=false, resT="", isPerfect=false, currentSubject="unm";
+const config = { title: "${title}", startDay: "${startDay}", endDay: "${endDay}", maxT: 3, waitMin: 3, ansLink: "${ansLink}", hwPrefix: "${hwPrefix}", gasUrl: "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec" };
+const answers = { unm: [0, ..."${ans_unm}".split("").map(Number)], hwj: [0, ..."${ans_hwj}".split("").map(Number)] };
+let masterAnswers = answers.unm;
+try{if(!Kakao.isInitialized()){Kakao.init("f81d5eae0eaaf6fa2d0bdccbe6916001");}}catch(e){}
+function startApp(){ document.getElementById('introPage').style.display='none'; document.getElementById('examPage').style.display='block'; window.scrollTo(0,0); }
+function setSubject(sub){ currentSubject=sub; masterAnswers=answers[sub]; document.getElementById("btn_unm").className="sub-btn"+(sub==='unm'?' active':''); document.getElementById("btn_hwj").className="sub-btn"+(sub==='hwj'?' active':''); checkLimit(); }
+function initPage(){
+    const sel=document.getElementById("sD"); let loopDate=new Date(config.startDay); const end=new Date(config.endDay);
+    while(loopDate <= end){ let s=loopDate.toISOString().split('T')[0]; let opt=document.createElement("option"); opt.value=s; opt.innerText=s; sel.appendChild(opt); loopDate.setDate(loopDate.getDate()+1); }
+    let h=""; for(let n=1; n<=45; n++){ h+="<div class='q-card'><b>"+n+"번</b><div class='options'>"; for(let j=1;j<=5;j++){ h+="<input type='radio' name='q"+n+"' id='q"+n+"_"+j+"' value='"+j+"' class='opt-input'><label for='q"+n+"_"+j+"' class='opt-label'>"+j+"</label>"; } h+="</div></div>"; }
+    document.getElementById("qC").innerHTML=h; checkDateLimit();
+}
+function submit(){
+    const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value;
+    if(!cN||!sN||!sD){alert("정보를 입력하세요!"); return;}
+    w=0; let d=[]; for(let i=1;i<=45;i++){ let s=document.querySelector("input[name='q"+i+"']:checked"); if((s?parseInt(s.value):0)!==masterAnswers[i]){w++; d.push(i);} }
+    isPerfect=(w===0); const hwId=config.hwPrefix+currentSubject; const key="att_"+sN+"_"+hwId; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key,att); if(isPerfect) localStorage.setItem("perf_"+sN+"_"+hwId,"true");
+    resT="["+config.title+"]\\n"+sN+"("+att+"회차) 제출 완료"; document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
+    fetch(config.gasUrl,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:config.title+" "+(currentSubject==='unm'?'언매':'화작'),name:sN,class:cN,attempt:att,wrongCount:w,wrongList:d.join(",")})});
+}
+function checkDateLimit(){ if(new Date() > new Date(config.endDay).setHours(23,59,59,999)){ isBlocked=true; document.getElementById("subBtn").style.display="none"; document.getElementById("limitMsg").style.display="block"; document.getElementById("limitMsg").innerText="🚫 마감되었습니다."; } }
+function checkLimit(){ const sN=document.getElementById("sN").value.trim(); if(sN.length<2)return; const hwId=config.hwPrefix+currentSubject; if(localStorage.getItem("perf_"+sN+"_"+hwId)=="true"){ showFinalResult("백점 달성!"); return; } if(parseInt(localStorage.getItem("att_"+sN+"_"+hwId)||0)>=config.maxT){ showFinalResult("기회 소진"); } }
+function startWaitTimer(){ timeLeft=config.waitMin*60; const btn=document.getElementById("subBtn"); btn.disabled=true; btn.style.opacity="0.5"; timerInterval=setInterval(()=>{ if(timeLeft<=0){clearInterval(timerInterval); btn.disabled=false; btn.style.opacity="1"; document.getElementById("timeText").innerText="입력 가능"; return;} timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timeText").innerText="재도전 대기: "+m+"분 "+(s<10?"0"+s:s)+"초"; },1000); }
+function done(){ document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none"; if(isPerfect){showFinalResult("백점 달성!"); return;} if(att>=config.maxT){showFinalResult("기회 소진"); return;} alert(att+"회차 결과: 오답 "+w+"개"); document.querySelectorAll(".opt-input").forEach(rb=>rb.checked=false); document.getElementById("subBtn").style.display="block"; startWaitTimer(); }
+function showFinalResult(msg){ const r=document.getElementById("resArea"); r.style.display="block"; r.innerHTML="<div style='padding:25px;background:#eeebff;border-radius:15px;text-align:center'><h3>🏁 "+msg+"</h3><a href='"+config.ansLink+"' target='_blank' style='display:block;padding:15px;background:var(--p);color:white;text-decoration:none;border-radius:10px;font-weight:bold'>📘 해설지 보기</a></div>"; document.getElementById("subBtn").style.display="none"; }
+function share(){ Kakao.Share.sendDefault({ objectType:"text", text:resT, link:{ mobileWebUrl:window.location.href, webUrl:window.location.href } }); setTimeout(()=>{document.getElementById("overlay").style.display="flex"; document.getElementById("overlay").innerHTML="<div style='background:white;padding:30px;border-radius:20px;text-align:center'><p>카톡 전송 완료?</p><button onclick='done()' style='padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;'>확인</button></div>";},1500); }
+initPage();
+<\/script>
+</body>
+</html>`;
+
+        const output = document.getElementById('codeOutput');
+        output.value = template;
+        output.style.display = 'block';
+        output.select();
+        document.execCommand('copy');
+        document.getElementById('copyMsg').style.display = 'block';
+    }
+</script>
+</body>
+</html>
