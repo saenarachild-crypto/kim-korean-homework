@@ -2,240 +2,726 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>1교시 국어 통합 생성기 v69.2 (Final Feedback)</title>
+    <title>🎓 김현석 국어 올인원 생성기 v74</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background: #f0f2f5; padding: 20px; color: #2d3436; }
-        .gen-box { background: #fff; max-width: 950px; margin: 0 auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h2 { color: #6c5ce7; border-bottom: 2px solid #6c5ce7; padding-bottom: 10px; margin-top: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            padding: 20px; 
+            color: #2d3436; 
+            min-height: 100vh; 
+        }
+        .gen-box { 
+            background: #fff; 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 40px; 
+            border-radius: 30px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 { 
+            color: #667eea; 
+            text-align: center; 
+            margin: 0 0 10px 0; 
+            font-size: 2.2em; 
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle { 
+            text-align: center; 
+            color: #7f8c8d; 
+            margin-bottom: 30px; 
+            font-size: 0.95em;
+        }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.85em; color: #444; }
-        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.9em; }
-        textarea { height: 60px; resize: none; }
-        .section-title { background: #f8f9fa; padding: 10px; border-left: 5px solid #6c5ce7; font-weight: bold; margin: 20px 0 15px 0; font-size: 0.95em; }
-        button { width: 100%; padding: 18px; background: #6c5ce7; color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.2s; }
-        #outputCode { width: 100%; height: 350px; margin-top: 25px; display: none; font-family: 'Consolas', monospace; font-size: 0.8em; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 10px; }
+        .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        label { 
+            display: block; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            font-size: 0.9em; 
+            color: #2d3436; 
+        }
+        input, textarea, select { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e8ecef; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-size: 0.95em; 
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus, select:focus { 
+            border-color: #667eea; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        textarea { 
+            height: 100px; 
+            resize: vertical; 
+        }
+        .section-title { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 15px 20px; 
+            border-radius: 15px; 
+            font-weight: 700; 
+            margin: 30px 0 20px 0; 
+            font-size: 1em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        button { 
+            width: 100%; 
+            padding: 22px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 16px; 
+            font-size: 1.3em; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-top: 30px; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); 
+        }
+        button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5); 
+        }
+        button:active {
+            transform: translateY(-1px);
+        }
+        #outputCode { 
+            width: 100%; 
+            height: 500px; 
+            margin-top: 30px; 
+            display: none; 
+            font-family: 'Consolas', 'Monaco', monospace; 
+            font-size: 0.8em; 
+            background: #2d3436; 
+            color: #dfe6e9; 
+            padding: 25px; 
+            border-radius: 15px; 
+            border: none; 
+            line-height: 1.6;
+        }
+        .help-text { 
+            font-size: 0.8em; 
+            color: #95a5a6; 
+            margin-top: 5px; 
+        }
+        .checkbox-group { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+        }
+        .checkbox-wrapper { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 12px 15px; 
+            background: #f8f9fa; 
+            border-radius: 10px; 
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .checkbox-wrapper:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+        .checkbox-wrapper input[type="checkbox"] { 
+            width: auto; 
+            margin: 0; 
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+        .checkbox-wrapper label { 
+            margin: 0; 
+            font-size: 0.9em; 
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .mode-selector { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        .mode-btn { 
+            padding: 20px; 
+            border: 3px solid #e8ecef; 
+            border-radius: 15px; 
+            background: #fff; 
+            cursor: pointer; 
+            text-align: center; 
+            font-weight: 700; 
+            transition: all 0.3s ease;
+        }
+        .mode-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        .mode-btn.active { 
+            border-color: #667eea; 
+            background: linear-gradient(135deg, #f0f3ff 0%, #e8edff 100%); 
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .dual-section { display: none; }
+        .dual-section.active { display: block; }
+        .type-box {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .type-box h4 {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+        }
+        .type-a { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f2 100%); }
+        .type-a h4 { color: #2e7d32; }
+        .type-b { background: linear-gradient(135deg, #fff3e0 0%, #fff8f0 100%); }
+        .type-b h4 { color: #e65100; }
     </style>
 </head>
 <body>
 
 <div class="gen-box">
-    <h2>🚀 v69.2 통합 생성기 (오답 피드백 로직 정밀화)</h2>
+    <h1>🎓 김현석 국어 올인원 생성기</h1>
+    <p class="subtitle">v74 - 카카오톡 연동 안정화 + UI 디자인 개선</p>
     
-    <div class="section-title">1. 기본 정보 설정</div>
+    <div class="section-title">📌 1. 시험 모드 선택</div>
+    <div class="mode-selector">
+        <div class="mode-btn active" onclick="setMode('single')">
+            <div style="font-size:2.5em; margin-bottom:8px">📄</div>
+            <div style="font-size:1.1em">단일 타입</div>
+            <div style="font-size:0.85em; color:#7f8c8d; margin-top:8px">독서 또는 문학 하나만</div>
+        </div>
+        <div class="mode-btn" onclick="setMode('dual')">
+            <div style="font-size:2.5em; margin-bottom:8px">📚</div>
+            <div style="font-size:1.1em">듀얼 타입</div>
+            <div style="font-size:0.85em; color:#7f8c8d; margin-top:8px">독서/문학 또는 언매/화작</div>
+        </div>
+    </div>
+
+    <div class="section-title">📝 2. 기본 정보</div>
     <div class="grid">
-        <div><label>과제 대분류</label>
+        <div>
+            <label>과제 대분류</label>
             <select id="category">
                 <option value="주간 과제">주간 과제</option>
-                <option value="수업 자료">수업 자료</option>
                 <option value="마침내 모의고사">마침내 모의고사</option>
+                <option value="수업 확인 테스트">수업 확인 테스트</option>
                 <option value="기타 시험">기타 시험</option>
             </select>
         </div>
-        <div><label>상세 명칭</label><input type="text" id="subTitle" placeholder="예: 독서 3회차"></div>
+        <div><label>상세 명칭</label><input type="text" id="subTitle" placeholder="예: 2월 2회차"></div>
     </div>
     <div class="grid">
         <div><label>시작 날짜</label><input type="date" id="startDay"></div>
-        <div><label>종료 날짜(기한)</label><input type="date" id="endDay"></div>
+        <div><label>종료 날짜</label><input type="date" id="endDay"></div>
     </div>
 
-    <div class="section-title">2. 문항 및 응시 설정</div>
-    <div class="grid">
-        <div><label>총 문항 수</label><input type="number" id="totalQ" value="45"></div>
-        <div><label>제외 문항 (번호만 콤마 구분)</label><input type="text" id="excludeQ" placeholder="예: 38,39"></div>
-    </div>
-    <div class="grid">
-        <div><label>도전 횟수</label><input type="number" id="maxT" value="3"></div>
-        <div><label>재응시 대기(분)</label><input type="number" id="waitMin" value="1"></div>
+    <div class="section-title">🎯 3. 응시 설정</div>
+    <div class="grid3">
+        <div><label>최대 도전 횟수</label><input type="number" id="maxT" value="3"></div>
+        <div><label>재응시 대기(분)</label><input type="number" id="waitMin" value="3"></div>
+        <div>
+            <label>힌트 제공 방식</label>
+            <select id="hintMode">
+                <option value="from2">2회차부터 공개</option>
+                <option value="last">마지막 회차만</option>
+                <option value="never">제공 안 함</option>
+            </select>
+        </div>
     </div>
 
-    <div class="section-title">3. 문제지 및 정답 설정 (타입 B가 없으면 비우세요)</div>
-    <div class="grid">
-        <div><label>📄 문제지 링크 (타입 A: 독서/언매)</label><input type="text" id="pdfA"></div>
-        <div><label>📄 문제지 링크 (타입 B: 문학/화작)</label><input type="text" id="pdfB"></div>
+    <!-- 단일 타입 설정 -->
+    <div id="singleSection">
+        <div class="section-title">📄 4. 단일 타입 설정</div>
+        <div class="grid">
+            <div><label>총 문항 수</label><input type="number" id="totalQ_S" value="33"></div>
+            <div>
+                <label>활성 문항 번호 (쉼표 구분, 비우면 전체)</label>
+                <input type="text" id="activeList_S" placeholder="예: 5,6,7,8,13-16,21-24">
+                <div class="help-text">※ 범위 표기 가능: 13-16 → 13,14,15,16</div>
+            </div>
+        </div>
+        <div class="grid">
+            <div>
+                <label>정답 (숫자만 연속 입력)</label>
+                <textarea id="ans_S" placeholder="414434455141123354..."></textarea>
+            </div>
+            <div>
+                <label>문제지 링크</label>
+                <input type="text" id="pdf_S" placeholder="https://...">
+            </div>
+        </div>
     </div>
-    <div class="grid">
-        <div><label>✅ 정답 (타입 A)</label><textarea id="ansA" placeholder="숫자만 나열"></textarea></div>
-        <div><label>✅ 정답 (타입 B)</label><textarea id="ansB" placeholder="숫자만 나열"></textarea></div>
+
+    <!-- 듀얼 타입 설정 -->
+    <div id="dualSection" class="dual-section">
+        <div class="section-title">📚 4. 듀얼 타입 설정</div>
+        
+        <div class="type-box type-a">
+            <h4>타입 A (독서/언매)</h4>
+            <div class="grid">
+                <div><label>총 문항 수</label><input type="number" id="totalQ_A" value="32"></div>
+                <div>
+                    <label>활성 문항 번호 (비우면 전체)</label>
+                    <input type="text" id="activeList_A" placeholder="예: 1-32 또는 5,6,7,8">
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>정답</label>
+                    <textarea id="ans_A"></textarea>
+                </div>
+                <div>
+                    <label>문제지 링크</label>
+                    <input type="text" id="pdf_A">
+                </div>
+            </div>
+        </div>
+
+        <div class="type-box type-b">
+            <h4>타입 B (문학/화작)</h4>
+            <div class="grid">
+                <div><label>총 문항 수</label><input type="number" id="totalQ_B" value="32"></div>
+                <div>
+                    <label>활성 문항 번호 (비우면 전체)</label>
+                    <input type="text" id="activeList_B" placeholder="예: 1-32 또는 9-16">
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>정답</label>
+                    <textarea id="ans_B"></textarea>
+                </div>
+                <div>
+                    <label>문제지 링크</label>
+                    <input type="text" id="pdf_B">
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="margin-bottom:15px;"><label>📖 공통 해설지 링크</label><input type="text" id="ansLink"></div>
 
-    <div class="section-title">4. 학생 공지</div>
-    <textarea id="notice" placeholder="학생들에게 보여줄 메시지"></textarea>
+    <div class="section-title">📖 5. 링크 및 공지</div>
+    <div>
+        <label>해설지 링크</label>
+        <input type="text" id="ansLink" placeholder="https://...">
+    </div>
+    <div style="margin-top:15px">
+        <label>학생 공지 내용</label>
+        <textarea id="notice" placeholder="과제 안내 및 주의사항을 입력하세요"></textarea>
+    </div>
 
-    <button onclick="generate()">✨ 전체 코드 생성 (v69.2 로직 적용)</button>
+    <div class="section-title">⚙️ 6. 고급 기능</div>
+    <div class="checkbox-group">
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="enableTimer" checked>
+            <label for="enableTimer">⏱ 대기 타이머 표시</label>
+        </div>
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="enablePerfect" checked>
+            <label for="enablePerfect">🎯 만점 달성 시 자동 종료</label>
+        </div>
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="enableAdminView" checked>
+            <label for="enableAdminView">📊 Admin View 성적 확인</label>
+        </div>
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="compactMode">
+            <label for="compactMode">📱 압축 모드 (파일 크기 최소화)</label>
+        </div>
+    </div>
+
+    <div class="section-title">🔧 7. 시스템 설정</div>
+    <div class="grid">
+        <div><label>GAS URL</label><input type="text" id="gasUrl" value="https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec"></div>
+        <div><label>Kakao API Key</label><input type="text" id="kakaoKey" value="f81d5eae0eaaf6fa2d0bdccbe6916001"></div>
+    </div>
+    <div>
+        <label>Admin Base URL (성적 확인용)</label>
+        <input type="text" id="adminBase" placeholder="예: https://saenarachild-crypto.github.io/kim-korean-homework/hw_xxxx.html">
+    </div>
+
+    <button onclick="generate()">✨ 완성된 HTML 생성하기</button>
     <textarea id="outputCode" readonly></textarea>
 </div>
 
 <script>
+let currentMode = 'single';
+
+function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.closest('.mode-btn').classList.add('active');
+    
+    if (mode === 'single') {
+        document.getElementById('singleSection').style.display = 'block';
+        document.getElementById('dualSection').classList.remove('active');
+    } else {
+        document.getElementById('singleSection').style.display = 'none';
+        document.getElementById('dualSection').classList.add('active');
+    }
+}
+
+function parseActiveList(input) {
+    if (!input.trim()) return null;
+    const result = [];
+    input.split(',').forEach(part => {
+        part = part.trim();
+        if (part.includes('-')) {
+            const [start, end] = part.split('-').map(n => parseInt(n.trim()));
+            for (let i = start; i <= end; i++) result.push(i);
+        } else {
+            result.push(parseInt(part));
+        }
+    });
+    return [...new Set(result)].sort((a, b) => a - b);
+}
+
 function generate() {
-    const today = new Date().toLocaleDateString();
-    const cat = document.getElementById('category').value;
-    const sub = document.getElementById('subTitle').value;
-    const isDual = document.getElementById('ansB').value.trim().length > 0;
-    const gasFixed = "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec";
+    const category = document.getElementById('category').value;
+    const subTitle = document.getElementById('subTitle').value.trim();
+    const startDay = document.getElementById('startDay').value;
+    const endDay = document.getElementById('endDay').value;
+    const maxT = document.getElementById('maxT').value;
+    const waitMin = document.getElementById('waitMin').value;
+    const hintMode = document.getElementById('hintMode').value;
+    const ansLink = document.getElementById('ansLink').value.trim();
+    const notice = document.getElementById('notice').value.replace(/\n/g, '<br>');
+    const adminBase = document.getElementById('adminBase').value.trim();
+    const gasUrl = document.getElementById('gasUrl').value.trim();
+    const kakaoKey = document.getElementById('kakaoKey').value.trim();
+    
+    const enableTimer = document.getElementById('enableTimer').checked;
+    const enablePerfect = document.getElementById('enablePerfect').checked;
+    const enableAdminView = document.getElementById('enableAdminView').checked;
+    const compactMode = document.getElementById('compactMode').checked;
 
-    const d = {
-        title: cat + " " + sub, gas: gasFixed,
-        start: document.getElementById('startDay').value, end: document.getElementById('endDay').value,
-        total: document.getElementById('totalQ').value, exclude: document.getElementById('excludeQ').value,
-        maxT: document.getElementById('maxT').value, wait: document.getElementById('waitMin').value,
-        pdfA: document.getElementById('pdfA').value, pdfB: document.getElementById('pdfB').value,
-        ansLink: document.getElementById('ansLink').value,
-        ansA: document.getElementById('ansA').value, ansB: document.getElementById('ansB').value,
-        msg: document.getElementById('notice').value.replace(/\n/g, '<br>')
-    };
+    if (!subTitle || !startDay || !endDay) {
+        alert('필수 정보를 입력하세요.');
+        return;
+    }
 
-    const finalHTML = `<!DOCTYPE html>
+    const title = category + " " + subTitle;
+    const hwId = "HW_" + title.replace(/\s+/g, '');
+    
+    let htmlContent = '';
+    
+    if (currentMode === 'single') {
+        const totalQ = parseInt(document.getElementById('totalQ_S').value);
+        const activeInput = document.getElementById('activeList_S').value;
+        const ans = document.getElementById('ans_S').value.replace(/[^0-9]/g, '');
+        const pdf = document.getElementById('pdf_S').value.trim();
+        
+        if (ans.length !== totalQ) {
+            alert('정답 개수(' + ans.length + ')와 총 문항 수(' + totalQ + ')가 일치하지 않습니다.');
+            return;
+        }
+        
+        const activeList = parseActiveList(activeInput) || Array.from({length: totalQ}, (_, i) => i + 1);
+        
+        htmlContent = generateSingleHTML({
+            title, hwId, startDay, endDay, maxT, waitMin, hintMode,
+            totalQ, activeList, ans, pdf, ansLink, notice, adminBase, gasUrl, kakaoKey,
+            enableTimer, enablePerfect, enableAdminView, compactMode
+        });
+        
+    } else {
+        const totalQ_A = parseInt(document.getElementById('totalQ_A').value);
+        const totalQ_B = parseInt(document.getElementById('totalQ_B').value);
+        const activeInput_A = document.getElementById('activeList_A').value;
+        const activeInput_B = document.getElementById('activeList_B').value;
+        const ans_A = document.getElementById('ans_A').value.replace(/[^0-9]/g, '');
+        const ans_B = document.getElementById('ans_B').value.replace(/[^0-9]/g, '');
+        const pdf_A = document.getElementById('pdf_A').value.trim();
+        const pdf_B = document.getElementById('pdf_B').value.trim();
+        
+        if (ans_A.length !== totalQ_A) {
+            alert('타입 A 정답 개수(' + ans_A.length + ')와 총 문항 수(' + totalQ_A + ')가 일치하지 않습니다.');
+            return;
+        }
+        if (ans_B.length !== totalQ_B) {
+            alert('타입 B 정답 개수(' + ans_B.length + ')와 총 문항 수(' + totalQ_B + ')가 일치하지 않습니다.');
+            return;
+        }
+        
+        const activeList_A = parseActiveList(activeInput_A) || Array.from({length: totalQ_A}, (_, i) => i + 1);
+        const activeList_B = parseActiveList(activeInput_B) || Array.from({length: totalQ_B}, (_, i) => i + 1);
+        
+        const typeAName = category === '마침내 모의고사' ? '언어와 매체' : '독서';
+        const typeBName = category === '마침내 모의고사' ? '화법과 작문' : '문학';
+        
+        htmlContent = generateDualHTML({
+            title, hwId, startDay, endDay, maxT, waitMin, hintMode,
+            totalQ_A, totalQ_B, activeList_A, activeList_B,
+            ans_A, ans_B, pdf_A, pdf_B, ansLink, notice, adminBase, gasUrl, kakaoKey,
+            typeAName, typeBName,
+            enableTimer, enablePerfect, enableAdminView, compactMode
+        });
+    }
+    
+    document.getElementById('outputCode').value = htmlContent;
+    document.getElementById('outputCode').style.display = 'block';
+    document.getElementById('outputCode').select();
+    
+    alert('✅ ' + (currentMode === 'single' ? '단일' : '듀얼') + ' 타입 HTML 생성 완료!\n\n✨ 카카오톡 연동 안정화\n✨ UI 디자인 개선\n\n주요 기능:\n• ' + (enableTimer ? '대기 타이머 O' : '대기 타이머 X') + '\n• ' + (enablePerfect ? '만점 추적 O' : '만점 추적 X') + '\n• ' + (enableAdminView ? 'Admin View O' : 'Admin View X') + '\n• ' + (compactMode ? '압축 모드' : '일반 모드'));
+}
+
+// 단일 타입 HTML 생성 함수
+function generateSingleHTML(config) {
+    let hintLogic = '""';
+    if (config.hintMode === 'last') {
+        hintLogic = '(att === maxT ? "\\n📍 틀린 번호: " + wrongListStr : "")';
+    } else if (config.hintMode === 'from2') {
+        hintLogic = '(att >= 2 ? "\\n📍 틀린 번호: " + wrongListStr : "")';
+    }
+    
+    const adminViewCode = config.enableAdminView ? 
+`window.addEventListener('DOMContentLoaded',function(){const p=new URLSearchParams(window.location.search);if(p.has("admin_view")){try{const d=JSON.parse(decodeURIComponent(p.get("admin_view")));document.body.innerHTML='<div class="container" style="margin-top:50px;text-align:center;box-shadow:0 0 100px rgba(0,0,0,0.2);border:3px solid #6c5ce7"><h2 style="color:#6c5ce7;margin-bottom:20px">📊 성적 확인</h2><div style="background:#f8f9fa;padding:20px;border-radius:12px;margin:20px;text-align:left;font-size:1.1rem;line-height:2"><b>👤 이름:</b> '+d.name+'<br><b>🏫 학원:</b> '+d.class+'<br><b>🔄 도전:</b> '+d.att+'회차<br><b>❌ 오답:</b> <span style="color:#e74c3c;font-weight:bold">'+d.wrongCount+'개</span><br><b>📍 번호:</b> '+(d.wrongList||"없음")+'</div><button onclick="location.href=location.href.split(\\'?\\')[0]" style="width:90%;padding:15px;background:#6c5ce7;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:1.1em">돌아가기</button></div>';return}catch(e){console.error('Admin view parse error:',e)}}initPage()});` :
+'window.addEventListener(\'DOMContentLoaded\',initPage);';
+
+    const timerHTML = config.enableTimer ? '<div id="timer" style="text-align:right;font-weight:bold;color:#e74c3c;margin-bottom:15px;font-size:1.05em">⏱ <span id="timeText">입력 가능</span></div>' : '';
+    
+    const timerFunction = config.enableTimer ?
+`function startWaitTimer(){if(timerInterval)clearInterval(timerInterval);timeLeft=waitMin*60;const btn=document.getElementById("subBtn");btn.style.opacity="0.5";btn.innerText="⏱ 대기 중...";btn.disabled=true;const timeText=document.getElementById("timeText");timerInterval=setInterval(()=>{if(timeLeft<=0){clearInterval(timerInterval);timerInterval=null;btn.style.opacity="1";btn.innerText="📝 답안 제출하기";btn.disabled=false;timeText.innerText="입력 가능";return}timeLeft--;const m=Math.floor(timeLeft/60),s=timeLeft%60;timeText.innerText="다음 도전까지 "+m+"분 "+(s<10?"0"+s:s)+"초 남음"},1000)}` :
+`function startWaitTimer(){alert("다음 도전은 ${config.waitMin}분 후 가능합니다.")}`;
+
+    const perfectCheckCode = config.enablePerfect ? 
+'if(isPerfect)localStorage.setItem("perf_"+sN+"_"+HW_ID,"true");' : '';
+
+    const perfectCheckLimit = config.enablePerfect ?
+'if(localStorage.getItem("perf_"+sN+"_"+HW_ID)==="true"){isBlocked=true;showFinalResult("백점 달성!");return}' : '';
+
+    const perfectCheckDone = config.enablePerfect ?
+'if(isPerfect){showFinalResult("백점 달성!");return}' : '';
+
+    return `<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-    <title>1교시 김현석 국어</title>
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"><\/script>
-    <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --p: #6c5ce7; --bg: #f8f9fc; --border: #e2e8f0; }
-        body { background: var(--bg); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; color: #2d3436; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 650px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
-        #introPage { text-align: center; padding: 20px 0; }
-        .intro-notice { background: #fff9f0; border: 2px dashed #ffcc80; border-radius: 20px; padding: 25px; margin: 25px 0; text-align: left; }
-        .start-btn { width: 100%; padding: 22px; background: var(--p); color: white; border: none; border-radius: 20px; font-size: 1.25em; font-weight: 800; cursor: pointer; }
-        #examPage { display: none; }
-        .subject-selector { display: ${isDual ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .sub-btn { padding: 15px; border: 2px solid #eee; border-radius: 12px; background: #fff; font-weight: bold; cursor: pointer; }
-        .sub-btn.active { border-color: var(--p); background: #f0edff; color: var(--p); }
-        .q-card { border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; background: #fff; }
-        .ans-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        input[type="radio"] { position: absolute; opacity: 0; }
-        label { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; background: #fff; }
-        input[type="radio"]:checked + label { background: var(--p); color: white; border-color: var(--p); }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; align-items: center; justify-content: center; }
-        .main-btn { width: 100%; padding: 20px; border: none; border-radius: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 1.1rem; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${config.title}</title>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" crossorigin="anonymous"><\/script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#6c5ce7;--bg:#f8f9fc;--success:#00b894;--danger:#ff6b6b;--warning:#fdcb6e}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;margin:0;min-height:100vh}
+.container{max-width:650px;margin:0 auto;background:#fff;padding:35px;border-radius:25px;box-shadow:0 20px 60px rgba(0,0,0,0.15);animation:slideIn 0.4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+h2{text-align:center;color:var(--primary);margin-bottom:10px;font-size:1.8em;font-weight:800}
+.notice-box{background:linear-gradient(135deg,#fff3e0 0%,#ffe4b5 100%);padding:20px;border-radius:15px;margin-bottom:25px;font-size:0.95rem;color:#5d4037;line-height:1.8;border-left:5px solid #ff9800}
+.notice-box b{color:#e65100}
+.q-card{background:#fff;border:2px solid #f1f3f5;border-radius:18px;padding:22px;margin-bottom:15px;transition:all 0.3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.q-card:hover{border-color:#667eea;box-shadow:0 4px 15px rgba(102,126,234,0.15)}
+.q-num{font-weight:bold;margin-bottom:15px;font-size:1.15em;color:#2d3436}
+.options{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.opt-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none}
+.opt-label{height:50px;border:2px solid #e9ecef;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;transition:all 0.2s ease;background:#fff;font-size:1.05em}
+.opt-label:hover{border-color:#667eea;transform:translateY(-2px);box-shadow:0 4px 12px rgba(102,126,234,0.2)}
+.opt-input:checked+.opt-label{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-color:transparent;box-shadow:0 5px 15px rgba(102,126,234,0.4)}
+.opt-input:disabled+.opt-label{background:#e9ecef;color:#adb5bd;cursor:not-allowed;border-color:#dee2e6}
+.opt-input:disabled+.opt-label:hover{transform:none;box-shadow:none}
+#limitMsg{display:none;color:#fff;font-weight:bold;text-align:center;margin-bottom:20px;padding:18px;background:linear-gradient(135deg,#ff6b6b 0%,#ee5a6f 100%);border-radius:15px;font-size:1.05em;box-shadow:0 4px 15px rgba(255,107,107,0.3)}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center}
+.overlay-content{background:#fff;padding:35px;border-radius:20px;text-align:center;max-width:90%;width:350px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:popIn 0.3s ease}
+@keyframes popIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.overlay-content p{font-weight:600;font-size:1.1em;margin-bottom:20px;color:#2d3436}
+input,select{padding:14px 16px;border:2px solid #e9ecef;border-radius:12px;width:100%;box-sizing:border-box;outline:none;font-size:0.95em;transition:all 0.2s ease;font-family:inherit}
+input:focus,select:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
+.btn{width:100%;padding:18px;border:none;border-radius:15px;font-weight:700;cursor:pointer;font-size:1.1em;transition:all 0.3s ease}
+.btn-primary{background:linear-gradient(135deg,#ff6b6b 0%,#ee5a6f 100%);color:#fff;box-shadow:0 5px 20px rgba(255,107,107,0.4)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(255,107,107,0.5)}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.btn-kakao{background:#FEE500;color:#3c1e1e;box-shadow:0 5px 20px rgba(254,229,0,0.3)}
+.btn-kakao:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(254,229,0,0.4)}
+.btn-confirm{background:linear-gradient(135deg,#00b894 0%,#00cec9 100%);color:#fff}
+.btn-confirm:hover{transform:scale(1.02)}
+.link-btn{display:flex;align-items:center;justify-content:center;background:#e9ecef;color:#2d3436;text-decoration:none;border-radius:12px;font-weight:700;font-size:0.9em;padding:14px;transition:all 0.2s ease}
+.link-btn:hover{background:#dee2e6;transform:translateY(-2px)}
+#resArea{margin-top:25px}
+.result-box{padding:30px;background:linear-gradient(135deg,#f0edff 0%,#e8e4ff 100%);border-radius:18px;text-align:center;border:3px solid #667eea}
+.result-box h3{color:#667eea;margin-bottom:15px;font-size:1.5em}
+.result-box p{line-height:1.8;font-size:1.05em;color:#2d3436}
+.result-link{display:block;padding:16px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;text-decoration:none;border-radius:12px;font-weight:700;margin-top:15px;transition:all 0.3s ease}
+.result-link:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(102,126,234,0.4)}
+</style>
+<script>${adminViewCode}<\/script>
 </head>
 <body>
 <div id="overlay"></div>
 <div class="container">
-    <div id="introPage">
-        <img src="https://saenarachild-crypto.github.io/kim-korean-homework/logo.jpg" style="width:140px; border-radius:25px;">
-        <h1>1교시 김현석 국어</h1>
-        <div class="intro-notice"><h3>📢 필수 공지</h3><p>${d.msg}</p></div>
-        <button class="start-btn" onclick="startApp()">확인했습니다. 과제 시작!</button>
-    </div>
-    <div id="examPage">
-        <h2 style="text-align:center">${d.title}</h2>
-        <div id="timer" style="text-align:right; font-weight:bold; color:#ff6b6b; margin-bottom:10px;">⏱ <span id="timeText">상태 확인 중</span></div>
-        <div class="subject-selector">
-            <button id="btn_A" class="sub-btn active" onclick="setSubject('A')">${cat === '마침내 모의고사' ? '언어와 매체' : '독서/타입A'}</button>
-            <button id="btn_B" class="sub-btn" onclick="setSubject('B')">${cat === '마침내 모의고사' ? '화법과 작문' : '문학/타입B'}</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
-            <input type="text" id="cN" placeholder="학원명">
-            <input type="text" id="sN" placeholder="학생 이름">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
-            <select id="sD"></select>
-            <a id="paperLink" href="${d.pdfA}" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#eee;color:#333;text-decoration:none;border-radius:10px;font-weight:bold;font-size:0.8rem">📄 문제지 보기</a>
-        </div>
-        <div id="qC"></div>
-        <button id="subBtn" class="main-btn" onclick="submit()" style="background:#ff6b6b;color:white;">📝 답안 제출하기</button>
-        <button id="kakaoBtn" class="main-btn" onclick="share()" style="display:none;background:#fee500;color:#3c1e1e;">🟡 카톡으로 제출 확인</button>
-        <div id="resArea" style="display:none;margin-top:20px"></div>
-    </div>
+<h2>${config.title}</h2>
+${timerHTML}
+<div class="notice-box"><b>📢 공지사항</b><br>${config.notice}<br><br>📅 기한: ${config.startDay} ~ ${config.endDay}<br>🔄 총 ${config.maxT}회 도전 가능</div>
+<div id="limitMsg"></div>
+<div class="input-grid">
+<input type="text" id="cN" placeholder="학원명 입력">
+<input type="text" id="sN" placeholder="학생 이름 입력" oninput="checkLimit()">
+</div>
+<div class="input-grid">
+<select id="sD" onchange="checkLimit()"><option value="">제출일 선택</option></select>
+<a href="${config.pdf}" target="_blank" class="link-btn">📄 문제지 보기</a>
+</div>
+<div id="qC"></div>
+<button id="subBtn" class="btn btn-primary" onclick="submit()">📝 답안 제출하기</button>
+<button id="kakaoBtn" class="btn btn-kakao" onclick="share()" style="display:none;margin-top:15px">🟡 카카오톡으로 제출 확인</button>
+<div id="resArea" style="display:none"></div>
 </div>
 <script>
-    const C = { title: "${d.title}", start: "${d.start}", end: "${d.end}", max: ${d.maxT}, wait: ${d.wait}, gas: "${d.gas}", ansL: "${d.ansLink}", prefix: "HW_${d.title}_" };
-    const PDFS = { A: "${d.pdfA}", B: "${d.pdfB}" };
-    const ANS = { A: [0, ..."${d.ansA}".split("").map(Number)], B: [0, ..."${d.ansB}".split("").map(Number)] };
-    const EXCLUDE = [${d.exclude}];
-    let curSub = "A", wCount=0, wList=[], att=0, isPerf=false, resT="";
-
-    try { Kakao.init('f81d5eae0eaaf6fa2d0bdccbe6916001'); } catch(e){}
-
-    function startApp() { document.getElementById('introPage').style.display='none'; document.getElementById('examPage').style.display='block'; window.scrollTo(0,0); init(); }
-    function setSubject(s) { 
-        curSub = s; document.getElementById("btn_A").className = "sub-btn"+(s==='A'?' active':'');
-        document.getElementById("btn_B").className = "sub-btn"+(s==='B'?' active':'');
-        document.getElementById("paperLink").href = PDFS[s];
-        renderQ();
-    }
-    function init() {
-        const sel=document.getElementById("sD"); sel.innerHTML="";
-        let loop=new Date(C.start); while(loop <= new Date(C.end)) {
-            let s=loop.toISOString().split('T')[0];
-            let o=document.createElement("option"); o.value=s; o.innerText=s; sel.appendChild(o);
-            loop.setDate(loop.getDate()+1);
-        }
-        renderQ(); setInterval(updateStatus, 1000);
-    }
-    function renderQ() {
-        let h=""; for(let i=1; i<=${d.total}; i++) {
-            if(EXCLUDE.includes(i)) continue;
-            h+='<div class="q-card"><b>'+i+'번</b><div class="ans-row">';
-            for(let j=1; j<=5; j++) h+='<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'"><label for="q'+i+'_'+j+'">'+j+'</label>';
-            h+='</div></div>';
-        } document.getElementById("qC").innerHTML=h;
-    }
-    function submit() {
-        const cN=document.getElementById("cN").value, sN=document.getElementById("sN").value.trim().replace(/\\s/g,""), sD=document.getElementById("sD").value;
-        if(!cN||!sN||!sD) return alert("필수 정보를 입력하세요.");
-        wCount=0; wList=[];
-        for(let i=1; i<=${d.total}; i++) {
-            if(EXCLUDE.includes(i)) continue;
-            let s=document.querySelector('input[name="q'+i+'"]:checked');
-            if((s?parseInt(s.value):0) !== ANS[curSub][i]) { wCount++; wList.push(i); }
-        }
-        isPerf=(wCount===0); const key="att_"+sN+"_"+C.prefix+curSub; att=parseInt(localStorage.getItem(key)||0)+1;
-        localStorage.setItem(key, att);
-        resT="["+C.title+"] "+sN+"("+att+"회) 제출 완료";
-        document.getElementById("subBtn").style.display="none"; document.getElementById("kakaoBtn").style.display="block";
-        fetch(C.gas,{method:"POST",mode:"no-cors",body:JSON.stringify({exam:C.title+"_"+curSub,name:sN,class:cN,attempt:att,wrongCount:wCount,wrongList:wList.join(",")})});
-    }
-    function share() {
-        Kakao.Share.sendDefault({ objectType:"text", text:resT, link:{ mobileWebUrl:window.location.href, webUrl:window.location.href } });
-        setTimeout(()=>{
-            const o=document.getElementById("overlay"); o.style.display="flex";
-            o.innerHTML="<div style='background:white;padding:30px;border-radius:20px;text-align:center;width:80%;max-width:300px'><p>카톡 전송을 완료하셨나요?</p><button onclick='done()' style='padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;width:100%;cursor:pointer'>네, 완료했습니다</button></div>";
-        },1500);
-    }
-    function done() {
-        document.getElementById("overlay").style.display="none"; document.getElementById("kakaoBtn").style.display="none";
-        const rArea = document.getElementById("resArea"); rArea.style.display="block";
-        
-        let feedbackContent = "";
-        if (isPerf) {
-            feedbackContent = "🎉 만점입니다! 완벽하게 해결했습니다.";
-        } else {
-            // 📍 회차별 피드백 로직 (1회차: 개수만 / 2회차: 번호까지)
-            if (att === 1) {
-                feedbackContent = "📊 1회차 결과: <b>오답 " + wCount + "개</b><br><small>어떤 문항이 틀렸는지 스스로 다시 한번 찾아보세요!</small>";
-            } else {
-                feedbackContent = "📊 " + att + "회차 결과: <b>오답 " + wCount + "개</b><br><b>오답 문항: " + wList.join(", ") + "</b>";
-            }
-        }
-
-        rArea.innerHTML = \`
-            <div style="padding:25px;background:#eeebff;border-radius:15px;text-align:center">
-                <h3>채점 결과</h3>
-                <p>\${feedbackContent}</p>
-                \${(att >= 3 || isPerf) ? \`<a href="\${C.ansL}" target="_blank" style="display:block;padding:15px;background:#6c5ce7;color:white;text-decoration:none;border-radius:10px;font-weight:bold;margin-top:10px;">📘 해설지 보기</a>\` : ''}
-            </div>
-            \${(!isPerf && att < C.max) ? \`<button onclick="location.reload()" style="width:100%;padding:15px;background:#eee;border:none;border-radius:10px;margin-top:10px;cursor:pointer;">🔄 다시 도전하기 (\${att}/\${C.max})</button>\` : ''}
-        \`;
-    }
-    function updateStatus() {
-        const sN=document.getElementById("sN").value.trim(); if(!sN) return;
-        const now=new Date().getTime(); const end=new Date(C.end); end.setHours(23,59,59,999);
-        const disk=document.getElementById("timeText");
-        if(now > end.getTime()){ disk.innerText="기한 마감"; document.getElementById("subBtn").disabled=true; }
-        else { disk.innerText="제출 가능"; document.getElementById("subBtn").disabled=false; }
-    }
+let timeLeft,timerInterval=null,w=0,att=0,isBlocked=false,resT="",isPerfect=false,wrongListStr="";
+const masterAnswers=[0,${config.ans.split('').join(',')}];
+const activeList=[${config.activeList.join(',')}];
+const totalQ=${config.totalQ},maxT=${config.maxT},waitMin=${config.waitMin};
+const startDay="${config.startDay}",endDay="${config.endDay}";
+const ansLink="${config.ansLink}",HW_ID="${config.hwId}",ADMIN_BASE="${config.adminBase}",GAS_URL="${config.gasUrl}";
+let kakaoInitialized=false;
+function initKakao(){if(kakaoInitialized)return;try{if(typeof Kakao!=='undefined'&&!Kakao.isInitialized()){Kakao.init("${config.kakaoKey}");kakaoInitialized=true;console.log('Kakao SDK initialized')}}catch(e){console.error('Kakao init error:',e)}}
+setTimeout(initKakao,100);
+function initPage(){const sel=document.getElementById("sD");const now=new Date();now.setHours(0,0,0,0);const end=new Date(endDay);end.setHours(23,59,59,999);let loopDate=new Date(startDay);while(loopDate<=end){let s=loopDate.getFullYear()+"-"+String(loopDate.getMonth()+1).padStart(2,'0')+"-"+String(loopDate.getDate()).padStart(2,'0');let opt=document.createElement("option");opt.value=s;opt.innerText=s;sel.appendChild(opt);loopDate.setDate(loopDate.getDate()+1)}let h="";for(let n=1;n<=totalQ;n++){const dis=activeList.includes(n)?"":"disabled";h+='<div class="q-card"><div class="q-num">'+n+'번</div><div class="options">';for(let j=1;j<=5;j++){h+='<input type="radio" name="q'+n+'" id="q'+n+'_'+j+'" value="'+j+'" class="opt-input" '+dis+'><label for="q'+n+'_'+j+'" class="opt-label">'+j+'</label>'}h+='</div></div>'}document.getElementById("qC").innerHTML=h;checkDateLimit()}
+function submit(){if(isBlocked){alert('제출이 불가능한 상태입니다.');return}const cN=document.getElementById("cN").value.trim(),sN=document.getElementById("sN").value.trim().replace(/\\s/g,""),sD=document.getElementById("sD").value;if(!cN||!sN||!sD){alert("학원명, 학생 이름, 제출일을 모두 입력해주세요.");return}w=0;let d=[];activeList.forEach(qNum=>{let s=document.querySelector("input[name='q"+qNum+"']:checked");let v=s?parseInt(s.value):0;if(v!==masterAnswers[qNum]){w++;d.push(qNum)}});isPerfect=(w===0);wrongListStr=d.join(",");const key="att_"+sN+"_"+HW_ID;att=parseInt(localStorage.getItem(key)||0)+1;localStorage.setItem(key,att);${perfectCheckCode}resT="[${config.title}]\\n"+sN+"("+att+"회차) 제출 완료\\n오답: "+w+"개";document.getElementById("subBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block";fetch(GAS_URL,{method:"POST",mode:"no-cors",headers:{'Content-Type':'application/json'},body:JSON.stringify({exam:"${config.title}",name:sN,class:cN,attempt:att,wrongCount:w,wrongList:wrongListStr,submitDate:sD})}).catch(err=>console.error('Submit error:',err))}
+function checkDateLimit(){const now=new Date();now.setHours(0,0,0,0);const sDate=new Date(startDay);sDate.setHours(0,0,0,0);const eDate=new Date(endDay);eDate.setHours(23,59,59,999);const msg=document.getElementById("limitMsg");const btn=document.getElementById("subBtn");if(now<sDate){isBlocked=true;btn.style.display="none";msg.style.display="block";msg.innerText="⏳ 아직 제출 기간이 아닙니다."}else if(now>eDate){isBlocked=true;btn.style.display="none";msg.style.display="block";msg.innerText="🚫 제출 기한이 마감되었습니다."}else{msg.style.display="none"}}
+function checkLimit(){if(isBlocked)return;const sN=document.getElementById("sN").value.trim().replace(/\\s/g,""),sD=document.getElementById("sD").value;if(sN.length<2||!sD){document.getElementById("subBtn").style.display="block";return}const key="att_"+sN+"_"+HW_ID;att=parseInt(localStorage.getItem(key)||0);${perfectCheckLimit}if(maxT>0&&att>=maxT){isBlocked=true;document.getElementById("subBtn").style.display="none";document.getElementById("limitMsg").style.display="block";document.getElementById("limitMsg").innerText="🚫 모든 도전 기회를 사용했습니다.";showFinalResult("기회 소진")}}
+${timerFunction}
+function done(){document.getElementById("overlay").style.display="none";document.getElementById("kakaoBtn").style.display="none";${perfectCheckDone}if(att>=maxT){showFinalResult("기회 소진");return}alert("📊 "+att+"회차 결과\\n오답: "+w+"개"+${hintLogic});document.querySelectorAll(".opt-input").forEach(rb=>{if(!rb.disabled)rb.checked=false});document.getElementById("subBtn").style.display="block";startWaitTimer()}
+function showFinalResult(msg){const r=document.getElementById("resArea");r.style.display="block";r.innerHTML='<div class="result-box"><h3>🏁 '+msg+'</h3><p>모든 도전이 마감되었습니다.</p><a href="'+ansLink+'" target="_blank" class="result-link">📘 해설지 보기</a></div>';document.getElementById("subBtn").style.display="none"}
+function share(){initKakao();if(!kakaoInitialized||typeof Kakao==='undefined'||!Kakao.Share){alert('카카오톡 공유 기능을 사용할 수 없습니다.\\n제출은 정상적으로 완료되었습니다.');done();return}try{Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:window.location.href,webUrl:window.location.href}});setTimeout(()=>{const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML='<div class="overlay-content"><p style="font-size:1.15em">📱 카카오톡으로 전송하셨나요?</p><button onclick="done()" class="btn btn-confirm">네, 완료했습니다</button></div>'},1500)}catch(e){console.error('Kakao share error:',e);alert('카카오톡 전송 중 오류가 발생했습니다.\\n제출은 정상적으로 완료되었습니다.');done()}}
 <\/script>
 </body>
 </html>`;
-    document.getElementById('outputCode').value = finalHTML;
-    document.getElementById('outputCode').style.display = 'block';
-    alert("v69.2 통합 코드가 생성되었습니다!");
+}
+
+// 듀얼 타입 HTML 생성 함수
+function generateDualHTML(config) {
+    let hintLogic = '""';
+    if (config.hintMode === 'last') {
+        hintLogic = '(att===maxT?"\\n📍 틀린 번호: "+wrongListStr:"")';
+    } else if (config.hintMode === 'from2') {
+        hintLogic = '(att>=2?"\\n📍 틀린 번호: "+wrongListStr:"")';
+    }
+    
+    const adminViewCode = config.enableAdminView ?
+`window.addEventListener('DOMContentLoaded',function(){const p=new URLSearchParams(window.location.search);if(p.has("admin_view")){try{const d=JSON.parse(decodeURIComponent(p.get("admin_view")));document.body.innerHTML='<div class="container" style="margin-top:50px;text-align:center;box-shadow:0 0 100px rgba(0,0,0,0.2);border:3px solid #6c5ce7"><h2 style="color:#6c5ce7;margin-bottom:20px">📊 성적 확인</h2><div style="background:#f8f9fa;padding:20px;border-radius:12px;margin:20px;text-align:left;font-size:1.1rem;line-height:2"><b>👤 이름:</b> '+d.name+'<br><b>🏫 학원:</b> '+d.class+'<br><b>📝 타입:</b> '+d.type+'<br><b>🔄 도전:</b> '+d.att+'회차<br><b>❌ 오답:</b> <span style="color:#e74c3c;font-weight:bold">'+d.wrongCount+'개</span><br><b>📍 번호:</b> '+(d.wrongList||"없음")+'</div><button onclick="location.href=location.href.split(\\'?\\')[0]" style="width:90%;padding:15px;background:#6c5ce7;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:1.1em">돌아가기</button></div>';return}catch(e){console.error('Admin view parse error:',e)}}startApp()});` :
+'window.addEventListener(\'DOMContentLoaded\',startApp);';
+
+    const timerHTML = config.enableTimer ? '<div id="timer" style="text-align:right;font-weight:bold;color:#e74c3c;margin-bottom:15px;font-size:1.05em">⏱ <span id="timeText">입력 가능</span></div>' : '';
+
+    return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${config.title}</title>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" crossorigin="anonymous"><\/script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#6c5ce7;--bg:#f8f9fc}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;margin:0;min-height:100vh;color:#2d3436}
+.container{max-width:700px;margin:0 auto;background:#fff;padding:40px;border-radius:30px;box-shadow:0 25px 70px rgba(0,0,0,0.15);animation:fadeIn 0.5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+h1{text-align:center;font-size:2em;font-weight:800;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+h2{text-align:center;color:var(--primary);margin-bottom:10px;font-size:1.7em;font-weight:800}
+.notice-box{background:linear-gradient(135deg,#fff9f0 0%,#ffe4b5 100%);border:2px dashed #ffcc80;border-radius:20px;padding:25px;margin:25px 0;text-align:left;line-height:1.9}
+.notice-box h3{color:#e65100;margin-bottom:15px;font-size:1.2em}
+.notice-box p{color:#5d4037;font-size:0.95em}
+.subject-selector{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.sub-btn{padding:18px;border:3px solid #e9ecef;border-radius:15px;background:#fff;font-weight:700;cursor:pointer;transition:all 0.3s ease;font-size:1.05em}
+.sub-btn:hover{border-color:#667eea;transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.2)}
+.sub-btn.active{border-color:#667eea;background:linear-gradient(135deg,#f0edff 0%,#e8e4ff 100%);color:#667eea;box-shadow:0 5px 15px rgba(102,126,234,0.3)}
+.q-card{border:2px solid #f1f3f5;border-radius:20px;padding:22px;margin-bottom:15px;background:#fff;transition:all 0.3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.q-card:hover{border-color:#667eea;box-shadow:0 4px 15px rgba(102,126,234,0.15)}
+.q-card b{font-size:1.15em;color:#2d3436}
+.ans-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:15px}
+input[type="radio"]{position:absolute;opacity:0}
+label{height:52px;display:flex;align-items:center;justify-content:center;border:2px solid #e9ecef;border-radius:12px;cursor:pointer;font-weight:700;background:#fff;transition:all 0.2s ease;font-size:1.05em}
+label:hover{border-color:#667eea;transform:translateY(-2px);box-shadow:0 4px 12px rgba(102,126,234,0.2)}
+input[type="radio"]:checked+label{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-color:transparent;box-shadow:0 5px 15px rgba(102,126,234,0.4)}
+input[type="radio"]:disabled+label{background:#e9ecef;color:#adb5bd;cursor:not-allowed;border-color:#dee2e6}
+input[type="radio"]:disabled+label:hover{transform:none;box-shadow:none}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center}
+.main-btn{width:100%;padding:20px;border:none;border-radius:16px;font-weight:700;cursor:pointer;font-size:1.15em;transition:all 0.3s ease;margin-top:20px}
+.main-btn:hover{transform:translateY(-3px)}
+.main-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.btn-submit{background:linear-gradient(135deg,#ff6b6b 0%,#ee5a6f 100%);color:#fff;box-shadow:0 5px 20px rgba(255,107,107,0.4)}
+.btn-kakao{background:#FEE500;color:#3c1e1e;box-shadow:0 5px 20px rgba(254,229,0,0.3)}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
+input,select{padding:14px 16px;border:2px solid #e9ecef;border-radius:12px;width:100%;box-sizing:border-box;outline:none;font-size:0.95em;transition:all 0.2s ease;font-family:inherit}
+input:focus,select:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
+.link-btn{display:flex;align-items:center;justify-content:center;background:#e9ecef;color:#2d3436;text-decoration:none;border-radius:12px;font-weight:700;font-size:0.9em;padding:14px;transition:all 0.2s ease}
+.link-btn:hover{background:#dee2e6;transform:translateY(-2px)}
+.start-btn{width:100%;padding:22px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;border-radius:20px;font-size:1.3em;font-weight:800;cursor:pointer;box-shadow:0 8px 25px rgba(102,126,234,0.4);transition:all 0.3s ease}
+.start-btn:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(102,126,234,0.5)}
+.overlay-content{background:#fff;padding:35px;border-radius:20px;text-align:center;max-width:90%;width:350px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:popIn 0.3s ease}
+@keyframes popIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.result-box{padding:30px;background:linear-gradient(135deg,#f0edff 0%,#e8e4ff 100%);border-radius:18px;text-align:center;border:3px solid #667eea;margin-top:20px}
+.result-box h3{color:#667eea;margin-bottom:15px;font-size:1.5em}
+</style>
+<script>${adminViewCode}<\/script>
+</head>
+<body>
+<div id="overlay"></div>
+<div class="container">
+<div id="introPage" style="text-align:center;padding:20px 0">
+<h1>1교시 김현석 국어</h1>
+<div class="notice-box">
+<h3>📢 필수 공지사항</h3>
+<p>${config.notice}</p>
+<p style="margin-top:15px">📅 제출 기한: ${config.startDay} ~ ${config.endDay}<br>🔄 최대 도전: ${config.maxT}회</p>
+</div>
+<button onclick="startApp()" class="start-btn">✅ 확인했습니다. 과제 시작!</button>
+</div>
+<div id="examPage" style="display:none">
+<h2>${config.title}</h2>
+${timerHTML}
+<div class="subject-selector">
+<button id="btn_A" class="sub-btn active" onclick="setSubject('A')">${config.typeAName}</button>
+<button id="btn_B" class="sub-btn" onclick="setSubject('B')">${config.typeBName}</button>
+</div>
+<div class="input-grid">
+<input type="text" id="cN" placeholder="학원명 입력">
+<input type="text" id="sN" placeholder="학생 이름 입력">
+</div>
+<div class="input-grid">
+<select id="sD"></select>
+<a id="paperLink" href="${config.pdf_A}" target="_blank" class="link-btn">📄 문제지 보기</a>
+</div>
+<div id="qC"></div>
+<button id="subBtn" class="main-btn btn-submit" onclick="submit()">📝 답안 제출하기</button>
+<button id="kakaoBtn" class="main-btn btn-kakao" onclick="share()" style="display:none">🟡 카카오톡으로 제출 확인</button>
+<div id="resArea" style="display:none"></div>
+</div>
+</div>
+<script>
+const C={title:"${config.title}",start:"${config.startDay}",end:"${config.endDay}",max:${config.maxT},wait:${config.waitMin},gas:"${config.gasUrl}",ansL:"${config.ansLink}",prefix:"${config.hwId}_"};
+const PDFS={A:"${config.pdf_A}",B:"${config.pdf_B}"};
+const ANS={A:[0,${config.ans_A.split('').join(',')}],B:[0,${config.ans_B.split('').join(',')}]};
+const TOTAL={A:${config.totalQ_A},B:${config.totalQ_B}};
+const ACTIVE={A:[${config.activeList_A.join(',')}],B:[${config.activeList_B.join(',')}]};
+const NAMES={A:"${config.typeAName}",B:"${config.typeBName}"};
+let curSub="A",wCount=0,wList=[],att=0,isPerf=false,resT="",timeLeft,timerInterval=null,kakaoInitialized=false;
+function initKakao(){if(kakaoInitialized)return;try{if(typeof Kakao!=='undefined'&&!Kakao.isInitialized()){Kakao.init("${config.kakaoKey}");kakaoInitialized=true;console.log('Kakao SDK initialized')}}catch(e){console.error('Kakao init error:',e)}}
+setTimeout(initKakao,100);
+function startApp(){document.getElementById('introPage').style.display='none';document.getElementById('examPage').style.display='block';window.scrollTo(0,0);init()}
+function setSubject(s){if(s==='B'&&ANS.B.length<=1){alert('타입 B는 제공되지 않습니다.');return}curSub=s;document.getElementById("btn_A").className="sub-btn"+(s==='A'?' active':'');document.getElementById("btn_B").className="sub-btn"+(s==='B'?' active':'');document.getElementById("paperLink").href=PDFS[s];renderQ()}
+function init(){const sel=document.getElementById("sD");sel.innerHTML='<option value="">제출일 선택</option>';let loop=new Date(C.start);const end=new Date(C.end);while(loop<=end){let s=loop.toISOString().split('T')[0];let o=document.createElement("option");o.value=s;o.innerText=s;sel.appendChild(o);loop.setDate(loop.getDate()+1)}document.getElementById("paperLink").href=PDFS[curSub];renderQ()}
+function renderQ(){let h="";const total=TOTAL[curSub];const active=ACTIVE[curSub];for(let i=1;i<=total;i++){const dis=active.includes(i)?"":"disabled";h+='<div class="q-card"><b>'+i+'번</b><div class="ans-row">';for(let j=1;j<=5;j++){h+='<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" '+dis+'><label for="q'+i+'_'+j+'">'+j+'</label>'}h+='</div></div>'}document.getElementById("qC").innerHTML=h}
+function submit(){const cN=document.getElementById("cN").value.trim(),sN=document.getElementById("sN").value.trim().replace(/\\s/g,""),sD=document.getElementById("sD").value;if(!cN||!sN||!sD){alert("학원명, 학생 이름, 제출일을 모두 입력해주세요.");return}wCount=0;wList=[];const total=TOTAL[curSub];const active=ACTIVE[curSub];for(let i=1;i<=total;i++){if(!active.includes(i))continue;let selected=document.querySelector('input[name="q'+i+'"]:checked');let userAns=selected?parseInt(selected.value):0;if(i<ANS[curSub].length&&userAns!==ANS[curSub][i]){wCount++;wList.push(i)}}isPerf=(wCount===0);const key="att_"+sN+"_"+C.prefix+curSub;att=parseInt(localStorage.getItem(key)||0)+1;localStorage.setItem(key,att);${config.enablePerfect?'if(isPerf)localStorage.setItem("perf_"+sN+"_"+C.prefix+curSub,"true");':''}resT="["+C.title+"] "+sN+"("+att+"회차)\\n"+NAMES[curSub]+" 제출 완료\\n오답: "+wCount+"개";document.getElementById("subBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block";fetch(C.gas,{method:"POST",mode:"no-cors",headers:{'Content-Type':'application/json'},body:JSON.stringify({exam:C.title+"_"+curSub,name:sN,class:cN,type:NAMES[curSub],attempt:att,wrongCount:wCount,wrongList:wList.join(","),submitDate:sD})}).catch(err=>console.error('Submit error:',err))}
+function share(){initKakao();if(!kakaoInitialized||typeof Kakao==='undefined'||!Kakao.Share){alert('카카오톡 공유 기능을 사용할 수 없습니다.\\n제출은 정상적으로 완료되었습니다.');done();return}try{Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:window.location.href,webUrl:window.location.href}});setTimeout(()=>{const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML='<div class="overlay-content"><p style="font-size:1.15em;font-weight:600;margin-bottom:20px">📱 카카오톡으로 전송하셨나요?</p><button onclick="done()" style="padding:14px;background:linear-gradient(135deg,#00b894 0%,#00cec9 100%);color:white;border:none;border-radius:12px;font-weight:700;width:100%;cursor:pointer;font-size:1.05em">네, 완료했습니다</button></div>'},1500)}catch(e){console.error('Kakao share error:',e);alert('카카오톡 전송 중 오류가 발생했습니다.\\n제출은 정상적으로 완료되었습니다.');done()}}
+function done(){document.getElementById("overlay").style.display="none";document.getElementById("kakaoBtn").style.display="none";const rArea=document.getElementById("resArea");rArea.style.display="block";let feedback="";if(isPerf){feedback="🎉 <b>만점입니다!</b> 완벽하게 해결했습니다."}else{if(att===1){feedback="📊 1회차 결과: <b>오답 "+wCount+"개</b><br><small style='color:#7f8c8d'>어떤 문항이 틀렸는지 스스로 찾아보세요!</small>"}else{feedback="📊 "+att+"회차 결과: <b>오답 "+wCount+"개</b><br><b style='color:#e74c3c'>틀린 문항: "+wList.join(", ")+"</b>"}}let html='<div class="result-box"><h3>채점 완료</h3><p style="line-height:1.8;font-size:1.05em">'+feedback+'</p>';if(att>=C.max||isPerf){html+='<a href="'+C.ansL+'" target="_blank" style="display:block;padding:16px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;text-decoration:none;border-radius:12px;font-weight:700;margin-top:15px;transition:0.3s">📘 해설지 보기</a>'}html+='</div>';if(!isPerf&&att<C.max){html+='<button onclick="location.reload()" style="width:100%;padding:16px;background:#e9ecef;color:#2d3436;border:none;border-radius:12px;margin-top:12px;cursor:pointer;font-weight:700;font-size:1.05em">🔄 다시 도전하기 ('+att+'/'+C.max+')</button>'}rArea.innerHTML=html}
+<\/script>
+</body>
+</html>`;
 }
 </script>
 </body>
