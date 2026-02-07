@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<!-- 
+  [김현석 국어] 과제 수행 시스템 v75.5
+  - Educational Necessity (Lock & Force Logic)
+  - Persistent Unlock State
+  - Multi-Exclude Intelligence
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>주간 과제 2월 3회차 - 김현석 국어</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background: #f8fafc; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+        .bubble-input:checked + label { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border-color: transparent; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); transform: scale(1.05); }
+        .animate-slide-up { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slide-up { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .glass-header { background: rgba(79, 70, 229, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .locked-btn { background: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed !important; box-shadow: none !important; }
+    </style>
+</head>
+<body class="p-0 sm:p-4">
+    <div id="app" class="max-w-md mx-auto min-h-screen sm:min-h-0 bg-white shadow-2xl sm:rounded-[3.5rem] overflow-hidden relative animate-slide-up sm:my-8 flex flex-col">
+        
+        <!-- Intro View -->
+        <div id="intro-view" class="flex-1 p-10 text-center space-y-10 flex flex-col justify-center">
+            <div class="w-32 h-32 bg-indigo-600 rounded-[3rem] mx-auto flex items-center justify-center text-white text-6xl font-bold shadow-2xl shadow-indigo-100">🏛️</div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-2">주간 과제 2월 3회차</h1>
+                <p class="text-indigo-500 font-bold text-[10px] tracking-[0.3em] uppercase">KIM HYUN SEOK KOREAN v75.5</p>
+            </div>
+            
+            <div class="bg-indigo-50 border-2 border-indigo-100 p-8 rounded-[2.5rem] text-left space-y-4">
+                <h3 class="font-black text-indigo-800 flex items-center gap-2 text-lg">📢 필수 지침</h3>
+                <p class="text-sm text-indigo-900 leading-relaxed font-medium">문학은 전 문항 풀이할 것<br>독서는 지정 지문 문제만 풀어서 제출할 것.</p>
+                <div class="pt-4 border-t border-indigo-200 grid grid-cols-2 gap-y-2 text-[11px] text-indigo-400 font-black uppercase tracking-wider">
+                    <span class="flex items-center gap-1.5">📅 기한: 2026-02-07 ~ 2026-02-14</span>
+                    <span class="flex items-center gap-1.5">🔄 기회: 3회</span>
+                </div>
+            </div>
+            
+            <button onclick="startExam()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-7 rounded-3xl shadow-2xl transition-all active:scale-95 text-xl">과제 수행 시작</button>
+        </div>
+
+        <!-- Exam View -->
+        <div id="exam-view" class="hidden flex-1 pb-32">
+            <header class="glass-header text-white p-8 rounded-b-[4rem] shadow-2xl sticky top-0 z-20">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <p class="text-[10px] font-black text-indigo-100 uppercase tracking-[0.3em] mb-1 opacity-80">주간 과제</p>
+                        <h1 class="text-2xl font-black tracking-tight">2월 3회차</h1>
+                    </div>
+                    <span id="attempt-badge" class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[11px] font-black border border-white/10 shadow-sm">응시 대기</span>
+                </div>
+                
+                <div class="flex justify-between items-center bg-white/10 p-3 rounded-2xl border border-white/10">
+                    <div id="timer-display" class="text-[12px] font-black text-white flex items-center gap-2 pl-2">
+                        <span id="timer-dot" class="w-3 h-3 bg-green-400 rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]"></span>
+                        <span id="timer-text">제출 가능</span>
+                    </div>
+                    <a id="pdf-link" href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBE64QSO6-0RLh4AnUrmxPCAc5LgXJEXkp1-YlIKbosCK8?e=Dml4vS" target="_blank" class="bg-white text-indigo-600 text-[11px] font-black px-5 py-3 rounded-xl transition-all hover:bg-indigo-50 active:scale-95 shadow-sm">
+                        📄 문제지 보기
+                    </a>
+                </div>
+            </header>
+
+            <div class="p-8 space-y-10">
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-slate-400 ml-2 uppercase tracking-widest">학원</label>
+                        <input type="text" id="user-academy" placeholder="학원명" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:border-indigo-400 outline-none transition-all text-sm font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-slate-400 ml-2 uppercase tracking-widest">성함</label>
+                        <input type="text" id="user-name" placeholder="학생 성함" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:border-indigo-400 outline-none transition-all text-sm font-bold">
+                    </div>
+                </div>
+
+                
+                <div class="flex bg-slate-100 p-2 rounded-[2.5rem] border border-slate-200 shadow-inner">
+                    <button onclick="switchType('A')" id="btn-type-a" class="flex-1 py-4 text-sm font-black rounded-[2rem] transition-all bg-white shadow-xl text-indigo-600">독서</button>
+                    <button onclick="switchType('B')" id="btn-type-b" class="flex-1 py-4 text-sm font-black rounded-[2rem] transition-all text-slate-500">문학</button>
+                </div>
+                
+
+                <div id="sheet-container" class="space-y-6"></div>
+            </div>
+
+            <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/80 backdrop-blur-3xl p-6 border-t border-slate-100 flex gap-4 z-30 rounded-t-[3.5rem] shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+                <button onclick="submitAnswers()" id="btn-submit" class="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-black py-6 rounded-[2.5rem] shadow-2xl transition-all active:scale-95 disabled:bg-slate-300 text-lg">답안 제출하기</button>
+                <button onclick="openResult()" id="btn-result" class="flex-1 locked-btn font-black py-6 rounded-[2.5rem] transition-all text-sm">해설 확인</button>
+            </div>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="modal-overlay" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-8 backdrop-blur-md">
+            <div class="bg-white rounded-[4rem] w-full p-12 text-center animate-slide-up max-w-sm shadow-2xl">
+                <div id="modal-icon" class="text-7xl mb-10">🤔</div>
+                <h2 id="modal-title" class="text-2xl font-black mb-4 text-slate-800 tracking-tight">잠깐!</h2>
+                <p id="modal-desc" class="text-slate-500 mb-12 leading-relaxed text-sm font-bold"></p>
+                <div id="modal-action-container" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            hwId: "HW_주간과제2월3회차",
+            title: "주간 과제 2월 3회차",
+            gasUrl: "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec",
+            kakaoKey: "f81d5eae0eaaf6fa2d0bdccbe6916001",
+            answersA: "21422435454341535132322442334134",
+            answersB: "241324244144133241241443322444",
+            pdfA: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBE64QSO6-0RLh4AnUrmxPCAc5LgXJEXkp1-YlIKbosCK8?e=Dml4vS",
+            pdfB: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQCB5vRkTAciTLv_eeurKXnOAXTbTNYG7EDvU97dvp7Ojps?e=YJze4o",
+            excludedA: [1,13,21,30],
+            excludedB: [],
+            explanation: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB7OiOxZ28TSJHARlwGlEYkASo4IAluq0u3EFeVEjoxc2s?e=e6D30F",
+            maxAttempts: 3,
+            waitMinutes: 3,
+            hintMode: "FROM2"
+        };
+
+        // Kakao Loader & Error Handler
+        function initKakao() {
+            try {
+                if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+                    Kakao.init(CONFIG.kakaoKey);
+                }
+            } catch(e) { console.error("Kakao Init Failed", e); }
+        }
+
+        let currentType = 'A';
+        let userAnswers = {};
+        let attempts = parseInt(localStorage.getItem('att_' + CONFIG.hwId) || '0');
+        let lastTime = parseInt(localStorage.getItem('time_' + CONFIG.hwId) || '0');
+        let isUnlocked = localStorage.getItem('unlocked_' + CONFIG.hwId) === 'true';
+
+        function startExam() {
+            document.getElementById('intro-view').classList.add('hidden');
+            document.getElementById('exam-view').classList.remove('hidden');
+            initKakao();
+            renderSheet();
+            updateUI();
+            checkTimer();
+            refreshLockState();
+            window.scrollTo(0,0);
+        }
+
+        function updateUI() {
+            document.getElementById('attempt-badge').innerText = `${attempts + 1}회차 응시중`;
+            const pdf = currentType === 'A' ? CONFIG.pdfA : CONFIG.pdfB;
+            const pdfBtn = document.getElementById('pdf-link');
+            pdfBtn.href = pdf || '#';
+            pdfBtn.style.display = pdf ? 'flex' : 'none';
+        }
+
+        function switchType(type) {
+            currentType = type;
+            document.getElementById('btn-type-a')?.classList.toggle('bg-white', type === 'A');
+            document.getElementById('btn-type-a')?.classList.toggle('shadow-xl', type === 'A');
+            document.getElementById('btn-type-a')?.classList.toggle('text-indigo-600', type === 'A');
+            document.getElementById('btn-type-b')?.classList.toggle('bg-white', type === 'B');
+            document.getElementById('btn-type-b')?.classList.toggle('shadow-xl', type === 'B');
+            document.getElementById('btn-type-b')?.classList.toggle('text-indigo-600', type === 'B');
+            updateUI();
+            renderSheet();
+        }
+
+        function renderSheet() {
+            const container = document.getElementById('sheet-container');
+            const target = currentType === 'A' ? CONFIG.answersA : CONFIG.answersB;
+            const excluded = currentType === 'A' ? CONFIG.excludedA : CONFIG.excludedB;
+            container.innerHTML = '';
+            for (let i = 1; i <= target.length; i++) {
+                if (excluded.includes(i)) continue;
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 hover:border-indigo-200 transition-all';
+                div.innerHTML = `
+                    <span class="w-12 h-12 flex items-center justify-center bg-white border border-slate-200 rounded-full font-black text-slate-400 text-xs shadow-sm flex-shrink-0">${i}</span>
+                    <div class="flex flex-1 justify-between gap-3">
+                        ${[1,2,3,4,5].map(n => `
+                            <div class="flex-1">
+                                <input type="radio" name="q${i}" id="q${i}_${n}" value="${n}" class="hidden bubble-input" 
+                                       ${userAnswers[currentType + i] == n ? 'checked' : ''}
+                                       onchange="userAnswers['${currentType}' + ${i}] = ${n}">
+                                <label for="q${i}_${n}" class="w-full h-14 flex items-center justify-center border-2 border-slate-200 rounded-[1.2rem] text-sm font-black transition-all cursor-pointer bg-white">
+                                    ${n}
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                container.appendChild(div);
+            }
+        }
+
+        async function submitAnswers() {
+            const name = document.getElementById('user-name').value.trim();
+            const academy = document.getElementById('user-academy').value.trim();
+            if (!name || !academy) return alert('학원명과 성함을 입력해주세요.');
+
+            const target = currentType === 'A' ? CONFIG.answersA : CONFIG.answersB;
+            const excluded = currentType === 'A' ? CONFIG.excludedA : CONFIG.excludedB;
+            let wrong = [];
+            let totalActive = 0;
+            for (let i = 1; i <= target.length; i++) {
+                if (excluded.includes(i)) continue;
+                totalActive++;
+                if (userAnswers[currentType + i] != target[i-1]) wrong.push(i);
+            }
+
+            if (totalActive === 0) return alert('풀이할 문항이 없습니다.');
+
+            attempts++;
+            localStorage.setItem('att_' + CONFIG.hwId, attempts);
+            localStorage.setItem('time_' + CONFIG.hwId, Date.now());
+            lastTime = Date.now();
+            
+            const score = Math.round(((totalActive - wrong.length) / totalActive) * 100);
+            updateUI();
+
+            // Log results to GAS
+            fetch(CONFIG.gasUrl, {
+                method: 'POST', mode: 'no-cors',
+                body: JSON.stringify({ name, academy, score, attempts, wrong: wrong.join(','), title: CONFIG.title, type: currentType, v: '75.5' })
+            });
+
+            const shareBtn = `<button onclick="shareResult('${name}', ${score})" class="w-full bg-[#FEE500] text-[#3c1e1e] py-6 rounded-3xl font-black text-lg flex items-center justify-center gap-3 active:scale-95 shadow-xl">🟡 카톡으로 제출 증명하기</button>`;
+
+            if (score === 100) {
+                showModal("완벽합니다! 🎯", "모든 문항의 정답을 찾아냈습니다.<br>성실도 증명을 위해 카톡 공유 후 해설지를 확인하세요.", "🎉", shareBtn);
+            } else if (attempts === 1) {
+                showModal("1회차 분석 결과", `현재 오답 문항은 총 <b>${wrong.length}개</b>입니다.<br>지문에서 근거를 다시 찾아 사고를 교정하세요.`, "🔍", shareBtn);
+            } else if (attempts >= 2 && CONFIG.hintMode !== 'NEVER') {
+                showModal("집중 피드백 (오답 번호)", `틀린 번호: <b>${wrong.join(', ')}</b><br>오답의 이유를 지문에서 명확히 규명하세요.`, "💡", shareBtn);
+            } else {
+                showModal("제출 완료", `수고하셨습니다.<br>현재 점수: <b>${score}점</b>`, "🏁", shareBtn);
+            }
+        }
+
+        function shareResult(name, score) {
+            const msg = `[${CONFIG.title}]\n${name} 학생 과제 제출 완료\n성적: ${score}점 / 응시: ${attempts}회차\n\n(결과 전송이 확인되어야 해설지가 활성화됩니다)`;
+            
+            if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
+                initKakao();
+            }
+
+            try {
+                Kakao.Share.sendDefault({
+                    objectType: 'text', text: msg,
+                    link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
+                });
+                
+                // Unlock Mechanism
+                setTimeout(() => {
+                    isUnlocked = true;
+                    localStorage.setItem('unlocked_' + CONFIG.hwId, 'true');
+                    refreshLockState();
+                    closeModal();
+                    checkTimer();
+                }, 1500);
+            } catch(e) {
+                console.error(e);
+                alert("카카오톡 전송 중 오류가 발생했습니다. 잠시 후 다시 시도하세요.");
+            }
+        }
+
+        function refreshLockState() {
+            const btn = document.getElementById('btn-result');
+            if (isUnlocked) {
+                btn.classList.remove('locked-btn');
+                btn.classList.add('bg-green-600', 'text-white', 'shadow-2xl', 'shadow-green-100');
+                btn.removeAttribute('disabled');
+            } else {
+                btn.classList.add('locked-btn');
+                btn.setAttribute('disabled', 'true');
+            }
+        }
+
+        function checkTimer() {
+            const diff = Date.now() - lastTime;
+            const waitMs = CONFIG.waitMinutes * 60 * 1000;
+            const btn = document.getElementById('btn-submit');
+            const dot = document.getElementById('timer-dot');
+            const txt = document.getElementById('timer-text');
+
+            if (diff < waitMs && attempts > 0) {
+                btn.disabled = true;
+                const update = () => {
+                    const elapsed = Date.now() - lastTime;
+                    const rem = Math.ceil((waitMs - elapsed) / 1000);
+                    if (rem <= 0) {
+                        btn.disabled = false;
+                        dot.classList.replace('bg-amber-400', 'bg-green-400');
+                        txt.innerText = '제출 가능';
+                        return;
+                    }
+                    dot.classList.replace('bg-green-400', 'bg-amber-400');
+                    txt.innerText = `재응시 대기: ${Math.floor(rem/60)}분 ${rem%60}초`;
+                    setTimeout(update, 1000);
+                };
+                update();
+            }
+        }
+
+        function openResult() {
+            if (!isUnlocked) return alert('카카오톡 공유를 통해 제출을 완료해야 합니다.');
+            if (CONFIG.explanation) window.open(CONFIG.explanation, '_blank');
+            else alert('등록된 해설지가 없습니다.');
+        }
+
+        function showModal(title, desc, icon, action) {
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-desc').innerHTML = desc;
+            document.getElementById('modal-icon').innerHTML = icon;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            document.getElementById('modal-action-container').innerHTML = action || '<button onclick="closeModal()" class="w-full bg-slate-100 py-5 rounded-2xl font-black">확인</button>';
+        }
+
+        function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+        window.onload = () => { if(attempts > 0) startExam(); };
+    </script>
+</body>
+</html>
