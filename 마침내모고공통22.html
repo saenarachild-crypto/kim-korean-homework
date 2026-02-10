@@ -44,11 +44,15 @@ const correct=[0,3,5,4,4,2,5,4,1,4,1,2,5,1,2,3,5,2,4,5,3,5,1,3,3,2,1,3,1,2,5,3,4
 const maxT=3, waitMin=3;
 const ansLink = "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDRA-AfhQUxSIdfZHQNGhSHATGD7BYS9FYdVFgUvXZLoLI?e=7XE41g", HW_ID = "HW_1770720748724", ADMIN_BASE = "https://saenarachild-crypto.github.io/kim-korean-homework/마침내모고공통22.html";
 
-// 구글 웹 앱 URL 및 카카오 JavaScript 키 (설정 이미지 기반 업데이트)
 const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxjdtYcMZIIpxicgaTqgP4LKfsmzO7Le-BAU0gcO5tN_gpohI8mzmfRTFg3FBVXxqQ7/exec";
+// 이미지에서 확인된 실제 작동 키로 변경
 const KAKAO_JS_KEY = "9b84a9d6c9564ea2f09f22a262357262";
 
-try{if(!Kakao.isInitialized()){Kakao.init(KAKAO_JS_KEY);}}catch(e){console.error(e);}
+try {
+  if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+    Kakao.init(KAKAO_JS_KEY);
+  }
+} catch (e) { console.error("카카오 초기화 실패:", e); }
 
 function resetAllRecords(){ if(confirm("모든 테스트 기록을 초기화할까요?")){ localStorage.clear(); location.reload(); } }
 
@@ -93,19 +97,11 @@ function submit(){
   const key="att_"+sN+"_"+HW_ID; att=parseInt(localStorage.getItem(key)||0)+1; localStorage.setItem(key, att);
   if(isPerfect){ localStorage.setItem("perf_"+sN+"_"+HW_ID, "true"); }
 
-  // --- 구글 시트 데이터 전송 ---
   fetch(GOOGLE_SHEET_URL, {
     method: "POST",
     mode: "no-cors",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      academy: cN,
-      name: sN,
-      date: sD,
-      attempt: att,
-      wrongCount: w,
-      wrongList: wrongListStr
-    })
+    body: JSON.stringify({ academy: cN, name: sN, date: sD, attempt: att, wrongCount: w, wrongList: wrongListStr })
   }).catch(e => console.error("Sheet 전송 실패:", e));
 
   resT="[" + "마침내 모고 2월 2주차 공통영역" + "]\n"+sN+"("+att+"회차) 제출 완료"; 
@@ -115,14 +111,24 @@ function submit(){
 }
 
 function share(){
+  if (!Kakao.isInitialized()) {
+    alert("카카오톡 연결 준비가 되지 않았습니다. 잠시 후 다시 시도해주세요.");
+    return;
+  }
   const adminData = encodeURIComponent(JSON.stringify({name:document.getElementById("sN").value, class:document.getElementById("cN").value, att:att, wrongCount:w, wrongList:wrongListStr}));
   const fullAdminLink = ADMIN_BASE + "?admin_view=" + adminData;
+  
   Kakao.Share.sendDefault({
     objectType: "text",
     text: resT,
     link: { mobileWebUrl: fullAdminLink, webUrl: fullAdminLink }
   });
-  setTimeout(()=>{ const o=document.getElementById("overlay"); o.style.display="flex"; o.innerHTML="<div style='background:white;padding:30px;border-radius:20px;text-align:center'><p style='font-weight:bold'>카톡을 전송하셨나요?</p><button onclick='done()' style='width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer'>네, 완료했습니다</button></div>"; }, 1500);
+  
+  setTimeout(()=>{ 
+    const o=document.getElementById("overlay"); 
+    o.style.display="flex"; 
+    o.innerHTML="<div style='background:white;padding:30px;border-radius:20px;text-align:center'><p style='font-weight:bold'>카톡을 전송하셨나요?</p><button onclick='done()' style='width:100%;padding:12px;background:#fee500;border:none;border-radius:10px;font-weight:bold;cursor:pointer'>네, 완료했습니다</button></div>"; 
+  }, 1500);
 }
 
 function done(){
