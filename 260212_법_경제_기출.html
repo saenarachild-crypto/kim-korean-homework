@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<!-- 
+  [김현석 국어] 과제 수행 시스템 v76.1 (최종 안정화 모델)
+  - 카카오톡 연동 핵심 로직 (v69.2) 완벽 구현
+  - 1회차 오답 시 해설지 원천 봉쇄 (v76.1 Guard)
+  - 문자열 이스케이프 최적화로 배포 안정성 확보
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>설특집 법 경제 기출 - 김현석 국어</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background: #f8fafc; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+        .bubble-input:checked + label { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border-color: transparent; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); transform: scale(1.05); }
+        .animate-slide-up { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slide-up { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .glass-header { background: rgba(79, 70, 229, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .locked-btn { background: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed !important; }
+        .unlocked-btn { background: #16a34a !important; color: white !important; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.3) !important; cursor: pointer !important; }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    </style>
+</head>
+<body class="p-0 sm:p-4">
+    <div id="overlay"></div>
+    <div id="app" class="max-w-md mx-auto min-h-screen sm:min-h-0 bg-white shadow-2xl sm:rounded-[3.5rem] overflow-hidden relative animate-slide-up sm:my-8 flex flex-col">
+        
+        <!-- Intro View -->
+        <div id="intro-view" class="flex-1 p-10 text-center space-y-10 flex flex-col justify-center">
+            <div class="w-32 h-32 bg-indigo-600 rounded-[3rem] mx-auto flex items-center justify-center text-white text-6xl font-bold shadow-2xl">🏛️</div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-2">설특집 법 경제 기출</h1>
+                <p class="text-indigo-500 font-bold text-[10px] tracking-[0.3em] uppercase tracking-widest">KIM HYUN SEOK KOREAN v76.1</p>
+            </div>
+            
+            <div class="bg-indigo-50 border-2 border-indigo-100 p-8 rounded-[2.5rem] text-left space-y-4">
+                <h3 class="font-black text-indigo-800 flex items-center gap-2 text-lg text-indigo-700">📢 과제 수행 가이드</h3>
+                <p class="text-sm text-indigo-900 leading-relaxed font-medium">-설 특집 법 경제 지문 특강 교재입니다.<br>- 설 이후 첫 수업 시간에 바로 해설 강의 들어갑니다.<br>- 전원 제출해야 수업합니다. </p>
+                <div class="pt-4 border-t border-indigo-200 grid grid-cols-2 gap-y-2 text-[11px] text-indigo-400 font-black uppercase tracking-wider">
+                    <span class="flex items-center gap-1.5">📅 기한: 2026-02-12 ~ 2026-02-17</span>
+                    <span class="flex items-center gap-1.5">🔄 기회: 3회</span>
+                </div>
+            </div>
+            
+            <button onclick="startExam()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-7 rounded-3xl shadow-2xl transition-all active:scale-95 text-xl">과제 접속</button>
+        </div>
+
+        <!-- Exam View -->
+        <div id="exam-view" class="hidden flex-1 pb-32">
+            <header class="glass-header text-white p-8 rounded-b-[4rem] shadow-2xl sticky top-0 z-20">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <p class="text-[10px] font-black text-indigo-100 uppercase tracking-[0.3em] mb-1 opacity-80">설특집</p>
+                        <h1 class="text-2xl font-black tracking-tight">법 경제 기출</h1>
+                    </div>
+                    <span id="attempt-badge" class="bg-white/20 px-4 py-1.5 rounded-full text-[11px] font-black italic shadow-sm tracking-tighter">1회차 응시</span>
+                </div>
+                
+                <div class="flex justify-between items-center bg-white/10 p-3 rounded-2xl border border-white/10">
+                    <div id="timer-display" class="text-[12px] font-black text-white flex items-center gap-2 pl-2">
+                        <span id="timer-dot" class="w-3 h-3 bg-green-400 rounded-full"></span>
+                        <span id="timer-text">제출 가능</span>
+                    </div>
+                    <a id="pdf-link" href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDRWDfXMTY-R6eY-2MLTQheAQy_gmmjI2kHeJPevVrF2Ts?e=LePnlx" target="_blank" class="bg-white text-indigo-600 text-[11px] font-black px-5 py-3 rounded-xl transition-all hover:bg-indigo-50 shadow-sm">
+                        📄 문제지 보기
+                    </a>
+                </div>
+            </header>
+
+            <div class="p-8 space-y-10">
+                <div class="grid grid-cols-2 gap-5">
+                    <input type="text" id="user-academy" placeholder="학원명" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-3xl outline-none font-bold text-sm focus:border-indigo-400">
+                    <input type="text" id="user-name" placeholder="성함" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-3xl outline-none font-bold text-sm focus:border-indigo-400">
+                </div>
+
+                
+
+                <div id="sheet-container" class="space-y-6"></div>
+            </div>
+
+            <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/80 backdrop-blur-3xl p-6 border-t border-slate-100 flex gap-4 z-30 rounded-t-[3.5rem] shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+                <button onclick="submitAnswers()" id="btn-submit" class="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-black py-6 rounded-[2.5rem] shadow-2xl transition-all active:scale-95 disabled:bg-slate-300 text-lg">답안 제출하기</button>
+                <button onclick="openResult()" id="btn-result" class="flex-1 locked-btn font-black py-6 rounded-[2.5rem] transition-all text-[11px]">🔒 해설지</button>
+            </div>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="modal-overlay" class="fixed inset-0 bg-black/90 z-[1100] hidden flex items-center justify-center p-8 backdrop-blur-md">
+            <div class="bg-white rounded-[3.5rem] w-full p-10 text-center max-w-sm shadow-2xl animate-slide-up">
+                <div id="modal-icon" class="text-7xl mb-10">🤔</div>
+                <h2 id="modal-title" class="text-2xl font-black mb-4 text-slate-800 tracking-tight">잠시만요</h2>
+                <div id="modal-desc" class="text-slate-500 mb-12 leading-relaxed text-sm font-bold"></div>
+                <div id="modal-action-container" class="space-y-4 flex flex-col"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            hwId: "HW____",
+            fullTitle: "설특집 법 경제 기출",
+            answersA: "1355215523451414132325221314321",
+            answersB: "5432154321",
+            pdfA: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDRWDfXMTY-R6eY-2MLTQheAQy_gmmjI2kHeJPevVrF2Ts?e=LePnlx",
+            pdfB: "",
+            excludedA: [],
+            excludedB: [],
+            explanation: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDh--YqOlqJQ63ygUYgklwHAYhsIiygpYoEyf_w_KXgWeI?e=Pviubf",
+            maxAttempts: 3,
+            waitMinutes: 3,
+            gasUrl: "https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec",
+            kakaoKey: "f81d5eae0eaaf6fa2d0bdccbe6916001"
+        };
+
+        let currentType = 'A';
+        let userAnswers = {};
+        let att = parseInt(localStorage.getItem('att_' + CONFIG.hwId) || '0');
+        let lastT = parseInt(localStorage.getItem('time_' + CONFIG.hwId) || '0');
+        let unlocked = localStorage.getItem('unlocked_' + CONFIG.hwId) === 'true';
+        let tempResult = null;
+
+        function initKakao() {
+            try { 
+                if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+                    Kakao.init(CONFIG.kakaoKey);
+                    console.log("Kakao Initialized");
+                }
+            } catch(e) { console.error("Kakao Init Failed", e); }
+        }
+
+        function startExam() {
+            document.getElementById('intro-view').style.display = 'none';
+            document.getElementById('exam-view').style.display = 'flex';
+            initKakao();
+            renderSheet();
+            refreshStatus();
+            checkTimer();
+            window.scrollTo(0,0);
+        }
+
+        function switchType(type) {
+            currentType = type;
+            document.getElementById('btn-type-a')?.classList.toggle('bg-white', type === 'A');
+            document.getElementById('btn-type-a')?.classList.toggle('shadow-xl', type === 'A');
+            document.getElementById('btn-type-a')?.classList.toggle('text-indigo-600', type === 'A');
+            document.getElementById('btn-type-b')?.classList.toggle('bg-white', type === 'B');
+            document.getElementById('btn-type-b')?.classList.toggle('shadow-xl', type === 'B');
+            document.getElementById('btn-type-b')?.classList.toggle('text-indigo-600', type === 'B');
+            renderSheet();
+            const pdf = currentType === 'A' ? CONFIG.pdfA : CONFIG.pdfB;
+            document.getElementById('pdf-link').href = pdf || '#';
+        }
+
+        function renderSheet() {
+            const container = document.getElementById('sheet-container');
+            const target = currentType === 'A' ? CONFIG.answersA : CONFIG.answersB;
+            const excluded = currentType === 'A' ? CONFIG.excludedA : CONFIG.excludedB;
+            container.innerHTML = '';
+            for (let i = 1; i <= target.length; i++) {
+                if (excluded.includes(i)) continue;
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 hover:border-indigo-200 transition-all';
+                div.innerHTML = `
+                    <span class="w-12 h-12 flex items-center justify-center bg-white border border-slate-200 rounded-full font-black text-slate-400 text-xs shadow-sm flex-shrink-0">${i}</span>
+                    <div class="flex flex-1 justify-between gap-3">
+                        ${[1,2,3,4,5].map(n => `
+                            <div class="flex-1">
+                                <input type="radio" name="q${i}" id="q${i}_${n}" value="${n}" class="hidden bubble-input" 
+                                       ${userAnswers[currentType + '_' + i] == n ? 'checked' : ''}
+                                       onchange="userAnswers['${currentType}_${i}'] = ${n}">
+                                <label for="q${i}_${n}" class="w-full h-14 flex items-center justify-center border-2 border-slate-200 rounded-xl text-sm font-black transition-all bg-white cursor-pointer">${n}</label>
+                            </div>`).join('')}
+                    </div>`;
+                container.appendChild(div);
+            }
+        }
+
+        async function submitAnswers() {
+            const name = document.getElementById('user-name').value.trim();
+            const academy = document.getElementById('user-academy').value.trim();
+            if (!name || !academy) return alert('필수 정보를 모두 입력해주세요.');
+
+            const target = currentType === 'A' ? CONFIG.answersA : CONFIG.answersB;
+            const excluded = currentType === 'A' ? CONFIG.excludedA : CONFIG.excludedB;
+            let wrong = [];
+            let totalActive = 0;
+            for (let i = 1; i <= target.length; i++) {
+                if (excluded.includes(i)) continue;
+                totalActive++;
+                if (userAnswers[currentType + '_' + i] != target[i-1]) wrong.push(i);
+            }
+
+            att++;
+            localStorage.setItem('att_' + CONFIG.hwId, att);
+            const now = Date.now();
+            localStorage.setItem('time_' + CONFIG.hwId, now);
+            lastT = now;
+            const score = Math.round(((totalActive - wrong.length) / totalActive) * 100);
+            tempResult = { name, academy, score, att, wrong, totalActive };
+
+            // GAS 전송
+            fetch(CONFIG.gasUrl, {
+                method: 'POST', mode: 'no-cors',
+                body: JSON.stringify({ name, academy, score, att, wrong: wrong.join(','), title: CONFIG.fullTitle, type: currentType })
+            });
+
+            checkTimer();
+            refreshStatus();
+
+            // v76.1 Guard: 1회차 오답 시 강제 차단 (공유 버튼조차 안 띄움)
+            if (att === 1 && score < 100) {
+                showModal("🤔 1회차 결과", `오답 개수: <b>${wrong.length}개</b><br>해설지 없이 스스로 다시 지문을 읽고 사고를 교정해 보세요.<br>(1회차 오답 시 해설지는 열리지 않습니다)`, "🔍", 
+                    `<button onclick="location.reload()" class="w-full bg-slate-900 text-white py-6 rounded-3xl font-black shadow-xl">확인 (지문으로 돌아가기)</button>`);
+            } else {
+                // 카톡 공유 유도
+                showModal("✅ 제출 완료", "답안이 전송되었습니다.<br>성실도 증명을 위해 카톡 공유를 완료하면<br><b>채점 결과와 해설지</b>가 활성화됩니다.", "📤", 
+                    `<button onclick="shareKakao()" id="kakaoBtn" class="w-full bg-[#FEE500] text-[#3c1e1e] py-6 rounded-3xl font-black shadow-xl">🟡 카톡 공유하고 결과 보기</button>
+                     <button onclick="closeModal()" class="w-full bg-slate-100 py-4 rounded-2xl font-bold text-slate-400 text-sm mt-2">나중에 확인</button>`);
+            }
+        }
+
+        function shareKakao() {
+            initKakao();
+            const { name, score, att } = tempResult;
+            const msg = `[${name}] ${CONFIG.fullTitle} 과제 제출\n결과: ${score}점 (${att}회차)\n\n(결과가 공유되었습니다. 해설지 잠금이 해제됩니다)`;
+            
+            try {
+                Kakao.Share.sendDefault({
+                    objectType: 'text', text: msg,
+                    link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
+                });
+
+                // v69.2 로직: 전송 클릭 1.5초 후 확인 오버레이 노출
+                setTimeout(() => {
+                    const overlay = document.getElementById('overlay');
+                    overlay.style.display = "flex";
+                    overlay.innerHTML = `
+                        <div class="bg-white p-10 rounded-[3.5rem] text-center w-[85%] max-w-sm shadow-2xl animate-slide-up">
+                            <p class="font-black text-slate-800 text-lg mb-8">카카오톡 전송을 완료하셨나요?</p>
+                            <button onclick="unlockDone()" class="w-full bg-[#FEE500] text-[#3c1e1e] py-5 rounded-2xl font-black shadow-xl active:scale-95 transition-all">네, 완료했습니다</button>
+                        </div>`;
+                }, 1500);
+            } catch(e) { alert("카카오톡 앱 연결 실패. 브라우저 환경을 확인하세요."); }
+        }
+
+        function unlockDone() {
+            document.getElementById('overlay').style.display = "none";
+            document.getElementById('kakaoBtn')?.remove(); // 중복 공유 방지
+            unlocked = true;
+            localStorage.setItem('unlocked_' + CONFIG.hwId, 'true');
+            refreshStatus();
+            
+            const { score, wrong, att } = tempResult;
+            let icon = score === 100 ? "🎉" : "💡";
+            let title = score === 100 ? "만점 달성! 🎯" : "채점 분석 결과";
+            let hint = score === 100 ? "완벽합니다! 사고 과정이 매우 정교합니다." : "틀린 문항 수: <b>" + wrong.length + "개</b><br>";
+            
+            if (score < 100 && att >= 2) {
+                hint += "틀린 번호: <b>" + wrong.join(', ') + "</b><br>";
+            }
+
+            showModal(title, hint + "이제 하단의 해설지 버튼이 활성화되었습니다.", icon, 
+                `<button onclick="openResult()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black shadow-xl">📘 해설지 즉시 보기</button>
+                 <button onclick="closeModal()" class="w-full bg-slate-100 py-3 rounded-2xl text-slate-400 font-bold">닫기</button>`);
+        }
+
+        function refreshStatus() {
+            const btn = document.getElementById('btn-result');
+            if (unlocked) {
+                btn.className = 'flex-1 unlocked-btn font-black py-6 rounded-[2.5rem] text-[11px] transition-all';
+                btn.innerText = '✅ 해설 확인';
+                btn.removeAttribute('disabled');
+            } else {
+                btn.className = 'flex-1 locked-btn font-black py-6 rounded-[2.5rem] text-[11px] transition-all';
+                btn.innerText = '🔒 공유 후 해제';
+                btn.setAttribute('disabled', 'true');
+            }
+            document.getElementById('attempt-badge').innerText = `${att + 1}회차 응시 중`;
+        }
+
+        function checkTimer() {
+            const diff = Date.now() - lastT;
+            const waitMs = CONFIG.waitMinutes * 60 * 1000;
+            const btn = document.getElementById('btn-submit');
+            const dot = document.getElementById('timer-dot');
+            const txt = document.getElementById('timer-text');
+
+            if (att > 0 && diff < waitMs) {
+                btn.disabled = true;
+                const update = () => {
+                    const elapsed = Date.now() - lastT;
+                    const rem = Math.ceil((waitMs - elapsed) / 1000);
+                    if (rem <= 0) {
+                        btn.disabled = false;
+                        dot.className = "w-3 h-3 bg-green-400 rounded-full";
+                        txt.innerText = '제출 가능';
+                        return;
+                    }
+                    dot.className = "w-3 h-3 bg-amber-400 rounded-full animate-pulse";
+                    txt.innerText = `재응시 대기: ${Math.floor(rem/60)}분 ${rem%60}초`;
+                    setTimeout(update, 1000);
+                };
+                update();
+            } else {
+                btn.disabled = false;
+                dot.className = "w-3 h-3 bg-green-400 rounded-full";
+                txt.innerText = '제출 가능';
+            }
+        }
+
+        function openResult() {
+            if (!unlocked) return alert('카톡 결과 공유가 완료되어야 해설지가 열립니다.');
+            if (CONFIG.explanation) window.open(CONFIG.explanation, '_blank');
+            else alert('해설지 링크가 등록되지 않았습니다.');
+        }
+
+        function showModal(title, desc, icon, actionHtml) {
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-desc').innerHTML = desc;
+            document.getElementById('modal-icon').innerHTML = icon;
+            document.getElementById('modal-action-container').innerHTML = actionHtml;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+        
+        window.onload = () => {
+            initKakao();
+            if(att > 0) startExam();
+        };
+    </script>
+</body>
+</html>
