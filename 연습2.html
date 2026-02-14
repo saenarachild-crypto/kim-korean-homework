@@ -13,8 +13,7 @@
         .glass-header { background: rgba(79, 70, 229, 0.98); backdrop-filter: blur(20px); }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .q-row { display: flex; align-items: center; gap: 1rem; background: white; padding: 1.25rem; border-radius: 1.5rem; border: 1px solid #f1f5f9; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        /* 문항 번호 스타일 강화: 선택지(0.9rem)와 확연히 구분되도록 크기와 색상 조정 */
-        .q-num { width: 3.5rem; height: 3rem; background: #eef2ff; border-left: 5px solid #4f46e5; border-radius: 0.75rem 1.25rem 1.25rem 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #4338ca; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); }
+        .q-num { width: 3.5rem; height: 3rem; background: #eef2ff; border-left: 5px solid #4f46e5; border-radius: 0.75rem 1.25rem 1.25rem 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #4338ca; font-size: 1.2rem; flex-shrink: 0; }
         .choice-label { width: 100%; height: 2.75rem; display: flex; align-items: center; justify-content: center; border: 1.5px solid #f1f5f9; rounded-xl; font-weight: 700; background: #f8fafc; text-slate-400; transition: all 0.2s; cursor: pointer; font-size: 0.95rem; }
         input[type="text"] { font-size: 16px !important; } 
     </style>
@@ -23,7 +22,6 @@
     <div id="overlay"></div>
     <div id="app" class="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden flex flex-col relative">
         
-        <!-- Intro View -->
         <div id="view-intro" class="flex-1 p-8 flex flex-col justify-center text-center space-y-8 animate-in fade-in duration-500">
             <div class="w-24 h-24 bg-indigo-600 rounded-[2.5rem] mx-auto flex items-center justify-center text-white text-4xl shadow-2xl">🏛️</div>
             <div class="space-y-2">
@@ -46,14 +44,12 @@
             <button onclick="start()" class="w-full bg-indigo-600 text-white font-black py-5 rounded-2xl text-lg shadow-xl shadow-indigo-200 active:scale-95 transition-all">시스템 접속하기</button>
         </div>
 
-        <!-- Exam View -->
         <div id="view-exam" class="hidden flex-1 pb-44">
             <header class="glass-header text-white p-5 sticky top-0 z-20 shadow-lg">
                 <div class="flex justify-between items-center mb-4 px-1">
                     <h2 class="text-xs font-black truncate max-w-[180px]">2월 4회차</h2>
                     <div id="timer" class="text-[9px] font-black bg-white/20 px-3 py-1.5 rounded-full border border-white/10 shrink-0">⏱ 입력 가능</div>
                 </div>
-                <!-- 이름칸 영역 벗어남 방지: Grid 2열 구성 -->
                 <div class="grid grid-cols-2 gap-2">
                     <input type="text" id="u-academy" placeholder="학원명" class="w-full bg-white/10 border border-white/20 p-3 rounded-xl text-xs placeholder:text-white/60 outline-none focus:bg-white/20 font-bold transition-all truncate">
                     <input type="text" id="u-name" placeholder="성함" class="w-full bg-white/10 border border-white/20 p-3 rounded-xl text-xs placeholder:text-white/60 outline-none focus:bg-white/20 font-bold transition-all truncate">
@@ -64,7 +60,7 @@
                 
                 
                 <div id="pdf-area" class="flex justify-center">
-                    <a id="pdf-link" href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=tF4AMy" target="_blank" class="text-[10px] font-black bg-indigo-50 text-indigo-600 px-6 py-2.5 rounded-full border border-indigo-100 flex items-center gap-2 shadow-sm">
+                    <a id="pdf-link" href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=RsUTkP" target="_blank" class="text-[10px] font-black bg-indigo-50 text-indigo-600 px-6 py-2.5 rounded-full border border-indigo-100 flex items-center gap-2 shadow-sm">
                         <span>📄</span> 문제지(PDF) 보기
                     </a>
                 </div>
@@ -73,20 +69,19 @@
             </div>
 
             <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-xl p-5 border-t border-slate-100 flex flex-col gap-3 z-30 shadow-[0_-10px_30px_rgba(0,0,0,0.08)]">
-                <button id="btn-submit" onclick="submit()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl text-md shadow-lg shadow-indigo-100 active:scale-95 transition-all">📝 답안 제출</button>
+                <button id="btn-submit" onclick="submit()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl text-md shadow-lg shadow-indigo-100 active:scale-95 transition-all disabled:bg-slate-300 disabled:shadow-none">📝 답안 제출</button>
                 <button id="btn-kakao" onclick="share()" class="hidden w-full bg-[#FEE500] text-[#3c1e1e] font-black py-4 rounded-xl text-md shadow-lg shadow-yellow-100">🟡 카카오톡 결과 전송</button>
                 <button id="btn-exp" class="py-3.5 rounded-xl font-black text-[10px] text-slate-400 border border-slate-100 bg-slate-50 cursor-not-allowed">🔒 제출 후 해설지 공개</button>
             </div>
         </div>
 
-        <!-- Final View -->
         <div id="view-final" class="hidden flex-1 p-10 flex flex-col justify-center text-center space-y-6 animate-in zoom-in duration-500">
             <div class="text-7xl">🏆</div>
             <div class="space-y-2">
                 <h2 class="text-2xl font-black text-slate-800 tracking-tight">모든 도전 완료</h2>
-                <p class="text-slate-400 font-bold text-sm leading-relaxed px-4">오늘의 분석이 내일의 실력이 됩니다.<br>회차별 오답을 꼼꼼히 복기하세요.</p>
+                <p class="text-slate-400 font-bold text-sm leading-relaxed px-4">회차별 오답을 꼼꼼히 복기하세요.</p>
             </div>
-            <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=tF4AMy" target="_blank" class="w-full bg-indigo-600 text-white font-black py-5 rounded-xl shadow-2xl shadow-indigo-100">📘 전체 해설지 확인</a>
+            <a href="https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=RsUTkP" target="_blank" class="w-full bg-indigo-600 text-white font-black py-5 rounded-xl shadow-2xl shadow-indigo-100">📘 전체 해설지 확인</a>
         </div>
     </div>
 
@@ -105,7 +100,7 @@
             wait: 3,
             start: "2026-02-14",
             end: "2026-02-21",
-            exp: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=tF4AMy"
+            exp: "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=RsUTkP"
         };
 
         let type = 'A';
@@ -114,6 +109,7 @@
         let lastT = parseInt(localStorage.getItem('time_'+C.hwId) || '0');
         let done = localStorage.getItem('done_'+C.hwId) === 'true';
         let lastResult = null;
+        window.timerInterval = null;
 
         function start() {
             const now = new Date();
@@ -138,7 +134,7 @@
             document.getElementById('tab-a')?.classList.toggle('text-indigo-600', t==='A');
             document.getElementById('tab-b')?.classList.toggle('bg-white', t==='B');
             document.getElementById('tab-b')?.classList.toggle('text-indigo-600', t==='B');
-            document.getElementById('pdf-link').href = t==='A' ? "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=tF4AMy" : "";
+            document.getElementById('pdf-link').href = t==='A' ? "https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQDJa2COYzRGRLBXhJ1eb0NDAVailpdzgEJ-ash6Ln46MyU?e=RsUTkP" : "";
         }
 
         function render() {
@@ -167,11 +163,9 @@
             const list = type === 'A' ? C.activeA : C.activeB;
             const master = type === 'A' ? C.ansA : C.ansB;
             let wrongs = [];
-            let currentAns = {};
-
+            
             list.forEach(no => {
                 const selected = ans[type+'_'+no] || 0;
-                currentAns[no] = selected;
                 if (selected.toString() !== master[no-1]) {
                     wrongs.push(no);
                 }
@@ -203,9 +197,12 @@
             localStorage.setItem('att_'+C.hwId, att);
             localStorage.setItem('time_'+C.hwId, lastT);
 
+            // 제출 즉시 버튼 상태와 타이머 동기화
             document.getElementById('btn-submit').classList.add('hidden');
             document.getElementById('btn-kakao').classList.remove('hidden');
-            alert("답안 제출 완료! 카카오톡 전송을 진행해주세요.");
+            checkTimer(); 
+
+            alert("답안 제출 완료! 카카오톡 전송 버튼을 눌러주세요.");
         }
 
         function share() {
@@ -217,22 +214,33 @@
             }));
             const link = (C.admin || window.location.href.split('?')[0]) + "?admin_view=" + adminData;
 
+            // 카카오톡 메시지 규격화: [시험명 / 도전 횟수 / 결과 보기]
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
                     title: C.title,
-                    description: lastResult.name + " (" + lastResult.score + "점 제출)",
+                    description: lastResult.name + " 학생의 " + lastResult.attempt + "회차 도전 완료",
                     imageUrl: 'https://mud-kage.kakao.com/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png',
                     link: { mobileWebUrl: link, webUrl: link }
                 },
-                buttons: [{ title: '리포트 확인', link: { mobileWebUrl: link, webUrl: link } }]
+                itemContent: {
+                   profileText: 'Edu-Force Report',
+                   profileImageUrl: 'https://cdn-icons-png.flaticon.com/512/2641/2641457.png',
+                   items: [
+                     { item: '학생명', itemOp: lastResult.name },
+                     { item: '학습 회차', itemOp: lastResult.attempt + '차 도전' }
+                   ],
+                   sum: '최종 리포트',
+                   sumOp: '확인하기'
+                },
+                buttons: [{ title: '결과 보기 창', link: { mobileWebUrl: link, webUrl: link } }]
             });
 
             document.getElementById('overlay').style.display = 'flex';
             document.getElementById('overlay').innerHTML = `<div class="bg-white p-8 rounded-[3rem] text-center space-y-6 mx-4 shadow-2xl animate-in zoom-in duration-300">
                 <div class="text-5xl">📱</div>
-                <p class="font-black text-slate-800 leading-tight text-lg">카카오톡 리포트 전송을<br>마치셨나요?</p>
-                <button onclick="finishShare()" class="w-full bg-indigo-600 text-white font-black py-4.5 rounded-2xl shadow-xl shadow-indigo-100">네, 완료했습니다</button>
+                <p class="font-black text-slate-800 leading-tight text-lg">카카오톡 전송을<br>완료하셨나요?</p>
+                <button onclick="finishShare()" class="w-full bg-indigo-600 text-white font-black py-4.5 rounded-2xl shadow-xl shadow-indigo-100">네, 전송했습니다</button>
             </div>`;
         }
 
@@ -250,7 +258,7 @@
             const wList = lastResult.wrongList || '없음';
             alert(`📊 ${att}회차 결과: ${lastResult.score}점${hintLogic}`);
             
-            ans = {}; render(); checkTimer();
+            ans = {}; render(); 
             const btnExp = document.getElementById('btn-exp');
             if(att >= 2 || lastResult.score === 100) {
                 btnExp.className = 'w-full bg-emerald-600 text-white py-4.5 rounded-2xl font-black text-md shadow-xl shadow-emerald-100';
@@ -267,17 +275,23 @@
             const timer = document.getElementById('timer');
             
             if(att > 0 && diff < wait) {
-                btn.disabled = true; btn.classList.add('opacity-50');
-                const itv = setInterval(() => {
-                    const rem = Math.ceil((wait - (Date.now() - lastT)) / 1000);
+                btn.disabled = true;
+                if(window.timerInterval) clearInterval(window.timerInterval);
+                window.timerInterval = setInterval(() => {
+                    const currentDiff = Date.now() - lastT;
+                    const rem = Math.ceil((wait - currentDiff) / 1000);
                     if(rem <= 0) {
-                        btn.disabled = false; btn.classList.remove('opacity-50');
-                        timer.innerText = "⏱ 입력 가능"; clearInterval(itv);
+                        btn.disabled = false;
+                        timer.innerText = "⏱ 입력 가능";
+                        clearInterval(window.timerInterval);
                     } else {
                         const m = Math.floor(rem/60), s = rem%60;
                         timer.innerText = `⏱ 재응시 대기: ${m}:${s<10?'0'+s:s}`;
                     }
                 }, 1000);
+            } else {
+                btn.disabled = false;
+                timer.innerText = "⏱ 입력 가능";
             }
         }
 
@@ -294,17 +308,20 @@
                 document.body.innerHTML = `<div class="min-h-screen bg-slate-50 flex items-center justify-center p-6">
                     <div class="w-full max-w-sm bg-white p-8 rounded-[3.5rem] shadow-2xl border border-indigo-50 text-center space-y-6">
                         <div class="w-16 h-16 bg-indigo-50 rounded-[2rem] mx-auto flex items-center justify-center text-3xl">📊</div>
-                        <h2 class="text-xl font-black text-indigo-900 tracking-tight">제출 리포트 리포트</h2>
+                        <h2 class="text-xl font-black text-indigo-900 tracking-tight">제출 리포트</h2>
                         <div class="text-left space-y-3.5 bg-slate-50 p-7 rounded-[2.5rem] font-bold text-xs leading-relaxed border border-slate-100">
                             <p class="flex justify-between"><span>👤 성함</span> <span class="text-slate-900 font-black">${d.name}</span></p>
                             <p class="flex justify-between"><span>🏫 학원</span> <span class="text-slate-900 font-black">${d.academy}</span></p>
                             <p class="flex justify-between"><span>🔄 회차</span> <span class="text-slate-900 font-black">${d.att}회차</span></p>
                             <div class="pt-3 border-t border-slate-200">
-                                <p class="flex justify-between items-center"><span class="text-slate-400">🎯 최종 점수</span> <span class="text-indigo-600 text-xl font-black">${d.score}점</span></p>
+                                <p class="flex justify-between items-center"><span class="text-slate-400">🎯 점수</span> <span class="text-indigo-600 text-2xl font-black">${d.score}점</span></p>
                             </div>
-                            <p class="text-[9px] text-rose-500 font-black mt-2 bg-rose-50 p-3 rounded-xl border border-rose-100 leading-snug">❌ 오답 번호: ${d.wrongs || '없음'}</p>
+                            <div class="mt-4 bg-white p-4 rounded-2xl border border-slate-100">
+                                <p class="text-[10px] text-slate-400 mb-1">틀린 문항 번호</p>
+                                <p class="text-xs text-rose-500 font-black leading-snug">${d.wrongs || '없음'}</p>
+                            </div>
                         </div>
-                        <button onclick="location.href=location.href.split('?')[0]" class="w-full py-4.5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-100">시스템으로 돌아가기</button>
+                        <button onclick="location.href=location.href.split('?')[0]" class="w-full py-4.5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl">시스템 홈으로</button>
                     </div>
                 </div>`;
             }
