@@ -22,6 +22,8 @@ h2{text-align:center;color:var(--primary);margin-bottom:10px;font-size:1.7em;fon
 .q-card{border:2px solid #f1f3f5;border-radius:20px;padding:22px;margin-bottom:15px;background:#fff;transition:all 0.3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .q-card:hover{border-color:#667eea;box-shadow:0 4px 15px rgba(102,126,234,0.15)}
 .q-card b{font-size:1.15em;color:#2d3436}
+.q-card.disabled{opacity:0.4;background:#f8f9fa}
+.q-card.disabled b{color:#94a3b8}
 .ans-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:15px}
 input[type="radio"]{position:absolute;opacity:0}
 label{height:52px;display:flex;align-items:center;justify-content:center;border:2px solid #e9ecef;border-radius:12px;cursor:pointer;font-weight:700;background:#fff;transition:all 0.2s ease;font-size:1.05em}
@@ -56,7 +58,9 @@ input:focus,select:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,
 <h1>1교시 김현석 국어</h1>
 <div class="notice-box">
 <h3>📢 필수 공지사항</h3>
-<p>문학은 전 문항 풀이할 것<br>독서는 지정 지문 문제만 풀어서 제출할 것.<br></p>
+<p><b style="color:#e65100">독서는 지정 지문 문제만 풀이합니다!</b><br>
+- 독서: 1~8, 13~16, 21~29번만 풀이 (9~12, 17~20, 30~32번 제외)<br>
+- 문학: 전 문항 풀이</p>
 <p style="margin-top:15px">📅 제출 기한: 2026-02-11 ~ 2026-02-17<br>🔄 최대 도전: 3회</p>
 </div>
 <button onclick="startApp()" class="start-btn">✅ 확인했습니다. 과제 시작!</button>
@@ -86,14 +90,16 @@ input:focus,select:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,
 const C={title:"주간 과제 2월 3회차",start:"2026-02-11",end:"2026-02-17",max:3,wait:3,gas:"https://script.google.com/macros/s/AKfycbzkA0CC8GAhcdAP16fzq32ufyTIYolZ8TyeuSjW5FAsG0M3vPcYQOIaSKIOOYKYgtDc/exec",ansL:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQB7OiOxZ28TSJHARlwGlEYkASo4IAluq0u3EFeVEjoxc2s?e=e6D30F",prefix:"HW_주간과제2월3회차_"};
 const PDFS={A:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQBE64QSO6-0RLh4AnUrmxPCAc5LgXJEXkp1-YlIKbosCK8?e=Dml4vS",B:"https://goe2427-my.sharepoint.com/:b:/g/personal/pure173_jeonghyeonh_goe_go_kr/IQCB5vRkTAciTLv_eeurKXnOAXTbTNYG7EDvU97dvp7Ojps?e=YJze4o"};
 
-// 정답지 데이터를 기준으로 수정된 부분
+// 정답 데이터
 const ANS={
     A:[0,2,1,4,2,5,2,5,4,3,5,4,3,4,1,5,3,5,1,3,2,3,2,2,4,4,2,3,3,4,1,3,4],
     B:[0,2,4,1,3,2,4,2,4,5,4,1,4,4,1,3,3,2,4,1,2,4,1,4,4,3,3,2,2,4,4]
 };
 const TOTAL={A:32,B:30};
+
+// ✅ 독서 풀이 가능 문항: 9-12, 17-20, 30-32 제외
 const ACTIVE={
-    A:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],
+    A:[1,2,3,4,5,6,7,8,13,14,15,16,21,22,23,24,25,26,27,28,29],
     B:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
 };
 
@@ -104,9 +110,9 @@ setTimeout(initKakao,100);
 function startApp(){document.getElementById('introPage').style.display='none';document.getElementById('examPage').style.display='block';window.scrollTo(0,0);init()}
 function setSubject(s){if(s==='B'&&ANS.B.length<=1){alert('타입 B는 제공되지 않습니다.');return}curSub=s;document.getElementById("btn_A").className="sub-btn"+(s==='A'?' active':'');document.getElementById("btn_B").className="sub-btn"+(s==='B'?' active':'');document.getElementById("paperLink").href=PDFS[s];renderQ()}
 function init(){const sel=document.getElementById("sD");sel.innerHTML='<option value="">제출일 선택</option>';let loop=new Date(C.start);const end=new Date(C.end);while(loop<=end){let s=loop.toISOString().split('T')[0];let o=document.createElement("option");o.value=s;o.innerText=s;sel.appendChild(o);loop.setDate(loop.getDate()+1)}document.getElementById("paperLink").href=PDFS[curSub];renderQ()}
-function renderQ(){let h="";const total=TOTAL[curSub];const active=ACTIVE[curSub];for(let i=1;i<=total;i++){const dis=active.includes(i)?"":"disabled";h+='<div class="q-card"><b>'+i+'번</b><div class="ans-row">';for(let j=1;j<=5;j++){h+='<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" '+dis+'><label for="q'+i+'_'+j+'">'+j+'</label>'}h+='</div></div>'}document.getElementById("qC").innerHTML=h}
+function renderQ(){let h="";const total=TOTAL[curSub];const active=ACTIVE[curSub];for(let i=1;i<=total;i++){const isActive=active.includes(i);const dis=isActive?"":"disabled";const cardClass=isActive?'q-card':'q-card disabled';h+='<div class="'+cardClass+'"><b>'+i+'번'+(isActive?'':' <span style="color:#94a3b8;font-size:0.85em">(풀이 제한)</span>')+'</b><div class="ans-row">';for(let j=1;j<=5;j++){h+='<input type="radio" name="q'+i+'" id="q'+i+'_'+j+'" value="'+j+'" '+dis+'><label for="q'+i+'_'+j+'">'+j+'</label>'}h+='</div></div>'}document.getElementById("qC").innerHTML=h}
 function submit(){const cN=document.getElementById("cN").value.trim(),sN=document.getElementById("sN").value.trim().replace(/\s/g,""),sD=document.getElementById("sD").value;if(!cN||!sN||!sD){alert("학원명, 학생 이름, 제출일을 모두 입력해주세요.");return}wCount=0;wList=[];const total=TOTAL[curSub];const active=ACTIVE[curSub];for(let i=1;i<=total;i++){if(!active.includes(i))continue;let selected=document.querySelector('input[name="q'+i+'"]:checked');let userAns=selected?parseInt(selected.value):0;if(i<ANS[curSub].length&&userAns!==ANS[curSub][i]){wCount++;wList.push(i)}}isPerf=(wCount===0);const key="att_"+sN+"_"+C.prefix+curSub;att=parseInt(localStorage.getItem(key)||0)+1;localStorage.setItem(key,att);if(isPerf)localStorage.setItem("perf_"+sN+"_"+C.prefix+curSub,"true");resT="["+C.title+"] "+sN+"("+att+"회차)\n"+NAMES[curSub]+" 제출 완료\n오답: "+wCount+"개";document.getElementById("subBtn").style.display="none";document.getElementById("kakaoBtn").style.display="block";fetch(C.gas,{method:"POST",mode:"no-cors",headers:{'Content-Type':'application/json'},body:JSON.stringify({exam:C.title+"_"+curSub,name:sN,class:cN,type:NAMES[curSub],attempt:att,wrongCount:wCount,wrongList:wList.join(","),submitDate:sD})}).catch(err=>console.error('Submit error:',err))}
-function share(){initKakao();if(!kakaoInitialized||typeof Kakao==='undefined'||!Kakao.Share){alert('카카오톡 공유 기능을 사용할 수 없습니다.\n제출은 정상적으로 완료되었습니다.');done();return}try{Kakao.Share.sendDefault({objectType:"text",text:resT,link:{mobileWebUrl:window.location.href,webUrl:window.location.href}});setTimeout(()=>{const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML='<div class="overlay-content"><p style="font-size:1.15em;font-weight:600;margin-bottom:20px">📱 카카오톡으로 전송하셨나요?</p><button onclick="done()" style="padding:14px;background:linear-gradient(135deg,#00b894 0%,#00cec9 100%);color:white;border:none;border-radius:12px;font-weight:700;width:100%;cursor:pointer;font-size:1.05em">네, 완료했습니다</button></div>'},1500)}catch(e){console.error('Kakao share error:',e);alert('카카오톡 전송 중 오류가 발생했습니다.\n제출은 정상적으로 완료되었습니다.');done()}}
+function share(){initKakao();if(!kakaoInitialized||typeof Kakao==='undefined'||!Kakao.Share){alert('카카오톡 공유 기능을 사용할 수 없습니다.\n제출은 정상적으로 완료되었습니다.');done();return}try{Kakao.Share.sendDefault({objectType:"feed",content:{title:C.title,description:resT,imageUrl:'https://mud-kage.kakao.com/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png',link:{mobileWebUrl:window.location.href,webUrl:window.location.href}},buttons:[{title:'확인하기',link:{mobileWebUrl:window.location.href,webUrl:window.location.href}}]});setTimeout(()=>{const o=document.getElementById("overlay");o.style.display="flex";o.innerHTML='<div class="overlay-content"><p style="font-size:1.15em;font-weight:600;margin-bottom:20px">📱 카카오톡으로 전송하셨나요?</p><button onclick="done()" style="padding:14px;background:linear-gradient(135deg,#00b894 0%,#00cec9 100%);color:white;border:none;border-radius:12px;font-weight:700;width:100%;cursor:pointer;font-size:1.05em">네, 완료했습니다</button></div>'},1500)}catch(e){console.error('Kakao share error:',e);alert('카카오톡 전송 중 오류가 발생했습니다.\n제출은 정상적으로 완료되었습니다.');done()}}
 function done(){document.getElementById("overlay").style.display="none";document.getElementById("kakaoBtn").style.display="none";const rArea=document.getElementById("resArea");rArea.style.display="block";let feedback="";if(isPerf){feedback="🎉 <b>만점입니다!</b> 완벽하게 해결했습니다."}else{if(att===1){feedback="📊 1회차 결과: <b>오답 "+wCount+"개</b><br><small style='color:#7f8c8d'>어떤 문항이 틀렸는지 스스로 찾아보세요!</small>"}else{feedback="📊 "+att+"회차 결과: <b>오답 "+wCount+"개</b><br><b style='color:#e74c3c'>틀린 문항: "+wList.join(", ")+"</b>"}}let html='<div class="result-box"><h3>채점 완료</h3><p style="line-height:1.8;font-size:1.05em">'+feedback+'</p>';if(att>=C.max||isPerf){html+='<a href="'+C.ansL+'" target="_blank" style="display:block;padding:16px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;text-decoration:none;border-radius:12px;font-weight:700;margin-top:15px;transition:0.3s">📘 해설지 보기</a>'}html+='</div>';if(!isPerf&&att<C.max){html+='<button onclick="location.reload()" style="width:100%;padding:16px;background:#e9ecef;color:#2d3436;border:none;border-radius:12px;margin-top:12px;cursor:pointer;font-weight:700;font-size:1.05em">🔄 다시 도전하기 ('+att+'/'+C.max+')</button>'}rArea.innerHTML=html}
 </script>
 </body>
