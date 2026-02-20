@@ -876,15 +876,15 @@
             <input type="file" id="fi" accept=".pdf" onchange="pickFile(this.files[0])">
             <span class="drop-ico">📑</span>
             <h3>PDF를 끌어다 놓거나 클릭</h3>
-            <p>텍스트 PDF 전용 (로컬 AI 보호)</p>
+            <p>텍스트 PDF 및 이미지 PDF 지원 (로컬 AI 보호)</p>
             <div id="chosen"></div>
           </div>
         </div>
         <button class="go" id="gobtn" onclick="start()" disabled>✨ 문제지 생성 시작</button>
       </div>
       <div class="tags">
-        <span class="tag">✅ 텍스트 PDF 전용</span>
-        <span class="tag">✅ 로컬 완전 무료</span>
+        <span class="tag">✅ 텍스트/이미지 PDF 지원</span>
+        <span class="tag">✅ 스캔본 자동 인식(OCR)</span>
         <span class="tag">✅ 데이터 보호 100%</span>
       </div>
     </div>
@@ -898,7 +898,7 @@
       <div class="pf2" id="pf2"></div>
       <div class="steps">
         <div class="step on" id="s1">
-          <div class="sic">1</div><span>PDF 텍스트 추출 중</span>
+          <div class="sic">1</div><span>PDF 텍스트 추출 중 (스캔본은 OCR 인식)</span>
         </div>
         <div class="step" id="s2">
           <div class="sic">2</div><span>로컬 AI 분석 (오래 걸릴 수 있습니다)</span>
@@ -919,7 +919,7 @@
   <div id="pg-quiz"></div>
 
   <script>
-    var pdfFile = null, quizData = null, answered = {}, score = 0, PDFJS = null;
+    var pdfFile = null, quizData = null, answered = {}, score = 0, PDFJS = null, TesseractJS = null;
     var ollamaConnected = false;
 
     // ── Ollama 연결 확인 ──
@@ -984,18 +984,70 @@
       });
     }
 
+    // ── Tesseract.js ──
+    function loadTesseract() {
+      return new Promise(function (res, rej) {
+        if (window.Tesseract) { TesseractJS = window.Tesseract; return res() }
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js';
+        s.onload = function () { TesseractJS = window.Tesseract; res() };
+        s.onerror = function () { s.remove(); rej(new Error('Tesseract.js를 불러올 수 없습니다.')) };
+        document.head.appendChild(s);
+      });
+    }
+
     async function tryExtractText(pdf) {
       var lines = [];
+      var totalTextLength = 0;
       for (var p = 1; p <= pdf.numPages; p++) {
         var page = await pdf.getPage(p); var ct = await page.getTextContent();
         var lastY = null, row = [];
         for (var j = 0; j < ct.items.length; j++) {
           var it = ct.items[j]; var y = it.transform[5];
-          if (lastY !== null && Math.abs(y - lastY) > 2) { lines.push(row.join('')); row = [] }
+          if (lastY !== null && Math.abs(y - lastY) > 2) {
+            var lineStr = row.join('');
+            lines.push(lineStr);
+            totalTextLength += lineStr.length;
+            row = [];
+          }
           row.push(it.str); lastY = y;
         }
-        if (row.length) lines.push(row.join('')); lines.push('');
+        if (row.length) {
+          var lineStr = row.join('');
+          lines.push(lineStr);
+          totalTextLength += lineStr.length;
+        }
+        lines.push('');
       }
+
+      // 텍스트가 거의 없으면 이미지 PDF로 간주하고 OCR 실행
+      if (totalTextLength < 80) {
+        sLbl(1, '스캔 이미지 감지됨. OCR 엔진 로드 중...');
+        await loadTesseract();
+
+        var worker = await TesseractJS.createWorker('kor');
+        lines = [];
+
+        for (var p = 1; p <= pdf.numPages; p++) {
+          sLbl(1, `이미지 텍스트 추출 중... 페이지 (${p} / ${pdf.numPages})`);
+
+          var page = await pdf.getPage(p);
+          var viewport = page.getViewport({ scale: 2.0 }); // 고해상도로 렌더링
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+          var result = await worker.recognize(canvas);
+          lines.push(result.data.text);
+          lines.push('');
+        }
+
+        await worker.terminate();
+      }
+
       return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
     }
 
@@ -1067,7 +1119,7 @@
         var ptext = '';
 
         if (txt.length < 80) {
-          throw new Error('스캔 이미지 PDF는 로컬 구동 버전에서 지원하지 않습니다 (텍스트 추출 실패). 텍스트가 복사되는 PDF를 사용해 주세요.');
+          throw new Error('텍스트를 추출할 수 없습니다. 문서가 비어있거나 지원되지 않는 형식입니다.');
         } else {
           ptext = '다음은 한국 국어 시험지 텍스트입니다. 지문과 문항을 분석해서 아래 요청된 JSON 형식으로 완벽하게 정리해서 응답하세요. 다른 설명은 하지 말고 JSON만 출력하세요.\n\n텍스트:\n---\n' + txt.slice(0, 25000) + '\n---\n\n' + JSON_SCHEMA;
           sLbl(2, '로컬 모델(' + modelName + ') 생성 중… 성능에 따라 수 분이 걸릴 수 있습니다.');
