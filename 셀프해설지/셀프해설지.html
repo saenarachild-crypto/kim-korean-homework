@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>셀프해설지</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    textarea { font-family: inherit; }
+    input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+// ─── Icons (SVG inline) ──────────────────────────────────────────────────────
+const Icon = ({ path, size = 18, cls = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
+    <path d={path} />
+  </svg>
+);
+const IPlus    = ({s=16,c=''}) => <Icon size={s} cls={c} path="M12 5v14M5 12h14"/>;
+const ITrash   = ({s=16,c=''}) => <Icon size={s} cls={c} path="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>;
+const ICopy    = ({s=18,c=''}) => <Icon size={s} cls={c} path="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2M8 4a2 2 0 0 1 4 0h4a2 2 0 0 1 0 4H8a2 2 0 0 1 0-4z"/>;
+const IExtLink = ({s=16,c=''}) => <Icon size={s} cls={c} path="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>;
+const ICheck   = ({s=40,c=''}) => <Icon size={s} cls={c} path="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3"/>;
+const IChevR   = ({s=20,c=''}) => <Icon size={s} cls={c} path="M9 18l6-6-6-6"/>;
+const IChevL   = ({s=20,c=''}) => <Icon size={s} cls={c} path="M15 18l-6-6 6-6"/>;
+const IBook    = ({s=22,c=''}) => <Icon size={s} cls={c} path="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5V5a2 2 0 0 1 2-2h14v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>;
+const IPen     = ({s=18,c=''}) => <Icon size={s} cls={c} path="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>;
+const IBrain   = ({s=22,c=''}) => <Icon size={s} cls={c} path="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-1.49-4.35A3 3 0 0 1 3 12a3 3 0 0 1 2.55-2.96 2.5 2.5 0 0 1 .4-3.5A2.5 2.5 0 0 1 9.5 2zM14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 1.49-4.35A3 3 0 0 0 21 12a3 3 0 0 0-2.55-2.96 2.5 2.5 0 0 0-.4-3.5A2.5 2.5 0 0 0 14.5 2z"/>;
+const IClock   = ({s=14,c=''}) => <Icon size={s} cls={c} path="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2"/>;
+const IFile    = ({s=22,c=''}) => <Icon size={s} cls={c} path="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"/>;
+
+const ICircle  = ({s=15,c=''}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={c}><circle cx="12" cy="12" r="10"/></svg>;
+const ITriangle= ({s=15,c=''}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={c}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>;
+const IX       = ({s=15,c=''}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={c}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+
+// ─── App Entry ───────────────────────────────────────────────────────────────
+function App() {
+  const [examData, setExamData] = useState(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const d = params.get('d');
+    if (d) {
+      try {
+        const decoded = JSON.parse(decodeURIComponent(atob(d)));
+        if (!decoded.passages) decoded.passages = [];
+        setExamData(decoded);
+      } catch(e) { console.error('URL 데이터 오류'); }
+    }
+  }, []);
+
+  if (examData) return <StudentApp examData={examData} />;
+  return <TeacherApp />;
+}
+
+// ─── Teacher App ─────────────────────────────────────────────────────────────
+function TeacherApp() {
+  const [examName, setExamName] = useState('');
+  const [paperLink, setPaperLink] = useState('');
+  const [answerLink, setAnswerLink] = useState('');
+  const [answersStr, setAnswersStr] = useState('');
+  const [passages, setPassages] = useState([]);
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const totalQ = answersStr.split(',').map(s=>s.trim()).filter(Boolean).length;
+
+  const handleGenerate = () => {
+    const answers = answersStr.split(',').map(s=>s.trim()).filter(Boolean);
+    if (!examName || !answers.length) { alert('시험명과 정답은 필수입니다.'); return; }
+    const validPassages = passages.filter(p => p.name.trim());
+    const data = { examName, paperLink, answerLink, answers, passages: validPassages };
+    const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
+    setGeneratedLink(`${location.origin}${location.pathname}?d=${encoded}`);
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(generatedLink);
+    setCopied(true); setTimeout(()=>setCopied(false), 2000);
+  };
+
+  const addPassage = () => {
+    const lastTo = passages.length ? passages[passages.length-1].to : 0;
+    const from = Math.min(lastTo+1, totalQ||34);
+    setPassages([...passages, { name:'', from, to: Math.min(from+2, totalQ||34) }]);
+  };
+
+  const removePassage = i => setPassages(passages.filter((_,idx)=>idx!==i));
+
+  const updatePassage = (i, field, value) => {
+    const ps = [...passages];
+    ps[i] = { ...ps[i], [field]: field==='name' ? value : Number(value) };
+    setPassages(ps);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 py-12 px-4 font-sans">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">셀프해설지 생성기</h1>
+          <p className="mt-2 text-slate-500 font-medium">학생들에게 공유할 모의고사 셀프해설지 링크를 만듭니다.</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1">시험명 *</label>
+            <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="예: 2025년 3월 고3 국어 모의고사" value={examName} onChange={e=>setExamName(e.target.value)} />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">시험지 링크</label>
+              <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="https://..." value={paperLink} onChange={e=>setPaperLink(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">정답·해설 링크</label>
+              <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="https://..." value={answerLink} onChange={e=>setAnswerLink(e.target.value)} />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1">정답 입력 (쉼표로 구분) *</label>
+            <textarea className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 h-24 resize-none"
+              placeholder="예: 4, 3, 1, 3, 5, 3, 5, 1, 5, 2, 3, 1, 3, 2, 2, 2, 3, 5, 2, 3, 1, 4, 5, 4, 4, 1, 5, 1, 2, 4, 5, 4, 2, 4"
+              value={answersStr} onChange={e=>setAnswersStr(e.target.value)} />
+            {totalQ > 0 && <p className="mt-1.5 text-xs text-indigo-600 font-bold">총 {totalQ}문항 입력됨</p>}
+          </div>
+
+          {/* 지문 구성 */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm font-bold text-slate-700">지문 구성 설정</p>
+                <p className="text-xs text-slate-500 mt-0.5">지문별로 소요시간·전략·반성을 작성하게 합니다.</p>
+              </div>
+              <button onClick={addPassage}
+                className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold transition-colors">
+                <IPlus /> 지문 추가
+              </button>
+            </div>
+
+            {passages.length === 0 ? (
+              <div className="text-center py-6 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-slate-400 text-sm">
+                <div className="mb-2 opacity-40 flex justify-center"><IFile s={24}/></div>
+                <p className="font-medium">지문 추가 버튼으로 지문을 구성하세요</p>
+                <p className="text-xs mt-0.5">(설정하지 않으면 문항별 입력만 제공됩니다)</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {passages.map((p, i) => (
+                  <div key={i} className="fade-in p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 space-y-2">
+                        <input type="text"
+                          placeholder="지문명 (예: 독서론, (가)(나) 사회, 기술 지문, 고전소설, 복합 갈래)"
+                          className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                          value={p.name} onChange={e=>updatePassage(i,'name',e.target.value)} />
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-xs text-slate-500 font-medium whitespace-nowrap">문항 범위</span>
+                          <input type="number" min="1"
+                            className="w-16 p-2 text-center bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-bold"
+                            value={p.from} onChange={e=>updatePassage(i,'from',e.target.value)} />
+                          <span className="text-slate-400">~</span>
+                          <input type="number" min="1"
+                            className="w-16 p-2 text-center bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-bold"
+                            value={p.to} onChange={e=>updatePassage(i,'to',e.target.value)} />
+                          <span className="text-xs text-slate-400">번</span>
+                          {p.from <= p.to && <span className="text-xs text-indigo-500 font-medium">({p.to-p.from+1}문항)</span>}
+                        </div>
+                      </div>
+                      <button onClick={()=>removePassage(i)}
+                        className="p-2 mt-0.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+                        <ITrash s={16}/>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button onClick={handleGenerate}
+            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors text-lg">
+            학생용 링크 생성하기
+          </button>
+
+          {generatedLink && (
+            <div className="fade-in p-5 bg-indigo-50 border border-indigo-100 rounded-xl">
+              <p className="text-sm font-bold text-indigo-900 mb-2">생성된 링크:</p>
+              <div className="flex gap-2">
+                <input readOnly value={generatedLink}
+                  className="flex-1 p-3 bg-white border border-indigo-200 rounded-lg text-xs text-slate-600 outline-none font-mono" />
+                <button onClick={copyLink}
+                  className={`px-5 py-3 rounded-lg flex items-center gap-2 text-sm font-bold whitespace-nowrap transition-colors ${copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>
+                  <ICopy s={16}/>{copied ? '복사됨!' : '복사'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Student App ─────────────────────────────────────────────────────────────
+function StudentApp({ examData }) {
+  const [step, setStep] = useState(1);
+  const [name, setName] = useState('');
+  const [academy, setAcademy] = useState('');
+  const [preNotes, setPreNotes] = useState('');
+  const [midNotes, setMidNotes] = useState('');
+  const [postNotes, setPostNotes] = useState('');
+
+  const [answers, setAnswers] = useState(
+    examData.answers.map((_,i) => ({ qNum: i+1, my:'', time:'', reason:'', diff:'' }))
+  );
+  const [pNotes, setPNotes] = useState(
+    (examData.passages||[]).map(()=>({ time:'', notes:'' }))
+  );
+
+  const hasP = examData.passages && examData.passages.length > 0;
+
+  const setAns = (idx, field, val) => {
+    const a = [...answers]; a[idx] = {...a[idx], [field]: val}; setAnswers(a);
+  };
+  const toggleDiff = (idx, v) => setAns(idx, 'diff', answers[idx].diff===v ? '' : v);
+  const setPNote = (pi, field, val) => {
+    const n=[...pNotes]; n[pi]={...n[pi],[field]:val}; setPNotes(n);
+  };
+
+  const getResults = () => {
+    let correct = 0;
+    const results = answers.map((a,i) => {
+      const ok = a.my.trim() === examData.answers[i].trim();
+      if (ok) correct++;
+      return { ...a, correctAns: examData.answers[i], ok };
+    });
+    return { results, correct };
+  };
+
+  const diffStr = d => d==='O'?'◯':d==='T'?'△':d==='X'?'✕':'-';
+
+  const generateReport = () => {
+    const { results, correct } = getResults();
+    const score = Math.round(correct/examData.answers.length*100);
+    let r = `[셀프해설지 제출]\n시험명: ${examData.examName}\n이름: ${name}`;
+    if (academy) r += `\n학원명: ${academy}`;
+    r += `\n\n■ 시험 전 특이사항과 전략\n${preNotes||'없음'}`;
+    if (midNotes) r += `\n\n■ 시험 진행 중 특이사항\n${midNotes}`;
+    r += `\n\n■ 점수: ${score}점 (${correct}/${examData.answers.length})\n`;
+
+    if (hasP) {
+      r += `\n■ 지문별 분석\n`;
+      const assigned = new Set(examData.passages.flatMap(p=>Array.from({length:p.to-p.from+1},(_,k)=>p.from+k)));
+      examData.passages.forEach((p,pi)=>{
+        const pn = pNotes[pi];
+        r += `\n*[${p.name}] (${p.from}~${p.to}번)`;
+        if (pn.time) r += ` — ${pn.time}`;
+        r += '\n';
+        if (pn.notes) r += `${pn.notes}\n`;
+        results.filter(res=>res.qNum>=p.from&&res.qNum<=p.to).forEach(res=>{
+          r += `  ${res.qNum}번 | ${res.ok?'O':'X'} | 내답: ${res.my||'-'} / 정답: ${res.correctAns} | 난도: ${diffStr(res.diff)}`;
+          if (res.reason) r += ` | ${res.reason}`;
+          r += '\n';
+        });
+      });
+      const un = results.filter(res=>!assigned.has(res.qNum));
+      if (un.length) {
+        r += `\n*[기타 문항]\n`;
+        un.forEach(res=>{
+          r += `  ${res.qNum}번 | ${res.ok?'O':'X'} | 내답: ${res.my||'-'} / 정답: ${res.correctAns} | 난도: ${diffStr(res.diff)}`;
+          if (res.reason) r += ` | ${res.reason}`;
+          r += '\n';
+        });
+      }
+    } else {
+      r += `\n■ 문항별 분석\n`;
+      results.forEach(res=>{
+        r += `${res.qNum}번 | ${res.ok?'O':'X'} | 내답: ${res.my||'-'} / 정답: ${res.correctAns} | 난도: ${diffStr(res.diff)}`;
+        if (res.time) r += ` | 시간: ${res.time}`;
+        if (res.reason) r += ` | ${res.reason}`;
+        r += '\n';
+      });
+    }
+    if (postNotes) r += `\n■ 시험 후 반성 및 해결 방안\n${postNotes}`;
+    return r;
+  };
+
+  // Diff buttons
+  const DiffBtns = ({ idx, diff }) => (
+    <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
+      {[['O','◯','emerald'],['T','△','amber'],['X','✕','rose']].map(([v,label,color])=>(
+        <button key={v} onClick={()=>toggleDiff(idx,v)} title={v==='O'?'쉬움':v==='T'?'애매함':'모름'}
+          className={`p-1.5 rounded-md transition-colors text-sm font-bold w-8 h-8 ${diff===v?`bg-${color}-100 text-${color}-600`:'text-slate-400 hover:bg-slate-100'}`}>
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // Question card
+  const QCard = ({ ans }) => {
+    const idx = ans.qNum-1;
+    return (
+      <div className="flex flex-col gap-2.5 p-4 bg-slate-50 rounded-xl border border-slate-200">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="font-black text-slate-700 w-10 text-sm">{ans.qNum}번</span>
+          <DiffBtns idx={idx} diff={ans.diff} />
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-xs font-bold text-slate-500">내 답</span>
+            <input type="text"
+              className="w-14 p-2 text-center bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 font-black text-slate-700 text-base shadow-sm"
+              value={ans.my} onChange={e=>setAns(idx,'my',e.target.value)} />
+          </div>
+        </div>
+        <input type="text" placeholder="선택 이유 / 틀린 이유 / 헷갈린 점"
+          className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+          value={ans.reason} onChange={e=>setAns(idx,'reason',e.target.value)} />
+      </div>
+    );
+  };
+
+  // ── Step 1 ────────────────────────────────────────────────────────────────
+  const Step1 = () => (
+    <div className="fade-in space-y-6">
+      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+        <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+          <span className="text-indigo-500"><IBook s={22}/></span> 기본 정보
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">이름 *</label>
+            <input className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+              value={name} onChange={e=>setName(e.target.value)} placeholder="홍길동" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">학원명</label>
+            <input className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+              value={academy} onChange={e=>setAcademy(e.target.value)} placeholder="에듀학원" />
+          </div>
+        </div>
+        {examData.paperLink && (
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <a href={examData.paperLink} target="_blank" rel="noreferrer"
+              className="inline-flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 hover:bg-indigo-100 px-4 py-2.5 rounded-lg transition-colors">
+              <IExtLink s={16}/> 시험지 보기 (새 창)
+            </a>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+        <h2 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+          <span className="text-indigo-500"><IBrain s={22}/></span> 시험 전 특이사항과 전략
+        </h2>
+        <p className="text-sm text-slate-500 mb-4">컨디션, 풀이 순서, 시간 배분 계획, 다짐 등을 적어보세요.</p>
+        <textarea className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 h-36 resize-none text-sm"
+          value={preNotes} onChange={e=>setPreNotes(e.target.value)}
+          placeholder={"예) 컨디션: 보통\n풀이 순서: 비문학 → 문학 → 언매\n예상 시간: 독서(25분) 문학(20분) 언매(15분) 검토(20분)\n다짐: 헷갈리면 과감하게 넘어가자"} />
+      </div>
+
+      <button disabled={!name} onClick={()=>setStep(2)}
+        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-lg">
+        답안 입력하기 <IChevR s={20}/>
+      </button>
+    </div>
+  );
+
+  // ── Step 2 ────────────────────────────────────────────────────────────────
+  const Step2 = () => {
+    const assigned = new Set((examData.passages||[]).flatMap(p=>Array.from({length:p.to-p.from+1},(_,k)=>p.from+k)));
+    const unassigned = answers.filter(a=>!assigned.has(a.qNum));
+
+    return (
+      <div className="fade-in space-y-5">
+        {/* 시험 중 특이사항 */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <h2 className="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+            <span className="text-indigo-500"><IPen s={18}/></span>
+            시험 진행 중 특이사항
+            <span className="text-xs font-normal text-slate-400 ml-1">(선택)</span>
+          </h2>
+          <textarea className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 h-20 resize-none text-sm"
+            value={midNotes} onChange={e=>setMidNotes(e.target.value)}
+            placeholder="예) 15번에서 시간을 너무 많이 썼다. 기술 지문에서 멘탈이 흔들렸다." />
+        </div>
+
+        {hasP ? (
+          <>
+            {examData.passages.map((passage, pi) => {
+              const pAnswers = answers.filter(a=>a.qNum>=passage.from&&a.qNum<=passage.to);
+              const pn = pNotes[pi];
+              return (
+                <div key={pi} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden fade-in">
+                  {/* 지문 헤더 */}
+                  <div className="bg-indigo-600 px-6 py-4 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-black text-lg leading-tight">{passage.name}</h3>
+                      <p className="text-indigo-200 text-xs font-medium mt-0.5">
+                        {passage.from}번 ~ {passage.to}번 · {passage.to-passage.from+1}문항
+                      </p>
+                    </div>
+                    <span className="text-indigo-300"><IFile s={22}/></span>
+                  </div>
+
+                  <div className="p-5 space-y-4">
+                    {/* 지문 반성 박스 */}
+                    <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                      <h4 className="text-sm font-bold text-indigo-800 mb-3 flex items-center gap-1.5">
+                        <IClock s={14}/> 지문 풀이 기록
+                      </h4>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <div className="sm:w-36 shrink-0">
+                          <label className="block text-xs font-bold text-indigo-700 mb-1.5">소요 시간</label>
+                          <input type="text" placeholder="예: 7분 30초"
+                            className="w-full p-2.5 text-sm bg-white border border-indigo-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={pn.time} onChange={e=>setPNote(pi,'time',e.target.value)} />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-xs font-bold text-indigo-700 mb-1.5">풀이 전략 / 특이사항 / 반성</label>
+                          <textarea placeholder={"예) 전형적인 통독 지문. 큰 무리 없이 풀었음.\n7번에서 ③④ 고민 10초 → 결국 정답."}
+                            className="w-full p-2.5 text-sm bg-white border border-indigo-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 resize-none h-20"
+                            value={pn.notes} onChange={e=>setPNote(pi,'notes',e.target.value)} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 문항별 답안 */}
+                    <div>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2.5">문항별 답안</p>
+                      <div className="space-y-2.5">
+                        {pAnswers.map(ans=><QCard key={ans.qNum} ans={ans}/>)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {unassigned.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-500 px-6 py-4"><h3 className="text-white font-black">기타 문항</h3></div>
+                <div className="p-5 space-y-2.5">{unassigned.map(ans=><QCard key={ans.qNum} ans={ans}/>)}</div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 className="text-xl font-bold text-slate-800 mb-5">문항별 답안 및 분석</h2>
+            <div className="space-y-3">
+              {answers.map(ans=>(
+                <div key={ans.qNum} className="flex flex-col gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <span className="font-black text-slate-700 w-12">{ans.qNum}번</span>
+                    <DiffBtns idx={ans.qNum-1} diff={ans.diff}/>
+                    <div className="flex items-center gap-3 ml-auto">
+                      <span className="text-sm font-bold text-slate-500">내 답</span>
+                      <input type="text" className="w-16 p-2.5 text-center bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 font-black text-lg shadow-sm"
+                        value={ans.my} onChange={e=>setAns(ans.qNum-1,'my',e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input type="text" placeholder="소요 시간 (예: 2분)"
+                      className="w-full sm:w-1/3 p-3 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={ans.time} onChange={e=>setAns(ans.qNum-1,'time',e.target.value)} />
+                    <input type="text" placeholder="선택 이유를 적어주세요"
+                      className="w-full sm:w-2/3 p-3 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={ans.reason} onChange={e=>setAns(ans.qNum-1,'reason',e.target.value)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-4">
+          <button onClick={()=>setStep(1)}
+            className="px-6 py-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition-colors shadow-sm">
+            <IChevL s={20}/>
+          </button>
+          <button onClick={()=>{ if(confirm('결과를 확인하면 답안을 수정할 수 없습니다. 계속하시겠습니까?')) setStep(3); }}
+            className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-lg">
+            채점 및 결과 보기 <IChevR s={20}/>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // ── Step 3 ────────────────────────────────────────────────────────────────
+  const Step3 = () => {
+    const { results, correct } = getResults();
+    const score = Math.round(correct/examData.answers.length*100);
+    const assigned = new Set((examData.passages||[]).flatMap(p=>Array.from({length:p.to-p.from+1},(_,k)=>p.from+k)));
+
+    const DiffIcon = ({d}) => {
+      if (d==='O') return <span className="text-emerald-500 font-black text-base">◯</span>;
+      if (d==='T') return <span className="text-amber-500 font-black text-base">△</span>;
+      if (d==='X') return <span className="text-rose-500 font-black text-base">✕</span>;
+      return <span className="text-slate-400">-</span>;
+    };
+
+    const ResultTable = ({ rows }) => (
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm text-left">
+          <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th className="px-3 py-3 font-bold">번호</th>
+              <th className="px-3 py-3 text-center font-bold">결과</th>
+              <th className="px-3 py-3 text-center font-bold">내 답</th>
+              <th className="px-3 py-3 text-center font-bold">정답</th>
+              <th className="px-3 py-3 text-center font-bold">난도</th>
+              <th className="px-3 py-3 font-bold">메모</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r,i)=>(
+              <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                <td className="px-3 py-3 font-black text-slate-700">{r.qNum}</td>
+                <td className="px-3 py-3 text-center">
+                  {r.ok ? <span className="text-emerald-500 font-black">O</span> : <span className="text-rose-500 font-black">X</span>}
+                </td>
+                <td className={`px-3 py-3 text-center font-bold ${r.ok?'text-slate-700':'text-rose-600'}`}>{r.my||'-'}</td>
+                <td className="px-3 py-3 text-center font-black text-indigo-600">{r.correctAns}</td>
+                <td className="px-3 py-3 text-center"><DiffIcon d={r.diff}/></td>
+                <td className="px-3 py-3 text-slate-500 text-xs max-w-xs">{r.reason||'-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
+    return (
+      <div className="fade-in space-y-5">
+        {/* 점수 */}
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
+          <p className="text-sm font-bold text-slate-500 mb-2">나의 점수</p>
+          <div className="text-6xl font-black text-indigo-600 mb-2">
+            {score}<span className="text-3xl text-slate-400 font-bold"> / 100</span>
+          </div>
+          <p className="text-slate-500 font-bold text-sm">{examData.answers.length}문제 중 {correct}문제 정답</p>
+          {examData.answerLink && (
+            <div className="mt-6 pt-5 border-t border-slate-100 flex justify-center">
+              <a href={examData.answerLink} target="_blank" rel="noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors text-sm">
+                <IExtLink s={16}/> 정답 및 해설 보기 (새 창)
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* 결과 테이블 */}
+        {hasP ? (
+          <>
+            {examData.passages.map((p, pi) => {
+              const rows = results.filter(r=>r.qNum>=p.from&&r.qNum<=p.to);
+              const pc = rows.filter(r=>r.ok).length;
+              const pn = pNotes[pi];
+              return (
+                <div key={pi} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="bg-indigo-600 px-5 py-3 flex items-center justify-between">
+                    <div>
+                      <span className="text-white font-black">{p.name}</span>
+                      {pn.time && <span className="text-indigo-200 text-xs ml-2">· {pn.time}</span>}
+                    </div>
+                    <span className="text-indigo-200 text-sm font-bold">{pc}/{rows.length} 정답</span>
+                  </div>
+                  {pn.notes && (
+                    <div className="px-5 py-3 bg-indigo-50 border-b border-indigo-100 text-sm text-indigo-800 whitespace-pre-wrap">{pn.notes}</div>
+                  )}
+                  <div className="p-4"><ResultTable rows={rows}/></div>
+                </div>
+              );
+            })}
+            {results.filter(r=>!assigned.has(r.qNum)).length > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-500 px-5 py-3"><span className="text-white font-black">기타 문항</span></div>
+                <div className="p-4"><ResultTable rows={results.filter(r=>!assigned.has(r.qNum))}/></div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 className="text-xl font-bold text-slate-800 mb-5">채점 결과</h2>
+            <ResultTable rows={results}/>
+          </div>
+        )}
+
+        {/* 시험 후 반성 */}
+        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+          <h2 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+            <span className="text-indigo-500"><ICheck s={22}/></span> 시험 후 반성 및 해결 방안
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">전반적인 반성, 개선해야 할 점, 앞으로의 학습 계획을 적어보세요.</p>
+          <textarea className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 h-40 resize-none text-sm"
+            value={postNotes} onChange={e=>setPostNotes(e.target.value)}
+            placeholder={"예) *개선해야할 점\n- 헷갈리는 문제에 집착하지 말고 과감하게 넘어가기\n- 기술 지문은 선지 먼저 보고 지문 읽는 전략 시도\n\n*앞으로의 계획\n- 매일 비문학 2지문씩 시간 재고 풀기"} />
+        </div>
+
+        <button onClick={()=>setStep(4)}
+          className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-lg">
+          최종 완료 및 제출 <IChevR s={20}/>
+        </button>
+      </div>
+    );
+  };
+
+  // ── Step 4 ────────────────────────────────────────────────────────────────
+  const Step4 = () => {
+    const [copied, setCopied] = useState(false);
+    const report = generateReport();
+    const copy = () => {
+      navigator.clipboard.writeText(report);
+      setCopied(true); setTimeout(()=>setCopied(false),2000);
+    };
+    return (
+      <div className="fade-in space-y-6">
+        <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-sm border border-slate-200 text-center">
+          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ICheck s={40}/>
+          </div>
+          <h2 className="text-3xl font-black text-slate-800 mb-3">셀프해설지 작성 완료!</h2>
+          <p className="text-slate-500 mb-8 font-medium">아래 텍스트를 복사하여 선생님께 카카오톡으로 제출해주세요.</p>
+          <div className="text-left bg-slate-50 p-5 rounded-xl border border-slate-200 h-72 overflow-y-auto mb-8 text-sm text-slate-700 whitespace-pre-wrap font-mono shadow-inner">
+            {report}
+          </div>
+          <button onClick={copy}
+            className={`w-full py-4 font-black rounded-xl transition-colors flex justify-center items-center gap-2 text-lg ${copied?'bg-emerald-400 text-white':'bg-[#FEE500] hover:bg-[#FDD800] text-black'}`}>
+            <ICopy s={22}/>{copied ? '복사됨! 카카오톡에 붙여넣기 하세요' : '카카오톡 제출용 복사하기'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Progress bar
+  const stepLabels = ['기본 정보', hasP ? '지문별 답안' : '답안 입력', '결과 및 반성', '제출'];
+
+  return (
+    <div className="min-h-screen bg-slate-50 py-8 px-4 font-sans">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">셀프해설지</h1>
+          <p className="text-slate-500 mt-1.5 font-bold">{examData.examName}</p>
+        </div>
+
+        <div className="mb-8">
+          <div className="flex justify-between text-xs font-bold text-slate-400 mb-2.5 px-1">
+            {stepLabels.map((label,i)=>(
+              <span key={i} className={step>=i+1?'text-indigo-600':''}>{label}</span>
+            ))}
+          </div>
+          <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-600 transition-all duration-300 rounded-full"
+              style={{width:`${step/4*100}%`}} />
+          </div>
+        </div>
+
+        {step===1 && <Step1/>}
+        {step===2 && <Step2/>}
+        {step===3 && <Step3/>}
+        {step===4 && <Step4/>}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
