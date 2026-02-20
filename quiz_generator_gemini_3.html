@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>국어 문제지 생성기</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+    :root {
+      --bg: #f7f4ef;
+      --paper: #fdfbf7;
+      --ink: #1c1a17;
+      --ink2: #4a4640;
+      --rule: #ddd8ce;
+      --ac: #2c5f8a;
+      --ac2: #e8f0f8;
+      --ok: #1e6b3a;
+      --ok2: #e6f4ec;
+      --ng: #8b1f2f;
+      --ng2: #fdeaec;
+      --rv: #e8f4ec
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh
+    }
+
+    .hd {
+      height: 54px;
+      background: var(--ac);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .15)
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: -.02em
+    }
+
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      background: #7dd3fc;
+      border-radius: 50%
+    }
+
+    .hd-r {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    #pill {
+      display: none;
+      background: rgba(255, 255, 255, .18);
+      border: 1px solid rgba(255, 255, 255, .4);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff
+    }
+
+    #newbtn {
+      display: none;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .4);
+      color: #fff;
+      padding: 5px 13px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: .2s
+    }
+
+    #newbtn:hover {
+      background: rgba(255, 255, 255, .28)
+    }
+
+    #pg-setup,
+    #pg-proc,
+    #pg-quiz {
+      display: none
+    }
+
+    #pg-setup.on {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 54px);
+      padding: 48px 20px 72px
+    }
+
+    #pg-proc.on {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 54px);
+      gap: 20px
+    }
+
+    #pg-quiz.on {
+      display: block;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 36px 22px 100px
+    }
+
+    .setup-wrap {
+      width: 100%;
+      max-width: 480px
+    }
+
+    .setup-title {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1.25;
+      color: var(--ink);
+      margin-bottom: 8px
+    }
+
+    .setup-title span {
+      color: var(--ac)
+    }
+
+    .setup-sub {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 1.7;
+      margin-bottom: 32px
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .06)
+    }
+
+    .sec {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--rule)
+    }
+
+    .sec:last-of-type {
+      border-bottom: none
+    }
+
+    .lbl {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: var(--ink2);
+      text-transform: uppercase;
+      margin-bottom: 9px;
+      display: flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .ki-wrap {
+      position: relative
+    }
+
+    .ki {
+      width: 100%;
+      background: #fff;
+      border: 1.5px solid var(--rule);
+      border-radius: 8px;
+      padding: 10px 13px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--ink);
+      letter-spacing: .04em;
+      transition: .2s
+    }
+
+    .ki:focus {
+      outline: none;
+      border-color: var(--ac)
+    }
+
+    .ki::placeholder {
+      color: #bbb;
+      letter-spacing: 0
+    }
+
+    .ki-hint {
+      font-size: 11px;
+      color: var(--ink2);
+      margin-top: 7px;
+      line-height: 1.5
+    }
+
+    .ki-hint a {
+      color: var(--ac);
+      text-decoration: none
+    }
+
+    .drop {
+      border: 2px dashed var(--rule);
+      border-radius: 10px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: .25s;
+      position: relative;
+      overflow: hidden;
+      background: #f9f7f3
+    }
+
+    .drop:hover,
+    .drop.over {
+      border-color: var(--ac);
+      background: var(--ac2);
+      transform: translateY(-1px)
+    }
+
+    .drop input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      font-size: 0
+    }
+
+    .drop-ico {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: block
+    }
+
+    .drop h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px
+    }
+
+    .drop p {
+      font-size: 12px;
+      color: var(--ink2)
+    }
+
+    #chosen {
+      font-size: 12px;
+      color: var(--ok);
+      margin-top: 7px;
+      font-weight: 700
+    }
+
+    .go {
+      width: 100%;
+      padding: 14px;
+      background: var(--ac);
+      border: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s
+    }
+
+    .go:hover {
+      opacity: .9
+    }
+
+    .go:disabled {
+      opacity: .3;
+      cursor: not-allowed
+    }
+
+    .tags {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+      flex-wrap: wrap
+    }
+
+    .tag {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      padding: 4px 13px;
+      font-size: 11px;
+      color: var(--ink2)
+    }
+
+    .pc {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 40px 48px;
+      text-align: center;
+      width: 440px;
+      max-width: 90vw;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, .06)
+    }
+
+    .spin {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--rule);
+      border-top-color: var(--ac);
+      border-radius: 50%;
+      animation: spin .85s linear infinite;
+      margin: 0 auto 20px
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .pt {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 4px
+    }
+
+    .pf2 {
+      font-size: 12px;
+      color: var(--ink2);
+      margin-bottom: 20px;
+      word-break: break-all
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--ink2);
+      padding: 8px 11px;
+      border-radius: 7px;
+      transition: .3s
+    }
+
+    .step.on {
+      color: var(--ac);
+      background: var(--ac2);
+      font-weight: 600
+    }
+
+    .step.dn {
+      color: var(--ok)
+    }
+
+    .sic {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rule);
+      color: var(--ink2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: .3s
+    }
+
+    .step.on .sic {
+      background: var(--ac);
+      color: #fff
+    }
+
+    .step.dn .sic {
+      background: var(--ok);
+      color: #fff
+    }
+
+    /* 재시도 알림 */
+    .retry-notice {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #fff8e6;
+      border: 1px solid #f0c040;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #7a5f00;
+      line-height: 1.5;
+      display: none
+    }
+
+    .retry-notice.on {
+      display: block;
+      animation: fd .3s ease
+    }
+
+    .ebox {
+      background: var(--ng2);
+      border: 1px solid rgba(139, 31, 47, .25);
+      border-radius: 10px;
+      padding: 18px 22px;
+      font-size: 13px;
+      color: var(--ng);
+      max-width: 440px;
+      width: 90vw;
+      text-align: left;
+      line-height: 1.65;
+      white-space: pre-wrap
+    }
+
+    .ebox strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px
+    }
+
+    .bkbtn {
+      margin-top: 12px;
+      background: var(--ng);
+      color: #fff;
+      border: none;
+      padding: 7px 18px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer
+    }
+
+    .pbox {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, .05)
+    }
+
+    .phd {
+      background: var(--ac);
+      padding: 12px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .pbadge {
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em
+    }
+
+    .pmeta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, .75)
+    }
+
+    .pbody {
+      padding: 28px 32px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 15.5px;
+      line-height: 2.1;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: keep-all
+    }
+
+    .qhd {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      color: var(--ink2);
+      text-transform: uppercase;
+      margin-bottom: 14px
+    }
+
+    .qc {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: box-shadow .25s, border-color .25s;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .04)
+    }
+
+    .qc:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .08)
+    }
+
+    .qc.ok {
+      border-color: #7ecb99
+    }
+
+    .qc.ng {
+      border-color: #e8909a
+    }
+
+    .qt {
+      padding: 16px 22px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start
+    }
+
+    .qn {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: var(--rule);
+      color: var(--ink2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      transition: .25s;
+      margin-top: 2px
+    }
+
+    .qc.ok .qn {
+      background: var(--ok);
+      color: #fff
+    }
+
+    .qc.ng .qn {
+      background: var(--ng);
+      color: #fff
+    }
+
+    .qcode {
+      font-size: 10px;
+      color: var(--ink2);
+      letter-spacing: .04em;
+      margin-bottom: 4px
+    }
+
+    .qstem {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 15px;
+      line-height: 1.8;
+      font-weight: 500;
+      word-break: keep-all
+    }
+
+    .bogi {
+      margin: 12px 22px 0;
+      background: #f5f2ec;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 14px;
+      line-height: 1.85;
+      word-break: keep-all
+    }
+
+    .bogitl {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: var(--ink2);
+      margin-bottom: 8px;
+      font-family: 'Noto Sans KR', sans-serif
+    }
+
+    .chs {
+      padding: 12px 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px
+    }
+
+    .ch {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--rule);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--ink);
+      text-align: left;
+      width: 100%;
+      transition: all .14s ease;
+      word-break: keep-all
+    }
+
+    .ch:hover:not(:disabled) {
+      border-color: var(--ac);
+      background: var(--ac2);
+      transform: translateX(3px)
+    }
+
+    .ch:disabled {
+      cursor: default
+    }
+
+    .cc {
+      flex-shrink: 0;
+      width: 21px;
+      height: 21px;
+      border-radius: 50%;
+      border: 1.5px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      margin-top: 2px;
+      transition: .14s;
+      color: var(--ink2)
+    }
+
+    .ch:hover:not(:disabled) .cc {
+      border-color: var(--ac);
+      color: var(--ac)
+    }
+
+    .ch.isok {
+      border-color: #7ecb99;
+      background: var(--ok2);
+      animation: pop .3s ease
+    }
+
+    .ch.isok .cc {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: #fff
+    }
+
+    .ch.isng {
+      border-color: #e8909a;
+      background: var(--ng2);
+      animation: shk .35s ease
+    }
+
+    .ch.isng .cc {
+      background: var(--ng);
+      border-color: var(--ng);
+      color: #fff
+    }
+
+    .ch.rv {
+      border-color: #7ecb99;
+      background: var(--rv);
+      opacity: .8
+    }
+
+    .ch.rv .cc {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: #fff
+    }
+
+    .ch:disabled:not(.isok):not(.isng):not(.rv) {
+      opacity: .45
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(.98)
+      }
+
+      50% {
+        transform: scale(1.015)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    @keyframes shk {
+
+      0%,
+      100% {
+        transform: translateX(0)
+      }
+
+      25% {
+        transform: translateX(-5px)
+      }
+
+      75% {
+        transform: translateX(5px)
+      }
+    }
+
+    .exp {
+      margin: 0 22px 16px;
+      padding: 11px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      line-height: 1.65;
+      display: none;
+      word-break: keep-all
+    }
+
+    .exp.ok {
+      background: var(--ok2);
+      color: var(--ok);
+      border-left: 3px solid var(--ok)
+    }
+
+    .exp.ng {
+      background: var(--ng2);
+      color: var(--ng);
+      border-left: 3px solid var(--ng)
+    }
+
+    .exp.on {
+      display: block;
+      animation: fd .3s ease
+    }
+
+    @keyframes fd {
+      from {
+        opacity: 0;
+        transform: translateY(4px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .fin {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 40px;
+      text-align: center;
+      margin-top: 32px;
+      display: none;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .06)
+    }
+
+    .fin.on {
+      display: block;
+      animation: fd .5s ease
+    }
+
+    .fbig {
+      font-size: 68px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1;
+      color: var(--ac);
+      margin-bottom: 10px
+    }
+
+    .fmsg {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 5px
+    }
+
+    .fsub {
+      font-size: 13px;
+      color: var(--ink2)
+    }
+
+    .pr {
+      height: 5px;
+      background: var(--rule);
+      border-radius: 3px;
+      margin-top: 22px;
+      overflow: hidden
+    }
+
+    .pfill {
+      height: 100%;
+      background: var(--ac);
+      border-radius: 3px;
+      width: 0;
+      transition: width 1s ease
+    }
+
+    .fnew {
+      display: inline-block;
+      margin-top: 22px;
+      background: var(--ac);
+      color: #fff;
+      padding: 10px 26px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: .2s
+    }
+
+    .fnew:hover {
+      opacity: .88;
+      transform: translateY(-1px)
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hd">
+    <div class="logo">
+      <div class="logo-dot"></div>국어 디지털 문제지 생성기
+    </div>
+    <div class="hd-r">
+      <div id="pill">0 / 0</div>
+      <button id="newbtn" onclick="goSetup()">새 PDF 올리기</button>
+    </div>
+  </header>
+
+  <!-- SETUP -->
+  <div id="pg-setup" class="on">
+    <div class="setup-wrap">
+      <div class="setup-title">PDF 한 장으로<br><span>문제지 완성</span></div>
+      <div class="setup-sub">로컬 AI 모델(Ollama)이 지문과 문항을 자동 분석합니다.<br>텍스트 PDF를 지원합니다.</div>
+      <div class="card">
+        <div class="sec" id="ollama-status-sec">
+          <div class="lbl">🚀 로컬 AI 모델 설정</div>
+          <div class="ki-wrap" style="margin-bottom: 10px;">
+            <input class="ki" id="modelName" type="text" placeholder="모델 이름 (예: qwen2.5, llama3)" value="qwen2.5:14b">
+          </div>
+          <div class="ki-hint">
+            컴퓨터에 <a href="https://ollama.com/" target="_blank">Ollama</a>가 설치되어 실행 중이어야 합니다.<br>
+            <span id="conn-status" style="color:var(--ink2); font-weight:bold; margin-top: 5px; display:inline-block;">�
+              Ollama 연결 확인 중...</span>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="lbl">📑 시험지 PDF</div>
+          <div class="drop" id="dz">
+            <input type="file" id="fi" accept=".pdf" onchange="pickFile(this.files[0])">
+            <span class="drop-ico">📑</span>
+            <h3>PDF를 끌어다 놓거나 클릭</h3>
+            <p>텍스트 PDF 전용 (로컬 AI 보호)</p>
+            <div id="chosen"></div>
+          </div>
+        </div>
+        <button class="go" id="gobtn" onclick="start()" disabled>✨ 문제지 생성 시작</button>
+      </div>
+      <div class="tags">
+        <span class="tag">✅ 텍스트 PDF 전용</span>
+        <span class="tag">✅ 로컬 완전 무료</span>
+        <span class="tag">✅ 데이터 보호 100%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESSING -->
+  <div id="pg-proc">
+    <div class="pc">
+      <div class="spin" id="spin"></div>
+      <div class="pt" id="pt">분석 중...</div>
+      <div class="pf2" id="pf2"></div>
+      <div class="steps">
+        <div class="step on" id="s1">
+          <div class="sic">1</div><span>PDF 텍스트 추출 중</span>
+        </div>
+        <div class="step" id="s2">
+          <div class="sic">2</div><span>로컬 AI 분석 (오래 걸릴 수 있습니다)</span>
+        </div>
+        <div class="step" id="s3">
+          <div class="sic">3</div><span>정답·해설 정리</span>
+        </div>
+        <div class="step" id="s4">
+          <div class="sic">4</div><span>문제지 렌더링</span>
+        </div>
+      </div>
+      <div class="retry-notice" id="retryNotice"></div>
+    </div>
+    <div id="eb" style="display:none"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="pg-quiz"></div>
+
+  <script>
+    var pdfFile = null, quizData = null, answered = {}, score = 0, PDFJS = null;
+    var ollamaConnected = false;
+
+    // ── Ollama 연결 확인 ──
+    async function checkOllama() {
+      try {
+        var res = await fetch('http://localhost:11434/api/tags');
+        if (res.ok) {
+          document.getElementById('conn-status').innerHTML = '✅ Ollama 연결 성공';
+          document.getElementById('conn-status').style.color = 'var(--ok)';
+          ollamaConnected = true;
+          chk();
+        } else {
+          throw new Error();
+        }
+      } catch (e) {
+        document.getElementById('conn-status').innerHTML = '❌ Ollama 연결 실패. Ollama를 실행해 주세요.';
+        document.getElementById('conn-status').style.color = 'var(--ng)';
+        ollamaConnected = false;
+        chk();
+      }
+    }
+
+    // 최초 1회 체크
+    checkOllama();
+
+    // ── 파일 ──
+    function pickFile(f) { if (!f || f.type !== 'application/pdf') return; pdfFile = f; document.getElementById('chosen').textContent = '✓ ' + f.name; chk() }
+    function chk() {
+      var isModelInputReady = document.getElementById('modelName').value.trim() !== '';
+      document.getElementById('gobtn').disabled = !(pdfFile && isModelInputReady); // allow start even if connection check failed cross origin
+    }
+    var dz = document.getElementById('dz');
+    dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.classList.add('over') });
+    dz.addEventListener('dragleave', function () { dz.classList.remove('over') });
+    dz.addEventListener('drop', function (e) { e.preventDefault(); dz.classList.remove('over'); var f = e.dataTransfer.files[0]; if (f && f.type === 'application/pdf') { document.getElementById('fi').files = e.dataTransfer.files; pickFile(f) } });
+
+    document.getElementById('modelName').addEventListener('input', chk);
+
+    // ── 화면 ──
+    function showPage(id) { ['pg-setup', 'pg-proc', 'pg-quiz'].forEach(function (p) { document.getElementById(p).classList.toggle('on', p === id) }) }
+    function sOn(n) { var e = document.getElementById('s' + n); if (e) e.classList.add('on') }
+    function sDn(n) { var e = document.getElementById('s' + n); if (!e) return; e.classList.remove('on'); e.classList.add('dn'); e.querySelector('.sic').textContent = '✓' }
+    function sLbl(n, t) { var e = document.getElementById('s' + n); if (e) e.querySelector('span').textContent = t }
+    function showErr(msg) { document.getElementById('spin').style.display = 'none'; document.getElementById('pt').textContent = '오류 발생'; var b = document.getElementById('eb'); b.innerHTML = '<div class="ebox"><strong>⚠️ 오류</strong>' + esc(msg) + '<br><button class="bkbtn" onclick="goSetup()">← 돌아가기</button></div>'; b.style.display = 'block' }
+    function showRetry(msg) { var n = document.getElementById('retryNotice'); n.textContent = msg; n.classList.add('on') }
+    function hideRetry() { document.getElementById('retryNotice').classList.remove('on') }
+
+    // ── PDF.js ──
+    function loadPdfJs() {
+      return new Promise(function (res, rej) {
+        if (window.pdfjsLib) { PDFJS = window.pdfjsLib; return res() }
+        var urls = ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js', 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js'];
+        var i = 0;
+        function next() {
+          if (i >= urls.length) return rej(new Error('PDF.js를 불러올 수 없습니다.\n인터넷 연결을 확인해 주세요.'));
+          var s = document.createElement('script'); s.src = urls[i++];
+          s.onload = function () { PDFJS = window.pdfjsLib; try { PDFJS.GlobalWorkerOptions.workerSrc = '' } catch (e) { } res() };
+          s.onerror = function () { s.remove(); next() };
+          document.head.appendChild(s);
+        }
+        next();
+      });
+    }
+
+    async function tryExtractText(pdf) {
+      var lines = [];
+      for (var p = 1; p <= pdf.numPages; p++) {
+        var page = await pdf.getPage(p); var ct = await page.getTextContent();
+        var lastY = null, row = [];
+        for (var j = 0; j < ct.items.length; j++) {
+          var it = ct.items[j]; var y = it.transform[5];
+          if (lastY !== null && Math.abs(y - lastY) > 2) { lines.push(row.join('')); row = [] }
+          row.push(it.str); lastY = y;
+        }
+        if (row.length) lines.push(row.join('')); lines.push('');
+      }
+      return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    }
+
+    // ── Ollama API 통신 ──
+    var JSON_SCHEMA = '응답 형식 (순수 JSON, 코드블록 없이):\n'
+      + '{"title":"지문 주제어","subject":"과학기술|인문|사회|문학 중 하나","range":"[01~05] 형태",'
+      + '"passage":"지문 본문만 (단락구분 \\n\\n, 문항·선택지·각주 제외)",'
+      + '"questions":[{"id":1,"code":"[26002-0172]","stem":"발문 전체","has_bogi":false,"bogi":"",'
+      + '"choices":["선택지1","선택지2","선택지3","선택지4","선택지5"],"correct":3,"explanation":"정답 이유 2~3문장"}]}\n\n'
+      + '규칙: choices 반드시 5개(번호기호 제외). correct는 1~5 정수. "적절하지 않은 것" 유형=실제 틀린 선택지 번호. 코드블록 없이 JSON만 반환해.';
+
+    async function callOllama(promptText) {
+      var model = document.getElementById('modelName').value.trim();
+
+      var resp;
+      try {
+        resp = await fetch('http://localhost:11434/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: model,
+            prompt: promptText,
+            stream: false,
+            options: {
+              temperature: 0.1
+            },
+            format: "json"
+          })
+        });
+      } catch (e) {
+        throw new Error('Ollama 서버(localhost:11434)에 연결할 수 없습니다. 백그라운드에서 Ollama가 실행 중인지 확인해 주세요. CORS 문제일 수도 있습니다.\n(' + e.message + ')');
+      }
+
+      if (!resp.ok) {
+        var j = {}; try { j = await resp.json() } catch (e) { }
+        throw new Error('Ollama 오류 (' + resp.status + '): ' + (j.error || resp.statusText));
+      }
+
+      var d = await resp.json();
+      var raw = ''; try { raw = d.response.trim() } catch (e) { }
+      var clean = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+      try { return JSON.parse(clean) }
+      catch (e) {
+        var m = clean.match(/\{[\s\S]*\}/);
+        if (m) { try { return JSON.parse(m[0]) } catch (e2) { } }
+        throw new Error('AI 응답 파싱 실패.\n\n원본 응답 (처음 300자):\n' + raw.slice(0, 300));
+      }
+    }
+
+    // ── 메인 흐름 ──
+    async function start() {
+      var modelName = document.getElementById('modelName').value.trim();
+      if (!pdfFile || !modelName) return;
+      showPage('pg-proc');
+      document.getElementById('pf2').textContent = pdfFile.name;
+      answered = {}; score = 0;
+
+      try {
+        sLbl(1, 'PDF.js 로드 중…');
+        await loadPdfJs();
+        sLbl(1, 'PDF 파싱 중…');
+        var buf = await pdfFile.arrayBuffer();
+        var pdf = await PDFJS.getDocument({ data: buf }).promise;
+        sLbl(1, 'PDF 로드 완료 (' + pdf.numPages + '페이지)');
+        sDn(1);
+
+        sOn(2);
+        var txt = await tryExtractText(pdf);
+        var ptext = '';
+
+        if (txt.length < 80) {
+          throw new Error('스캔 이미지 PDF는 로컬 구동 버전에서 지원하지 않습니다 (텍스트 추출 실패). 텍스트가 복사되는 PDF를 사용해 주세요.');
+        } else {
+          ptext = '다음은 한국 국어 시험지 텍스트입니다. 지문과 문항을 분석해서 아래 요청된 JSON 형식으로 완벽하게 정리해서 응답하세요. 다른 설명은 하지 말고 JSON만 출력하세요.\n\n텍스트:\n---\n' + txt.slice(0, 25000) + '\n---\n\n' + JSON_SCHEMA;
+          sLbl(2, '로컬 모델(' + modelName + ') 생성 중… 성능에 따라 수 분이 걸릴 수 있습니다.');
+        }
+
+        quizData = await callOllama(ptext);
+
+        if (!quizData || !quizData.questions || !quizData.questions.length)
+          throw new Error('문항을 찾지 못했습니다.\n국어 시험지 PDF인지 확인해 주세요. 혹은 모델의 출력이 올바르지 않았을 수 있습니다.');
+        sLbl(2, '분석 완료 · 문항 ' + quizData.questions.length + '개');
+        sDn(2);
+
+        sOn(3); await sleep(300); sDn(3);
+        sOn(4); renderQuiz(quizData); await sleep(200); sDn(4); await sleep(200);
+
+        showPage('pg-quiz');
+        document.getElementById('pill').style.display = 'flex';
+        document.getElementById('newbtn').style.display = 'inline-block';
+        updPill();
+
+      } catch (err) { console.error(err); showErr(err.message || String(err)) }
+    }
+
+    // ── 렌더링 ──
+    function renderQuiz(d) {
+      var qs = d.questions || []; var nums = ['①', '②', '③', '④', '⑤'];
+      var h = '<div class="pbox"><div class="phd"><span class="pbadge">지 문</span><span class="pmeta">' + esc(d.range || '') + ' ' + esc(d.title || '') + ' · ' + esc(d.subject || '') + '</span></div><div class="pbody">' + esc(d.passage || '') + '</div></div><div class="qhd">— 문 항 —</div>';
+      for (var i = 0; i < qs.length; i++) {
+        var q = qs[i]; var chs = '';
+        for (var j = 0; j < (q.choices || []).length; j++) {
+          chs += '<button class="ch" id="c-' + q.id + '-' + (j + 1) + '" onclick="ans(' + q.id + ',' + (j + 1) + ',' + q.correct + ')">'
+            + '<span class="cc">' + nums[j] + '</span><span>' + esc(q.choices[j]) + '</span></button>';
+        }
+        var bogi = q.has_bogi && q.bogi ? '<div class="bogi"><div class="bogitl">◀ 보 기 ▶</div>' + esc(q.bogi) + '</div>' : '';
+        h += '<div class="qc" id="qc-' + q.id + '"><div class="qt"><div class="qn" id="qn-' + q.id + '">' + q.id + '</div>'
+          + '<div>' + (q.code ? '<div class="qcode">' + esc(q.code) + '</div>' : '') + '<div class="qstem">' + esc(q.stem) + '</div></div></div>'
+          + bogi + '<div class="chs" id="chs-' + q.id + '">' + chs + '</div><div class="exp" id="ex-' + q.id + '"></div></div>';
+      }
+      h += '<div class="fin" id="fin"><div class="fbig" id="fb"></div><div class="fmsg" id="fm"></div><div class="fsub" id="fs"></div><div class="pr"><div class="pfill" id="pf"></div></div><button class="fnew" onclick="goSetup()">📄 새 PDF 올리기</button></div>';
+      document.getElementById('pg-quiz').innerHTML = h;
+    }
+
+    // ── 채점 ──
+    function ans(qid, chosen, correct) {
+      if (answered[qid] !== undefined) return;
+      answered[qid] = chosen; var ok = chosen === correct; if (ok) score++;
+      document.querySelectorAll('#chs-' + qid + ' .ch').forEach(function (b, i) {
+        b.disabled = true; var n = i + 1;
+        if (n === chosen) b.classList.add(ok ? 'isok' : 'isng');
+        if (!ok && n === correct) b.classList.add('rv');
+      });
+      document.getElementById('qc-' + qid).classList.add(ok ? 'ok' : 'ng');
+      var q = quizData.questions.filter(function (x) { return x.id === qid })[0];
+      var ex = document.getElementById('ex-' + qid);
+      ex.textContent = (ok ? '✓ 정답!  ' : '✗ 오답.  ') + (q && q.explanation || '');
+      ex.className = 'exp ' + (ok ? 'ok' : 'ng') + ' on';
+      updPill();
+      if (Object.keys(answered).length === quizData.questions.length) setTimeout(showFin, 700);
+    }
+    function updPill() { document.getElementById('pill').textContent = score + ' / ' + Object.keys(answered).length }
+    function showFin() {
+      var total = quizData.questions.length, pct = score / total;
+      var msgs = [['다시 도전해요! 💪', '틀린 문항을 꼭 복습해 보세요.'], ['조금 더 힘내요! 📚', '지문을 다시 꼼꼼히 읽어보세요.'], ['반 이상 맞았어요! 🌱', '꾸준히 연습하면 금방 올라요.'], ['잘했어요! ⭐', '틀린 부분만 집중하면 완벽해요.'], ['훌륭해요! 🎯', '거의 다 맞췄네요!'], ['만점! 🏆', '완벽한 이해입니다. 수능 파이팅!']];
+      var idx = Math.min(Math.round(pct * (msgs.length - 1)), msgs.length - 1);
+      document.getElementById('fb').textContent = score + ' / ' + total;
+      document.getElementById('fm').textContent = msgs[idx][0];
+      document.getElementById('fs').textContent = msgs[idx][1];
+      document.getElementById('fin').classList.add('on');
+      setTimeout(function () { document.getElementById('pf').style.width = (pct * 100) + '%' }, 300);
+      document.getElementById('fin').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ── 초기화 ──
+    function goSetup() {
+      showPage('pg-setup');
+      document.getElementById('pill').style.display = 'none';
+      document.getElementById('newbtn').style.display = 'none';
+      document.getElementById('spin').style.display = 'block';
+      document.getElementById('eb').style.display = 'none';
+      document.getElementById('retryNotice').classList.remove('on');
+      document.getElementById('pt').textContent = '분석 중...';
+      document.getElementById('pf2').textContent = '';
+      var lbls = ['PDF 텍스트 추출 중', '로컬 AI 분석 (오래 걸릴 수 있습니다)', '정답·해설 정리', '문제지 렌더링'];
+      for (var i = 1; i <= 4; i++) { var el = document.getElementById('s' + i); el.className = 'step' + (i === 1 ? ' on' : ''); el.querySelector('.sic').textContent = i; el.querySelector('span').textContent = lbls[i - 1] }
+      quizData = null; answered = {}; score = 0; pdfFile = null;
+      document.getElementById('fi').value = ''; document.getElementById('chosen').textContent = '';
+      chk();
+      checkOllama();
+    }
+    function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br>') }
+    function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms) }) }
+  </script>
+</body>
+
+</html>
