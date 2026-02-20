@@ -1120,16 +1120,69 @@
 
         if (txt.length < 80) {
           throw new Error('텍스트를 추출할 수 없습니다. 문서가 비어있거나 지원되지 않는 형식입니다.');
-        } else {
-          ptext = '다음은 한국 국어 시험지 텍스트입니다. 지문과 문항을 분석해서 아래 요청된 JSON 형식으로 완벽하게 정리해서 응답하세요. 다른 설명은 하지 말고 JSON만 출력하세요.\n\n텍스트:\n---\n' + txt.slice(0, 100000) + '\n---\n\n' + JSON_SCHEMA;
-          sLbl(2, '로컬 모델(' + modelName + ') 생성 중… 성능에 따라 수 분이 걸릴 수 있습니다.');
         }
 
-        quizData = await callOllama(ptext);
+        // 지문 단위로 텍스트 분할
+        function splitTextByQuestions(fullText) {
+          var segments = [];
+          var regex = /\[\s*\d+\s*~\s*\d+\s*\]/g; // [1~4] 또는 [1 ~ 4] 형태
+          var matches = [];
+          var match;
+          while ((match = regex.exec(fullText)) !== null) {
+            matches.push({ index: match.index, text: match[0] });
+          }
 
-        if (!quizData || !quizData.questions || !quizData.questions.length)
+          if (matches.length === 0) {
+            // 정규식을 찾지 못한 경우 기존의 4000자 단위 분할 사용
+            var chunkSize = 4000;
+            for (var i = 0; i < fullText.length; i += chunkSize) {
+              segments.push({ title: '파트 ' + (Math.floor(i / chunkSize) + 1), text: fullText.slice(i, i + chunkSize) });
+            }
+            return segments;
+          }
+
+          for (var i = 0; i < matches.length; i++) {
+            var start = (i === 0) ? 0 : matches[i].index; // 첫 번째 매치 이전의 텍스트도 포함
+            var end = (i === matches.length - 1) ? fullText.length : matches[i + 1].index;
+            var segmentText = fullText.slice(start, end).trim();
+            if (segmentText.length > 50) { // 너무 짧은 텍스트는 무시
+              segments.push({ title: '지문 세트 ' + matches[i].text, text: segmentText });
+            }
+          }
+          return segments;
+        }
+
+        var chunks = splitTextByQuestions(txt);
+        quizData = { questions: [], passages: [] };
+
+        for (var i = 0; i < chunks.length; i++) {
+          sLbl(2, '로컬 모델(' + modelName + ') 분석 중… (' + (i + 1) + '/' + chunks.length + ' 파트: ' + chunks[i].title + ')');
+
+          var ptext = '다음은 한국 국어 시험지 텍스트의 일부분입니다 (' + chunks[i].title + '). 지문과 문항을 분석해서 아래 요청된 JSON 형식으로 완벽하게 정리해서 응답하세요. 만약 해당 조각에 문항이 없다면 빈 배열을 반환하세요. 시각 자료(그래프, 표 등)가 누락되어 문맥이 불완전할 수 있으나 유추해서 생성하세요. 다른 설명은 하지 말고 JSON만 출력하세요.\n\n텍스트:\n---\n' + chunks[i].text + '\n---\n\n' + JSON_SCHEMA;
+
+          try {
+            var res = await callOllama(ptext);
+            if (res && res.questions && res.questions.length > 0) {
+              quizData.questions = quizData.questions.concat(res.questions);
+              if (res.passage && res.title) {
+                quizData.passages.push({ title: res.title, subject: res.subject, range: res.range, passage: res.passage });
+              }
+            }
+          } catch (e) {
+            console.warn("Chunk " + i + " failed:", e);
+          }
+        }
+
+        if (!quizData.questions.length && quizData.passages.length === 0 && (!quizData.title || !quizData.passage)) {
           throw new Error('문항을 찾지 못했습니다.\n국어 시험지 PDF인지 확인해 주세요. 혹은 모델의 출력이 올바르지 않았을 수 있습니다.');
-        sLbl(2, '분석 완료 · 문항 ' + quizData.questions.length + '개');
+        }
+
+        // Re-index questions to ensure unique IDs across chunks
+        for (var i = 0; i < quizData.questions.length; i++) {
+          quizData.questions[i].id = i + 1;
+        }
+
+        sLbl(2, '분석 완료 · 총 문항 ' + quizData.questions.length + '개');
         sDn(2);
 
         sOn(3); await sleep(300); sDn(3);
@@ -1146,7 +1199,21 @@
     // ── 렌더링 ──
     function renderQuiz(d) {
       var qs = d.questions || []; var nums = ['①', '②', '③', '④', '⑤'];
-      var h = '<div class="pbox"><div class="phd"><span class="pbadge">지 문</span><span class="pmeta">' + esc(d.range || '') + ' ' + esc(d.title || '') + ' · ' + esc(d.subject || '') + '</span></div><div class="pbody">' + esc(d.passage || '') + '</div></div><div class="qhd">— 문 항 —</div>';
+      var h = '';
+
+      var passages = d.passages && d.passages.length > 0 ? d.passages : [{ title: d.title, subject: d.subject, range: d.range, passage: d.passage }];
+
+      for (var p = 0; p < passages.length; p++) {
+        var pTitle = passages[p].title || '';
+        var pSubj = passages[p].subject || '';
+        var pRange = passages[p].range || '';
+        var pText = passages[p].passage || '';
+        if (pText) {
+          h += '<div class="pbox"><div class="phd"><span class="pbadge">지 문 ' + (p + 1) + '</span><span class="pmeta">' + esc(pRange) + ' ' + esc(pTitle) + ' · ' + esc(pSubj) + '</span></div><div class="pbody">' + esc(pText) + '</div></div>';
+        }
+      }
+
+      h += '<div class="qhd">— 문 항 —</div>';
       for (var i = 0; i < qs.length; i++) {
         var q = qs[i]; var chs = '';
         for (var j = 0; j < (q.choices || []).length; j++) {
