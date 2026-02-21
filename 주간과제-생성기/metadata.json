@@ -1,0 +1,7 @@
+{
+  "name": "주간과제 생성기",
+  "description": "A sophisticated AI-powered tool that transforms CSAT reading passages into interactive, mobile-optimized learning web apps with automatic symbol marking and KakaoTalk integration.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
