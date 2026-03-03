@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-red: #7A1B2E;
+  --color-brand-black: #1A1A1A;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-slate-50 text-slate-900;
+  }
+}
+
+@layer components {
+  .ios-input {
+    @apply w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all duration-200;
+  }
+  
+  .section-card {
+    @apply bg-white border border-slate-100 rounded-2xl p-5 mb-6 shadow-sm;
+  }
+
+  .btn-primary {
+    @apply bg-brand-red text-white font-bold rounded-xl px-6 py-3 shadow-lg shadow-brand-red/20 active:scale-95 transition-all disabled:opacity-50;
+  }
+}
