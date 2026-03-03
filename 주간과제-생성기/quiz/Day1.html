@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Day 1 | 간쓸개 주간과제 1-7</title>
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --paper: #fefcf7;
+      --ink: #1a1612;
+      --ink-light: #4a4540;
+      --rule: #c8bfaa;
+      --accent: #2c4a7c;
+      --accent-light: #d4e0f0;
+      --correct: #2d6a4f;
+      --correct-bg: #d8f3dc;
+      --wrong: #9b2335;
+      --wrong-bg: #fde8ea;
+      --selected: #1a3560;
+      --selected-bg: #dce8f7;
+      --badge-required: #7c2c2c;
+      --badge-optional: #2c5a2c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      font-family: 'Noto Serif KR', 'Nanum Myeongjo', Georgia, serif;
+      color: var(--ink);
+      padding: 20px;
+    }
+    .exam-wrapper { max-width: 860px; margin: 0 auto; }
+
+    .exam-header {
+      text-align: center;
+      border-bottom: 3px double var(--accent);
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+    }
+    .exam-header h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 6px; }
+    .exam-header .meta { font-size: 0.85rem; color: var(--ink-light); }
+    .score-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    /* 섹션 헤더 */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 32px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .section-header h2 { font-size: 1.1rem; color: var(--accent); }
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      color: #fff;
+    }
+    .badge-required { background: var(--badge-required); }
+    .badge-optional { background: var(--badge-optional); }
+    .badge-lit { background: #4a2c7c; }
+
+    /* 지문 */
+    .passage-section {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      line-height: 1.95;
+      font-size: 1rem;
+    }
+    .passage-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .passage-section p { margin-bottom: 12px; }
+    .underline { text-decoration: underline; text-underline-offset: 3px; }
+    .bracket-section {
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
+      margin: 12px 0;
+      background: #f0f4fb;
+      border-radius: 0 6px 6px 0;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .bracket-label { font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+    .bogi-box {
+      border: 1px solid var(--rule);
+      background: #f8f5f0;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 14px 0;
+    }
+    .bogi-title { font-weight: 700; font-size: 0.9rem; color: var(--accent); margin-bottom: 8px; text-align: center; }
+    .footnotes {
+      border-top: 1px solid var(--rule);
+      margin-top: 16px;
+      padding-top: 10px;
+      font-size: 0.83rem;
+      color: var(--ink-light);
+      line-height: 1.6;
+    }
+
+    /* 시 지문 */
+    .poem-block {
+      font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif;
+      line-height: 2.1;
+      white-space: pre-line;
+      margin-bottom: 16px;
+    }
+    .poem-title { font-weight: 700; font-size: 0.95rem; color: var(--accent); margin-bottom: 6px; }
+    .poem-author { font-size: 0.82rem; color: var(--ink-light); text-align: right; margin-top: 4px; }
+
+    /* 문항 카드 */
+    .question-card {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 22px 28px;
+      margin-bottom: 20px;
+    }
+    .question-number {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent);
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+    .question-title { font-size: 0.975rem; line-height: 1.75; margin-bottom: 14px; color: var(--ink); }
+    .choices { display: flex; flex-direction: column; gap: 8px; }
+    .choice-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--rule);
+      border-radius: 6px;
+      background: var(--paper);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.94rem;
+      line-height: 1.6;
+      text-align: left;
+      color: var(--ink);
+      transition: all 0.15s;
+    }
+    .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-light); }
+    .choice-btn.selected { border-color: var(--selected); background: var(--selected-bg); color: var(--selected); font-weight: 600; }
+    .choice-btn.correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); font-weight: 700; }
+    .choice-btn.wrong { border-color: var(--wrong); background: var(--wrong-bg); color: var(--wrong); text-decoration: line-through; }
+    .choice-btn.reveal-correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); font-weight: 700; opacity: 0.8; }
+    .choice-num { font-weight: 700; min-width: 20px; color: var(--accent); }
+    .choice-btn.correct .choice-num, .choice-btn.reveal-correct .choice-num { color: var(--correct); }
+    .choice-btn.wrong .choice-num { color: var(--wrong); }
+    .result-bar { display: none; margin-top: 14px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; }
+    .result-bar.show { display: block; }
+    .result-bar.ok { background: var(--correct-bg); color: var(--correct); border: 1px solid #b7e4c7; }
+    .result-bar.ng { background: var(--wrong-bg); color: var(--wrong); border: 1px solid #f5c6cb; }
+    .result-icon { font-size: 1.3rem; margin-right: 6px; }
+    .q-status { float: right; font-size: 1.2rem; }
+
+    #final-panel {
+      display: none;
+      background: var(--paper);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      margin-top: 32px;
+    }
+    #final-panel.show { display: block; }
+    .final-score-ring {
+      width: 110px; height: 110px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .final-score-ring .big { font-size: 2rem; font-weight: 700; }
+    .final-score-ring .small { font-size: 0.75rem; }
+    .final-msg { font-size: 1.05rem; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+    .final-sub { font-size: 0.88rem; color: var(--ink-light); }
+    .retry-btn {
+      margin-top: 20px; padding: 10px 30px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 20px;
+      cursor: pointer; font-size: 0.95rem; font-family: inherit;
+    }
+    .retry-btn:hover { background: #1e3560; }
+    .graph-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 8px; }
+    .graph-table th, .graph-table td { border: 1px solid var(--rule); padding: 6px 10px; text-align: center; }
+    .graph-table th { background: var(--accent-light); font-weight: 700; color: var(--accent); }
+    @media (max-width: 600px) {
+      .passage-section, .question-card { padding: 16px 14px; }
+      body { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="exam-wrapper">
+
+  <div class="exam-header">
+    <h1>간쓸개 주간과제 1-7 · Day 1</h1>
+    <div class="meta">독서 (필수 + 선택) · 문학 | 총 14문항</div>
+    <div class="score-badge">점수: <span id="score-display">0</span> / <span id="total-display">14</span></div>
+  </div>
+
+  <!-- ════════════════════════════════════════ 독서 필수 ══════ -->
+  <div class="section-header">
+    <h2>독서</h2>
+    <span class="badge badge-required">필수</span>
+    <span style="font-size:0.9rem; color:var(--ink-light);">공개 시장 조작</span>
+  </div>
+
+  <div class="passage-section">
+    <div class="passage-title">[1~4] 다음 글을 읽고 물음에 답하시오.</div>
+    <p>통화 정책이란 화폐 발행의 독점적 권한을 지닌 중앙은행이 통화량에 영향을 미쳐 물가 안정과 금융 안정 등을 달성함으로써 경제가 지속 가능한 성장을 이룰 수 있도록 유도하는 정책을 말한다. 중앙은행이 시행할 수 있는 통화 정책의 수단은 여러 가지가 있지만, 가장 널리 사용하는 방식으로 공개 시장 조작이 있다. 공개 시장 조작이란 중앙은행이 은행이나 증권사 같은 금융 기관을 상대로 각종 채권을 매매하는 방법이다. 이러한 매매는 단기 금융 시장이나 채권 시장과 같이 아무런 자격 제한 없이 매매에 참여할 수 있는 공개 시장에서 이루어진다. 공개 시장에서 중앙은행이 이들 금융 기관을 상대로 채권을 매매하면 금융 기관이 현금화하여 가용할 수 있는 규모, 즉 유동성이 변화함에 따라 시중에 풀리는 통화량이 조절되는 효과가 발생한다.</p>
+    <p>침체된 경기를 회복시키고자 통화량을 늘리려 할 때, 중앙은행은 금융 기관이 보유하고 있던 채권을 공개 시장을 통해 매입한다. 이 과정에서 중앙은행이 채권 매입 대금으로 지불한 돈이 금융 기관을 통해 시중에 유통되어 통화량이 늘어난다. 이때 늘어나는 통화량은 승수 효과로 인해 중앙은행이 채권을 매입할 때 지불한 금액을 훨씬 넘어선다. 중앙은행이 금융 기관을 통해 공급한 통화가 대출 등의 신용 창출 과정으로 인해 수 배만큼 확대되어 유통되는 것이다.</p>
+    <p>중앙은행이 은행으로부터 채권을 매입하면서 10억 원을 지불했다고 하자. 은행은 이렇게 확보된 유동성으로 고객에게 대출할 수 있다. 다만 고객들이 예금을 인출할 것을 대비하여 법정 지급 준비율에 해당하는 금액만큼은 지급 준비금으로 남겨 두어야 한다. 지급 준비율이 10%라 할 때 은행은 1억 원을 지급 준비금으로 남겨 두고 9억 원을 고객에게 대출한다. 대출받은 사람은 이를 다시 은행에 예치할 수 있다. 혹은 누군가에게 9억 원을 지출하고 그 사람이 이 금액을 다른 은행에 예치할 수도 있다. 어떤 경로든 이렇게 다시 예치된 9억 원에 대해 해당 은행은 0.9억 원을 지급 준비금으로 남겨 두고 8.1억 원을 대출한다. 이러한 과정이 무한히 반복되면 결국 중앙은행의 채권 매입에 의해 공급된 10억 원은 100억 원까지 늘어나는 효과가 <span class="underline">ⓐ나타난다</span>. 중앙은행에 의해 공급된 통화가 몇 배 늘어나는지를 뜻하는 승수는 지급 준비율의 역수와 같다. 지급 준비율 10%, 즉 0.1의 역수는 10이므로 10배 늘어나는 것이다. 물론 대출받은 사람이 대출금 전액을 예금하는 것은 아니어서 일부를 현금으로 보유하므로 실제 통화량이 이만큼 늘어나지는 않는다.</p>
+    <p>이와 달리 경기가 과열되어 물가 상승이 가파르게 일어날 것으로 예상될 때, <span class="underline">㉠중앙은행은 보유하고 있던 채권을 공개 시장을 통해 금융 기관에 매각한다.</span> 이렇게 금융 기관이 채권을 사들이면 금융 기관들이 보유하고 있던 자금이 중앙은행으로 유입되어 그만큼 시중에 풀리는 통화량이 줄어든다. 금융 기관들은 대출할 수 있는 여력이 줄어듦에 따라 대출할 때의 이자율을 높이는 방식으로 대출 규모를 통제할 수밖에 없고, 이로 인해 금융 기관의 신용 창출 과정이 위축되는 것이다.</p>
+    <p>공개 시장 조작은 조절해야 할 통화량의 규모가 작아도 이에 맞추어 채권 매매를 통해 손쉽게 진행할 수 있으므로 널리 사용되지만, 그렇다고 하여 중앙은행이 통화량을 정확하게 통제할 수 있는 것은 아니다. 통화량의 증감 효과는 가계나 기업이 자산을 현금 형태로 보유하는 비율에 따라 달라지기 때문이다. 예를 들어 사람들이 은행 예금보다 현금 보유를 선호하면 은행의 신용 창출 과정도 그만큼 위축되고 이는 통화량 증감 효과를 줄인다. 또한 은행은 안정적인 자산 운용을 위해 법정 지급 준비율에 해당하는 지급 준비금을 초과하여 더 남겨 두는 지급 준비금, 즉 초과 지급 준비금을 보유할 수 있다. 이럴 때에도 은행의 신용 창출 능력은 줄어든다. 때문에 중앙은행은 은행들의 자산 규모와 지급 준비금에 대한 자료를 사전적으로 검토하여 적정 수준에서 공개 시장 조작을 단행해야 한다.</p>
+    <div class="footnotes">※ 채권: 정부나 지방 자치 단체, 기업 등이 필요한 자금을 차입하기 위해 발행하는 유가 증권.</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card" id="q1">
+    <span class="question-number">독서 01</span>
+    <span class="q-status" id="status-1"></span>
+    <div class="question-title">1. 윗글에 대한 이해로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(1,1,5)"><span class="choice-num">①</span><span>공개 시장이란 일정한 자격을 갖춘 기관들이 매매에 참여할 수 있는 시장이다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(1,2,5)"><span class="choice-num">②</span><span>공개 시장 조작은 조절해야 할 통화량이 일정 규모 이상일 때에만 활용할 수 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(1,3,5)"><span class="choice-num">③</span><span>중앙은행은 공개 시장 조작을 시행했을 때 증감하는 통화량을 정확하게 예측할 수 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(1,4,5)"><span class="choice-num">④</span><span>금융 기관의 신용 창출은 금융 기관이 중앙은행과 채권을 직접 거래하는 시점에 발생한다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(1,5,5)"><span class="choice-num">⑤</span><span>공개 시장 조작을 통해 나타나는 승수 효과는 개인과 기업의 현금 보유 성향이 클수록 낮아진다.</span></button>
+    </div>
+    <div class="result-bar" id="result-1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card" id="q2">
+    <span class="question-number">독서 02</span>
+    <span class="q-status" id="status-2"></span>
+    <div class="question-title">2. 윗글을 바탕으로 할 때, ㉠으로 인해 나타날 수 있는 현상이 <u>아닌</u> 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(2,1,1)"><span class="choice-num">①</span><span>금융 기관의 지급 준비금 규모가 늘어난다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(2,2,1)"><span class="choice-num">②</span><span>경제 전반에 걸쳐 물가 상승 압박이 완화된다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(2,3,1)"><span class="choice-num">③</span><span>고객이 대출할 때 적용받는 이자율이 올라간다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(2,4,1)"><span class="choice-num">④</span><span>금융 기관이 보유하고 있는 채권의 양이 늘어난다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(2,5,1)"><span class="choice-num">⑤</span><span>금융 기관을 통해 시중에 유통되는 통화량이 줄어든다.</span></button>
+    </div>
+    <div class="result-bar" id="result-2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card" id="q3">
+    <span class="question-number">독서 03</span>
+    <span class="q-status" id="status-3"></span>
+    <div class="question-title">3. 윗글을 바탕으로 〈보기〉의 상황에 대해 이해한 내용으로 적절하지 않은 것은?</div>
+    <div class="bogi-box">
+      <div class="bogi-title">〈보기〉</div>
+      <p>중앙은행은 통화량을 조절하려는 목적으로 공개 시장 조작을 단행하여 A 은행으로부터 100억 원 규모의 채권을 사들였다. 법정 지급 준비율은 5%이지만, A 은행은 보유하고 있는 유동성의 10%까지 지급 준비금으로 남겨 두는 자체 방침을 따른다.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(3,1,4)"><span class="choice-num">①</span><span>A 은행은 초과 지급 준비금으로 5억 원을 남겨 둘 것이다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(3,2,4)"><span class="choice-num">②</span><span>A 은행은 채권 매각으로 인해 90억 원의 대출 여력이 생길 것이다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(3,3,4)"><span class="choice-num">③</span><span>A 은행은 법정 지급 준비율만을 따르는 은행보다 신용 창출 능력이 떨어질 것이다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(3,4,4)"><span class="choice-num">④</span><span>A 은행이 법정 지급 준비율만 따른다면 시중 통화량의 증가분은 최대 500억 원이 될 것이다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(3,5,4)"><span class="choice-num">⑤</span><span>중앙은행이 A 은행을 통해 공개 시장 조작을 단행한 것은 경기 침체를 우려했기 때문일 것이다.</span></button>
+    </div>
+    <div class="result-bar" id="result-3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card" id="q4">
+    <span class="question-number">독서 04</span>
+    <span class="q-status" id="status-4"></span>
+    <div class="question-title">4. 문맥상 <u>ⓐ</u>의 의미와 가장 가까운 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(4,1,2)"><span class="choice-num">①</span><span>이 글에는 그녀의 견해가 잘 나타나 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(4,2,2)"><span class="choice-num">②</span><span>우선 약효가 나타날 때까지 기다려 봅시다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(4,3,2)"><span class="choice-num">③</span><span>그간 열심히 공부한 결과가 성적으로 나타났다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(4,4,2)"><span class="choice-num">④</span><span>나는 연락도 없이 불쑥 나타난 그를 보고 깜짝 놀랐다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(4,5,2)"><span class="choice-num">⑤</span><span>나그네의 뒷모습에는 오랜 여행의 피로가 나타나고 있었다.</span></button>
+    </div>
+    <div class="result-bar" id="result-4"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════ 독서 선택 ══════ -->
+  <div class="section-header">
+    <h2>독서</h2>
+    <span class="badge badge-optional">선택</span>
+    <span style="font-size:0.9rem; color:var(--ink-light);">디지털 악기에서의 신호 변환</span>
+  </div>
+
+  <div class="passage-section">
+    <div class="passage-title">[5~8] 다음 글을 읽고 물음에 답하시오.</div>
+    <p>디지털 악기는 보통의 악기에 전기 회로를 부착하여 악기의 소리를 디지털 데이터로 바꿀 수 있는 악기를 말한다. 디지털 악기를 사용하면 음량을 자유자재로 조절하거나 독특한 음색을 내는 등 다양한 기능을 활용할 수 있다.</p>
+    <p>악기의 소리, 즉 진동을 디지털 데이터로 바꾸기 위해서는 진동을 전기 신호로 바꾸는 과정이 먼저 진행되고, 이를 위해 피에조 소자가 사용된다. 내부에 양전하와 음전하가 규칙적으로 배열되어 있어 전기적으로 중성을 띠는 대부분의 물질과 달리, 피에조 소자는 양전하와 음전하의 위치가 조금씩 어긋나 있는 결정 구조를 띤다. 피에조 소자에 진동이 가해지면 결정 구조가 찌그러지면서 전위차가 형성되고 그에 따라 전류가 흐른다. 디지털 악기의 한 종류인 전자 바이올린에는 현들의 끝부분에 피에조 소자가 달려 있다. 연주자가 활로 현을 켜면 현의 진동이 피에조 소자에 전달되어 전기 신호가 발생한다.</p>
+    <p>현의 진동을 담은 전기 신호는 시간에 따라 전압의 크기가 연속적으로 변하는 아날로그 신호이다. 이를 디지털 데이터로 변환하기 위해서는 '아날로그 디지털 변환 장치(ADC)'를 통해 샘플링과 양자화의 과정을 거쳐야 한다. 샘플링이란 현의 진동을 담은 전압을 측정하기 위해 <span class="underline">㉠그 크기 값들을 얻어 내는 과정</span>을 말한다. 현의 진동과 이에 따른 전압의 변화는 연속적이지만 그 크기를 측정하는 데는 약간의 시간이 소요되므로 연속적으로 변하는 값을 모두 수집하는 것은 불가능하다. 이로 인해 일정한 시간 간격으로 전압의 크기를 측정하게 되는데, 이 시간 간격을 샘플링 주기라고 한다. 이 주기가 짧을수록 음의 미세한 변화를 더 정확하게 얻을 수 있다. 다만 그만큼 저장할 데이터의 양이 커지는 단점이 있다. 현이 일정하게 진동할 때 나타나는 진동 주기의 전압 크기의 주기적 변화로 나타나는데, 샘플링 주기는 이 진동 주기보다 1/2 이하로 짧아야 음의 변화를 비교적 비슷하게 반영할 수 있다. <span class="underline">㉡이렇게 샘플링하여 얻은 값들로는 음의 특성을 제대로 담을 수 없다.</span></p>
+    <p>양자화는 샘플링을 통해 얻은 전압의 크기를 0과 1로 이루어진 이진수로 변환하여 디지털 데이터를 만드는 과정이다. <span class="underline">㉢이를 통해 얻은 값은 매우 다양하다.</span> 0V와 1.4V 사이에도 무수히 많은 값이 존재하기 때문이다. 0 혹은 1이 저장되는 하나의 자릿수를 비트라 하는데, 아날로그 신호를 3비트의 디지털 데이터로 전환한다고 하더라도 가능한 조합은 여덟 가지밖에 되지 않는다. 즉 샘플링을 거쳐 얻은 전압값이 0V에서 1.4V 사이에 존재한다면 전압값을 여덟 개의 구간으로 나누어 표현해야 하므로 그 간격은 0.2V가 될 수밖에 없다. 샘플링을 통해 얻은 값이 0.43V라면 양자화 과정에서 이를 근사계산하여 0.4V로 저장한다. 이때 저장할 수 있는 최소 간격인 0.2V를 기본 단위량이라 한다. 악기의 음을 보다 정확하게 표현하려면 <span class="underline">㉣하나의 음을 저장하는 자릿수를 늘리면 되지만</span> 그만큼 처리해야 할 데이터의 양이 늘어나 처리 시간이 길어지고 더 큰 저장 용량을 필요로 하게 된다.</p>
+    <p><span class="underline">㉤이렇게 저장한 디지털 데이터를</span> 디지털 악기에서 음악으로 재생할 때에는 '디지털 아날로그 변환 장치(DAC)'를 거친다. DAC는 저장된 디지털 데이터와 샘플링 주기, 기본 단위량을 토대로, 재생할 음에 해당하는 전압과 해당 음의 재생 시간을 계산한다. 그리고 계산된 값에 해당하는 전압을 시간 순서대로 피에조 소자에 전달한다. 피에조 소자는 전압이 가해지면 내부 입자들이 진동하는 특성이 있다. 그 진동이 현을 울리면 소리가 퍼져 나간다.</p>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card" id="q5">
+    <span class="question-number">독서 05</span>
+    <span class="q-status" id="status-5"></span>
+    <div class="question-title">5. 윗글에 대한 이해로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(5,1,3)"><span class="choice-num">①</span><span>전자 바이올린에는 소리를 내는 현 대신 전기 회로가 부착되어 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(5,2,3)"><span class="choice-num">②</span><span>전자 바이올린에서 저장된 소리가 재생될 때에는 피에조 소자가 활용되지 않는다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(5,3,3)"><span class="choice-num">③</span><span>ADC의 샘플링 주기가 짧을수록, 기본 단위량이 작을수록 데이터의 처리 시간이 길어진다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(5,4,3)"><span class="choice-num">④</span><span>저장된 디지털 데이터를 토대로 DAC가 음을 재생하기 위해서는 또 한 번의 샘플링 과정이 필요하다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(5,5,3)"><span class="choice-num">⑤</span><span>피에조 소자는 내부에 양전하와 음전하가 규칙적으로 배열되어 있어 진동이 가해지면 전기가 발생한다.</span></button>
+    </div>
+    <div class="result-bar" id="result-5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card" id="q6">
+    <span class="question-number">독서 06</span>
+    <span class="q-status" id="status-6"></span>
+    <div class="question-title">6. ㉠~㉤에 대한 이해로 적절하지 않은 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(6,1,1)"><span class="choice-num">①</span><span>㉠은 현의 연속적인 진동에 따라 연속적으로 변하는 전압의 모든 값을 수집한 것이다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(6,2,1)"><span class="choice-num">②</span><span>㉡은 샘플링 주기를 현의 진동 주기와 동일하게 설정했을 경우 샘플링 과정을 거쳐 얻은 전압값들을 말한다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(6,3,1)"><span class="choice-num">③</span><span>㉢은 양자화 전의 전압값을 일컫는 것으로, 아날로그 신호를 대상으로 샘플링 주기마다 반복 측정하여 얻어진다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(6,4,1)"><span class="choice-num">④</span><span>㉣은 샘플링 과정을 거쳐 얻은 하나의 전압값을 디지털 데이터로 저장할 때 할당된 비트의 개수를 지칭한다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(6,5,1)"><span class="choice-num">⑤</span><span>㉤은 샘플링 과정과 양자화 과정을 모두 거친 후에 이진수의 형태로 저장된 데이터를 말한다.</span></button>
+    </div>
+    <div class="result-bar" id="result-6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card" id="q7">
+    <span class="question-number">독서 07</span>
+    <span class="q-status" id="status-7"></span>
+    <div class="question-title">7. 윗글을 바탕으로 〈보기〉에 대해 설명한 내용으로 적절하지 않은 것은?</div>
+    <div class="bogi-box">
+      <div class="bogi-title">〈보기〉</div>
+      <p>다음은 전자 바이올린에서 ADC에 입력된 전기 신호 그래프이다. 샘플링 주기는 0.1초로, 0.1초 간격의 지점들에서 샘플링이 이루어진다. 하나의 음은 3비트 디지털 데이터로 전환되며, 이때 0V는 이진수 000, 2.8V는 이진수 111에 대응한다.</p>
+      <table class="graph-table">
+        <tr><th>시간(초)</th><th>0.1</th><th>0.2</th><th>0.3</th><th>0.4</th><th>0.5</th><th>0.6</th><th>0.7</th><th>0.8</th></tr>
+        <tr><td>전압값(V, 근사)</td><td>1.6</td><td>2.4</td><td>2.0</td><td>2.4</td><td>2.0</td><td>1.6</td><td>2.0</td><td>2.0</td></tr>
+      </table>
+      <p style="font-size:0.82rem;color:#666;margin-top:6px;">※ 기본 단위량: 2.8÷7 = 0.4V, 3비트 이진수 000(0V)~111(2.8V)</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(7,1,3)"><span class="choice-num">①</span><span>0.7초 시점에서 샘플링을 통해 얻은 전압값은 이진수 101로 저장되겠군.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(7,2,3)"><span class="choice-num">②</span><span>샘플링 주기를 0.3초로 늘리면 0.8초 시점까지 음의 변화가 없는 상태로 저장되겠군.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(7,3,3)"><span class="choice-num">③</span><span>샘플링 주기를 0.05초로 줄이면 0.2초 시점의 음을 보다 정확하게 저장할 수 있겠군.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(7,4,3)"><span class="choice-num">④</span><span>하나의 음이 3비트 이진수에 저장되므로 양자화 과정에서의 기본 단위량은 0.4V이겠군.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(7,5,3)"><span class="choice-num">⑤</span><span>0.4초 시점에서 그래프의 값이 2.35V였다면 양자화 과정에서 2.4V로 근사계산하는 과정이 진행되겠군.</span></button>
+    </div>
+    <div class="result-bar" id="result-7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card" id="q8">
+    <span class="question-number">독서 08</span>
+    <span class="q-status" id="status-8"></span>
+    <div class="question-title">8. 문맥상 <u>㉤</u>에 쓰인 '저장한'의 의미와 가장 가까운 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(8,1,5)"><span class="choice-num">①</span><span>소화기는 눈에 잘 띄는 곳에 두어야 한다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(8,2,5)"><span class="choice-num">②</span><span>그 회사는 세계 각지에 지사를 두고 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(8,3,5)"><span class="choice-num">③</span><span>지난 일에는 미련을 두지 않는 것이 좋다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(8,4,5)"><span class="choice-num">④</span><span>종교는 인간 사랑을 기본 정신으로 두고 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(8,5,5)"><span class="choice-num">⑤</span><span>아래쪽에 주석을 달 만한 공백을 두고 글을 썼다.</span></button>
+    </div>
+    <div class="result-bar" id="result-8"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════ 문학 ══════ -->
+  <div class="section-header">
+    <h2>문학</h2>
+    <span class="badge badge-lit">필수</span>
+    <span style="font-size:0.9rem; color:var(--ink-light);">고전시가 · 현대시</span>
+  </div>
+
+  <!-- 고전시가 지문 -->
+  <div class="passage-section">
+    <div class="passage-title">[1~3] 다음 글을 읽고 물음에 답하시오.</div>
+
+    <div class="poem-title">(가)</div>
+    <div class="poem-block">바람도 쉬어 넘는 고개  구름이라도 쉬어 넘는 고개
+산진이 수진이 해동 보라매라도  다 쉬어 넘는 고봉 장성령 고개
+그 너머 님이 왔다 하면  나는 아니 한 번도 쉬어 넘으리라</div>
+    <div class="poem-author">- 작자 미상 -</div>
+
+    <div class="poem-title" style="margin-top:20px;">(나)</div>
+    <div class="poem-block">백초를 다 심어도 대는 아니 심을 것이
+겟대* 올고  살대* 가고  그리느니 붓대로다
+이 후에 올고 가고 그리는 대  심을 줄이 있으랴</div>
+    <div class="poem-author">- 작자 미상 -</div>
+    <div class="footnotes">*겟대: 대나무로 만든 관악기의 일종. &nbsp;&nbsp; *살대: 대나무로 만든, 화살의 몸을 이루는 막대.</div>
+
+    <div class="poem-title" style="margin-top:20px;">(다)</div>
+    <div class="poem-block">수심(愁心)은 불이 되어 가슴에 피어나니
+절로 난 그 불이 남의 탓도 아니로되
+내 하도 서러워 <span class="underline">㉠수인씨(燧人氏)</span>를 원망하노라
+
+함양 궁전(宮殿)은 다만 석 달 불 탔거만도
+지금까지 그 불을 오래 탔다 하진마는
+이 원수 이 불은 몇 살 몇 월을 지냈는고
+
+눈물은 장맛비 되고 한숨은 바람이 되어
+불거니 뿌리거니 그칠 적도 있었으니
+이 비로 저 불을 끌 직도 하다마는
+
+어찌한 불인지 <span class="underline">㉡풍우(風雨) 중에 타는구나</span>
+물불 상극(相克)이란 말도 <span class="underline">㉢거짓말이 되었구나</span>
+피거니 뿌리거니 승부 없이 싸우거든
+조그마한 몸은 <span class="underline">㉣천생터가 되었구나</span>
+
+아이고 <span class="underline">㉤하느님아</span> <span class="underline">㉥칠석 비*</span> 내리워 이 싸움 말리소서
+불쌍한 이 몸은 살가 바라나이다
+
+알고 싶네 <span class="underline">㉦전생(前生)에 무슨 죄</span>를 지어 두고
+해어질 제 검단 머리 희도록 못 보는고</div>
+    <div class="poem-author">- 박인로, 「상사곡」 -</div>
+    <div class="footnotes">*수인씨: 불을 일으켜 사람에게 화식을 가르쳤다는 전설상의 인물. &nbsp;&nbsp; *칠석 비: 견우와 직녀가 재회의 기쁨에 흘리는 눈물이라는 비.</div>
+  </div>
+
+  <!-- 문학 Q1 -->
+  <div class="question-card" id="q101">
+    <span class="question-number">문학 01</span>
+    <span class="q-status" id="status-101"></span>
+    <div class="question-title">1. (가), (다)에 대한 설명으로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(101,1,1)"><span class="choice-num">①</span><span>(가)는 상황을 가정하는 표현을 활용하여 그리움의 정서를 부각하고 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(101,2,1)"><span class="choice-num">②</span><span>(다)는 자연 현상과 인간의 삶을 대조적인 모습으로 그림으로써 시적 의미를 부각하고 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(101,3,1)"><span class="choice-num">③</span><span>(가)는 과거를 회상하는 표현을 통해, (다)는 미래를 전망하는 표현을 통해 낙관적 인식을 드러내고 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(101,4,1)"><span class="choice-num">④</span><span>(가)와 (다)는 모두 명시적 청자에게 말을 건네는 방식으로 화자의 감정을 드러내고 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(101,5,1)"><span class="choice-num">⑤</span><span>(가)와 (다)는 모두 일상을 벗어난 공간과 대비하여 일상의 공간에 의미를 부여하고 있다.</span></button>
+    </div>
+    <div class="result-bar" id="result-101"></div>
+  </div>
+
+  <!-- 문학 Q2 -->
+  <div class="question-card" id="q102">
+    <span class="question-number">문학 02</span>
+    <span class="q-status" id="status-102"></span>
+    <div class="question-title">2. ㉠~㉦에 대한 설명으로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(102,1,4)"><span class="choice-num">①</span><span>㉠과 ㉥을 원망하는 것에는, 자신을 떠난 임을 탓하고 싶지 않는 마음이 내포되어 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(102,2,4)"><span class="choice-num">②</span><span>㉡은 자신을 둘러싼 외적 시련을, ㉢은 그로 인해 혼란해진 자신의 마음을 표상하는 시어이다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(102,3,4)"><span class="choice-num">③</span><span>㉢을 언급한 것에는, 임과의 굳은 약속이 깨어지고 말았다는 허망한 심정이 담겨 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(102,4,4)"><span class="choice-num">④</span><span>㉣을 고대하는 것에는, 임과의 만남만이 자신을 구할 수 있다는 절박함이 내포되어 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(102,5,4)"><span class="choice-num">⑤</span><span>㉤과 관련된 생각에는, 자신과 임의 인연이 매우 깊은 것이라는 믿음이 내포되어 있다.</span></button>
+    </div>
+    <div class="result-bar" id="result-102"></div>
+  </div>
+
+  <!-- 문학 Q3 -->
+  <div class="question-card" id="q103">
+    <span class="question-number">문학 03</span>
+    <span class="q-status" id="status-103"></span>
+    <div class="question-title">3. 다음에 제시된 선생님의 안내에 따라 (나)와 (다)를 감상한 내용으로 적절하지 않은 것은?
+      <div class="bogi-box" style="margin-top:10px;">
+        <p>이별을 노래하는 시가에서는 사물의 속성과 관련된 연상이나 상상을 통해 자신의 처지와 정서를 표현하기도 합니다. 이를 참고하여 두 작품을 감상해 봅시다.</p>
+      </div>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(103,1,5)"><span class="choice-num">①</span><span>(나)는 '대'로 만든 사물들이 '올고' '가고' '그리는' 것을, 시어의 의미를 변용함으로써 임이 떠나가고 자신이 울며 임을 그리워하는 상황과 결부하고 있군.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(103,2,5)"><span class="choice-num">②</span><span>(나)의 화자가 '올고 가고 그리는 대'를 심지 않겠다고 한 것은, 이별을 연상하게 하는 대상에 대한 태도를 통해 자신의 한탄스러운 심경을 표현한 것이겠군.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(103,3,5)"><span class="choice-num">③</span><span>(다)의 화자는 자신의 '가슴'을 태우는 '수심'으로부터 '불'을 연상하고, 자신의 '눈물'로부터 물의 속성을 공유한 '비'를 연상하고 있군.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(103,4,5)"><span class="choice-num">④</span><span>(다)의 '이 불은 몇 살 몇 월을 지냈는고'와 '눈물은 장맛비 되고'는, 화자가 이별의 아픔 속에서 오랜 시간을 지내 온 처지임을 나타내는 것이겠군.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(103,5,5)"><span class="choice-num">⑤</span><span>(다)에서 '물불 상극'과 관련하여 '승부'를 언급한 것은, 대립하는 어느 한쪽의 소멸로 자신이 처한 상황이 바뀌기를 바라는 마음을 드러내고 있군.</span></button>
+    </div>
+    <div class="result-bar" id="result-103"></div>
+  </div>
+
+  <!-- 현대시 지문 -->
+  <div class="passage-section">
+    <div class="passage-title">[4~6] 다음 글을 읽고 물음에 답하시오.</div>
+
+    <div class="poem-title">(가)</div>
+    <div class="poem-block">고향은 찾아 무얼 하리
+일가 흩어지고 집 허너진데
+저녁 가마귀 가을 볕에 울고
+마을 앞 시내도 옛 자리 바뀌었을라.
+
+어린 때 꿈을 엄마 <span class="underline">㉠무덤 위에</span>
+남겨 두고 떠도는 구름 따라
+멈추는 듯 불려 온 지 여남은 해
+고향은 이제 찾아 무얼 하리.
+
+하늘가에 새 <span class="underline">㉡기름을</span> 그리어 보라
+남겨 둔 무엇일랑 못 잊히우라
+모진 바람아 마음껏 불어처라
+흩어진 꿈잣 쉬임 <span class="underline">㉢어디 찾는다냐.</span>
+
+<span class="underline">㉣험한 밭에 짓밟힌 고향 생각</span>—
+아득한 꿈엔 달려가는 길이언만—
+<span class="underline">㉤서로의 굳은 뜻을</span> 남겨 맞긴
+옛사랑의 생각 같은 쓰라린 심사어라.</div>
+    <div class="poem-author">- 박용철, 「고향」 -</div>
+
+    <div class="poem-title" style="margin-top:20px;">(나)</div>
+    <div class="poem-block">할머니 꽃씨를 받으신다.
+방공호 위에
+어쩌다 핀
+<span class="underline">㉥채송화</span> 꽃씨를 받으신다.
+
+호(壕) 안에는
+아예 들어오시질 않고
+말이 숫제 적어지신
+할머니는 그저 노여우시다.
+
+—진작 죽었더라면
+<span class="underline">㉦이런 꼴 저런 꼴</span>
+다 보지 않았으면만……
+글쎄 할머니
+그걸 <span class="underline">㉧어쩌란 말씀이세요.</span>
+
+숫제 말이 적어지신
+할머니의 <span class="underline">㉨노여우심을</span>
+풀 수는 없었다.
+
+할머니 꽃씨를 받으신다.
+인젠 <span class="underline">㉩지구가 꺼어진대도</span>
+할머니는 역시 살아 계시는 동안은
+그 작은 꽃씨를 받으시리라.</div>
+    <div class="poem-author">- 박남수, 「할머니 꽃씨를 받으시다」 -</div>
+  </div>
+
+  <!-- 문학 Q4 -->
+  <div class="question-card" id="q104">
+    <span class="question-number">문학 04</span>
+    <span class="q-status" id="status-104"></span>
+    <div class="question-title">4. (가)와 (나)에 대한 설명으로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(104,1,5)"><span class="choice-num">①</span><span>(가)는 수미상관의 기법을 활용하여 구조적 안정감을 주고 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(104,2,5)"><span class="choice-num">②</span><span>(나)는 계절에 따라 변화하는 주변 풍경을 묘사하고 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(104,3,5)"><span class="choice-num">③</span><span>(가)와 (나)는 모두 반어적 어조를 통해 주제를 부각하고 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(104,4,5)"><span class="choice-num">④</span><span>(가)와 달리 (나)는 색채 대비를 통해 시적 분위기를 조성하고 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(104,5,5)"><span class="choice-num">⑤</span><span>(나)는 (가)와 달리 대화적 상황을 제시하여 현장감을 자아내고 있다.</span></button>
+    </div>
+    <div class="result-bar" id="result-104"></div>
+  </div>
+
+  <!-- 문학 Q5 -->
+  <div class="question-card" id="q105">
+    <span class="question-number">문학 05</span>
+    <span class="q-status" id="status-105"></span>
+    <div class="question-title">5. ㉠~㉤에 대한 설명으로 적절하지 않은 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(105,1,2)"><span class="choice-num">①</span><span>㉠은 상실의 이미지를, ㉤은 생명의 이미지를 지니고 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(105,2,2)"><span class="choice-num">②</span><span>㉡은 긍정적 미래에 대한 믿음을, ㉢은 고통스러운 과거에 대한 자책을 나타내고 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(105,3,2)"><span class="choice-num">③</span><span>㉢은 상황이 나아지지 않을 것이라는 생각을, ㉣은 어쩔 수 없는 상황이라는 생각을 담고 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(105,4,2)"><span class="choice-num">④</span><span>㉣은 억압적이고 폭력적인 현실에 대한 반감을, ㉤은 참혹한 현실에 대한 안타까움을 내포하고 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(105,5,2)"><span class="choice-num">⑤</span><span>㉤은 소중한 것을 빼앗긴 상황을, ㉧은 모든 것이 파괴되고 말 상황을 환기하고 있다.</span></button>
+    </div>
+    <div class="result-bar" id="result-105"></div>
+  </div>
+
+  <!-- 문학 Q6 -->
+  <div class="question-card" id="q106">
+    <span class="question-number">문학 06</span>
+    <span class="q-status" id="status-106"></span>
+    <div class="question-title">6. 〈보기〉를 바탕으로 (가)와 (나)를 감상한 내용으로 적절하지 않은 것은?
+      <div class="bogi-box" style="margin-top:10px;">
+        <div class="bogi-title">〈보기〉</div>
+        <p>「고향」과 「할머니 꽃씨를 받으시다」는 비극적 현실로 인해 삶의 원형이 상실된 상황을 다룬 작품이다. 「고향」은 본래의 모습을 잃어버린 고향에 대해 체념과 그리움이 복합된 정서를 드러내면서, 일제 치하의 식민지 지식인이 겪는 정신적 방황을 표현하고 있다. 「할머니 꽃씨를 받으시다」는 평화로운 삶을 파괴한 한국 전쟁에 대해 비판적인 시선으로 접근하면서, 전쟁의 참화 속에서 생명을 존중하는 삶의 태도를 지켜 나가려는 인간의 모습을 형상화하고 있다.</p>
+      </div>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(106,1,4)"><span class="choice-num">①</span><span>(가): '일가 흩어지고 집 허너진데' '마을 앞 시내도 옛 자리 바뀌었을라'라고 한 것에서, 일제의 강압적 지배로 인해 삶의 원형인 고향이 훼손된 상황을 짐작할 수 있겠군.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(106,2,4)"><span class="choice-num">②</span><span>(가): '떠도는 구름 따라/멈추는 듯 불려 온 지 여남은 해'라고 한 것에서, 고향을 등지고 떠돌아야 했던 식민지 지식인의 정신적 방황을 짐작할 수 있겠군.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(106,3,4)"><span class="choice-num">③</span><span>(가): '고향은 이제 찾아 무얼 하리'라고 하면서도 '아득한 꿈엔 달려가는 길이언만'이라고 한 것에서, 고향에 대한 체념과 그리움의 정서를 함께 엿볼 수 있겠군.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(106,4,4)"><span class="choice-num">④</span><span>(나): '그저 노여우시다'나 '진작 죽었더라면'과 같은 표현에서, 전쟁으로 인해 서로 간의 증오가 팽배하고 생명을 무가치하게 여기게 된 세태를 엿볼 수 있겠군.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(106,5,4)"><span class="choice-num">⑤</span><span>(나): '할머니는 역시 살아 계시는 동안은/그 작은 꽃씨를 받으시리라'는 말에서, 어떠한 상황에서도 생명을 소중히 여기는 삶의 자세를 긍정하는 화자의 태도가 전달되고 있겠군.</span></button>
+    </div>
+    <div class="result-bar" id="result-106"></div>
+  </div>
+
+  <!-- 최종 결과 -->
+  <div id="final-panel">
+    <div class="final-score-ring">
+      <span class="big" id="final-score">0</span>
+      <span class="small">/ <span id="final-total">14</span></span>
+    </div>
+    <div class="final-msg" id="final-msg"></div>
+    <div class="final-sub" id="final-sub"></div>
+    <button class="retry-btn" onclick="location.reload()">다시 풀기 🔄</button>
+  </div>
+
+</div>
+<script>
+const state = { answers: {}, score: 0, total: 14 };
+
+const CORRECT = {
+  1:5, 2:1, 3:4, 4:2,
+  5:3, 6:1, 7:3, 8:5,
+  101:1, 102:4, 103:5,
+  104:5, 105:2, 106:4
+};
+
+const EXPLANATIONS = {
+  1: {
+    correct: "✅ 정답 ⑤: 현금 보유 성향이 클수록 예금 규모가 줄어 신용 창출이 위축되고, 이에 따라 승수 효과도 낮아집니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①공개 시장은 자격 제한 없이 누구나 참여할 수 있는 시장입니다. ②소규모라도 채권 매매를 통해 조작 가능합니다. ③개인·기업의 현금 보유 성향에 따라 정확한 예측이 불가능합니다. ④신용 창출은 대출-예금의 반복 과정에서 발생합니다.`
+  },
+  2: {
+    correct: "✅ 정답 ①: ㉠(채권 매각)으로 금융 기관의 유동성이 줄어들므로 지급 준비금 규모도 함께 줄어듭니다. 지급 준비금이 '늘어난다'는 것은 적절하지 않습니다.",
+    wrong: (c) => `❌ ${c}번 오답: ②~⑤는 채권 매각(통화 긴축) 이후 나타날 수 있는 현상으로 모두 적절합니다.`
+  },
+  3: {
+    correct: "✅ 정답 ④: 법정 지급 준비율 5%(=0.05)일 때 통화 승수는 1/0.05=20배이므로 최대 증가분은 100억×20=2,000억 원입니다. 500억 원은 오류입니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①초과분 5억(10%-5%=5%), ②자체 방침 10% 적용 후 대출 여력 90억, ③초과 준비 보유 시 신용 창출 능력 감소, ⑤채권 매입은 경기 부양 목적 — 모두 적절합니다.`
+  },
+  4: {
+    correct: "✅ 정답 ②: 문맥의 ⓐ나타난다는 '효과가 발생하다·생겨나다'의 의미입니다. ②의 '약효가 나타날 때까지'도 같은 의미(효과가 발생하다)입니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①표현·드러남, ③결과로 드러남, ④모습을 보이며 등장, ⑤표정·태도에 보임 — 문맥과 다른 의미입니다.`
+  },
+  5: {
+    correct: "✅ 정답 ③: 샘플링 주기가 짧을수록 더 많은 데이터를 처리해야 하고, 기본 단위량이 작을수록 비트 수가 늘어나 모두 처리 시간이 길어진다는 설명은 글과 일치합니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①현에 전기 회로를 추가하는 것이지 현을 대체하지 않습니다. ②재생 시 DAC→피에조 소자가 활용됩니다. ④DAC는 저장된 데이터를 토대로 재생하며 추가 샘플링은 없습니다. ⑤피에조 소자는 전하 배열이 '어긋나' 있습니다.`
+  },
+  6: {
+    correct: "✅ 정답 ①: ㉠은 일정 시간 간격(샘플링 주기)으로 측정한 전압값이지, 연속적으로 변하는 '모든 값'을 수집한 것이 아닙니다.",
+    wrong: (c) => `❌ ${c}번 오답: ②㉡은 샘플링 주기=진동 주기일 때 얻은 값(음 특성 미반영), ③㉢은 샘플링 후 양자화 전의 다양한 값, ④㉣은 하나의 음에 할당된 비트 수, ⑤㉤은 이진수로 완성 저장된 디지털 데이터 — 모두 적절합니다.`
+  },
+  7: {
+    correct: "✅ 정답 ③: 0.2초는 이미 0.1초 주기 샘플링에서 측정되는 지점입니다. 샘플링 주기를 0.05초로 줄여도 0.2초 지점의 '저장 정확도'는 비트 수(양자화)에 의해 결정되므로 달라지지 않습니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①0.7초≈2.0V → 2.0÷0.4=5 → 101(이진수)로 저장 ✓. ②0.3초 주기면 0.3, 0.6초 시점만 측정 → 변화 없음 ✓. ④기본단위량=2.8÷7=0.4V ✓. ⑤2.35V→가장 가까운 2.4V로 근사계산 ✓.`
+  },
+  8: {
+    correct: "✅ 정답 ⑤: ㉤의 '저장한'은 '데이터를 보관하기 위해 일정 공간에 보존하다'의 의미입니다. ⑤의 '공백을 두고'는 공간을 남겨 놓다는 의미로 가장 가깝습니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①장소에 놓다, ②지사를 설치하다·설립하다, ③마음에 품다·연연하다, ④정신적 기반으로 삼다 — 문맥과 다릅니다.`
+  },
+  101: {
+    correct: "✅ 정답 ①: (가)는 '님이 왔다 하면'이라는 가정 표현을 써서 임에 대한 간절한 그리움을 부각하고 있습니다.",
+    wrong: (c) => `❌ ${c}번 오답: ②(다)는 불과 비를 대립하되 자연 현상과 인간의 삶을 '대조'적으로 그린다고 보기 어렵습니다. ③낙관적 인식은 없습니다. ④명시적 청자에게 말을 건넨다고 보기 어렵습니다. ⑤일상 공간에 의미를 부여하는 내용이 없습니다.`
+  },
+  102: {
+    correct: "✅ 정답 ④: ㉣천생터(전쟁터)가 된 자신의 몸은 임과의 만남만이 이 싸움을 끝낼 수 있다는 절박함을 내포합니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①㉠수인씨 원망은 불을 사람에게 가르쳐 준 이에 대한 원망(수심-불 연상)입니다. ②㉡은 외적 시련이 아니라 수심이 만든 불 속 상황입니다. ③㉢은 물-불 상극이 통하지 않는다는 한탄입니다. ⑤㉤하느님에게 비를 내려 달라는 간청입니다.`
+  },
+  103: {
+    correct: "✅ 정답 ⑤: '승부 없이 싸우거든'은 불과 물이 우열 없이 지속되는 상태로, '한쪽 소멸로 상황이 바뀌기를 바라는 마음'이 아닙니다. 화자는 ㉥칠석 비(하느님)에게 싸움을 말려달라고 청합니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①~④는 모두 적절한 감상입니다.`
+  },
+  104: {
+    correct: "✅ 정답 ⑤: (나)에서는 '글쎄 할머니 / 그걸 ㉧어쩌란 말씀이세요'와 같은 대화 형식이 등장하여 현장감을 자아냅니다. (가)에는 이러한 대화적 상황이 나타나지 않습니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①(가)는 수미상관이 아닙니다. ②계절 변화 묘사가 아닙니다. ③반어적 어조는 드러나지 않습니다. ④색채 대비는 없습니다.`
+  },
+  105: {
+    correct: "✅ 정답 ②: ㉡기름은 하늘에 새로운 희망의 무늬를 그려 보는 것이지 '긍정적 미래에 대한 믿음'이라 단정 짓기 어렵고, ㉢'어디 찾는다냐'는 고향을 찾지 못하는 한탄으로 '과거에 대한 자책'이 아닙니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①③④⑤는 각 시어의 의미와 기능을 적절히 설명합니다.`
+  },
+  106: {
+    correct: "✅ 정답 ④: '그저 노여우시다'와 '진작 죽었더라면'은 전쟁의 참화에 대한 분노와 비탄입니다. 이를 '서로 간의 증오'나 '생명 경시'로 보는 것은 적절하지 않습니다. 할머니는 오히려 꽃씨를 받으며 생명을 소중히 여깁니다.",
+    wrong: (c) => `❌ ${c}번 오답: ①②③⑤는 〈보기〉를 바탕으로 한 적절한 감상입니다.`
+  }
+};
+
+const MSGS = [
+  '다시 한번 도전해 보세요! 💪','조금 더 힘내세요! 📚',
+  '절반 이상 맞았어요! 🌱','잘했어요! 복습하면 완벽해요 ⭐',
+  '훌륭합니다! 거의 다 맞았어요 🎯','만점! 완벽한 이해입니다! 🏆'
+];
+
+function answer(qId, chosen, correct) {
+  if (state.answers[qId] !== undefined) return;
+  state.answers[qId] = chosen;
+  const ok = (chosen === correct);
+  if (ok) state.score++;
+  document.querySelectorAll(`#q${qId} .choice-btn`).forEach(btn => {
+    btn.disabled = true;
+    const n = parseInt(btn.dataset.num);
+    if (n === chosen && ok)  btn.classList.add('correct');
+    if (n === chosen && !ok) btn.classList.add('wrong');
+    if (n === correct && !ok) btn.classList.add('reveal-correct');
+  });
+  const bar = document.getElementById(`result-${qId}`);
+  const exp = EXPLANATIONS[qId];
+  bar.classList.add('show', ok ? 'ok' : 'ng');
+  bar.innerHTML = `<span class="result-icon">${ok ? '✅' : '❌'}</span>` +
+    (ok ? exp.correct : exp.wrong(chosen));
+  const statusEl = document.getElementById(`status-${qId}`);
+  if (statusEl) statusEl.textContent = ok ? '✅' : '❌';
+  document.getElementById('score-display').textContent = state.score;
+  if (Object.keys(state.answers).length === state.total) showFinal();
+}
+
+function showFinal() {
+  const panel = document.getElementById('final-panel');
+  panel.classList.add('show');
+  document.getElementById('final-score').textContent = state.score;
+  document.getElementById('final-total').textContent = state.total;
+  const idx = Math.min(Math.floor(state.score / state.total * (MSGS.length - 1)), MSGS.length - 1);
+  document.getElementById('final-msg').textContent = MSGS[idx];
+  document.getElementById('final-sub').textContent =
+    `정답 ${state.score}문항 / 오답 ${state.total - state.score}문항`;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+</body>
+</html>

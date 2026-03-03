@@ -12,6 +12,11 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: 'http://localhost:11434',
           changeOrigin: true,
+        },
+        '/gemini': {
+          target: 'https://generativelanguage.googleapis.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/gemini/, ''),
         }
       }
     },

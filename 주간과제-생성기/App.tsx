@@ -1,8 +1,32 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Step, WeeklyConfig, LearnerData, SourceFile } from './types';
 import { extractWeeklyContent } from './services/geminiService';
 import { buildWeeklyLearnerHTML } from './services/templateBuilder';
+
+const COLOR_MAP: Record<string, string> = {
+  amber: 'bg-amber-600',
+  blue: 'bg-blue-600',
+  purple: 'bg-purple-600',
+  green: 'bg-green-600',
+};
+
+const FileDropZone = ({ title, icon, files, setFiles, color }: { title: string, icon: string, files: File[], setFiles: (f: File[]) => void, color: string }) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files) setFiles(Array.from(e.target.files)); };
+  const colorClass = COLOR_MAP[color] || 'bg-gray-600';
+  return (
+    <div className="relative flex-1 min-w-[150px] border-2 border-dashed rounded-[2rem] p-6 text-center transition-all duration-300 shadow-xl border-[#2e3448] bg-[#1a1e28] hover:border-gray-500">
+      <input type="file" multiple onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+      <div className="text-4xl mb-4">{icon}</div>
+      <p className="text-[11px] font-black uppercase tracking-widest mb-3 text-gray-400">{title}</p>
+      {files.length > 0 ? (
+        <div className={`text-[10px] font-black text-white ${colorClass} px-4 py-2 rounded-full inline-block`}>{files.length}개 로드</div>
+      ) : (
+        <div className="text-[9px] text-gray-600 font-bold italic">클릭하여 업로드</div>
+      )}
+    </div>
+  );
+};
 
 const App: React.FC = () => {
   const [step, setStep] = useState<Step>(Step.INPUT);
@@ -26,10 +50,23 @@ const App: React.FC = () => {
   const addLog = (m: string) => setLogs(prev => [...prev, `> ${m}`]);
 
   const fileToBase64 = (file: File): Promise<string> => {
+    // 10MB 초과 파일은 임베드 생략 (Dual-View에서 "원본 파일 없음" 표시)
+    const MAX_EMBED_MB = 10;
+    if (file.size > MAX_EMBED_MB * 1024 * 1024) return Promise.resolve("");
     return new Promise((resolve) => {
       const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          resolve((reader.result as string).split(',')[1]);
+        } else {
+          resolve("");
+        }
+      };
+      reader.onerror = () => {
+        console.warn(`파일 읽기 실패(OS 보안/메모리 이슈 가능성): ${file.name}`);
+        resolve(""); // 에러가 나도 전체 생성이 중단되지 않도록 빈 문자열 반환
+      };
       reader.readAsDataURL(file);
-      reader.onload = () => resolve((reader.result as string).split(',')[1]);
     });
   };
 
@@ -60,7 +97,8 @@ const App: React.FC = () => {
       // 2. Extract Content with AI
       const rawSets = await extractWeeklyContent(
         { schedule: scheduleFiles, reading: readingFiles, literature: literatureFiles, explanation: explanationFiles },
-        `${month}월 ${week}주차 ${assignmentTitle}`
+        `${month}월 ${week}주차 ${assignmentTitle}`,
+        addLog
       );
 
       const now = new Date();
@@ -98,22 +136,6 @@ const App: React.FC = () => {
     const blob = new Blob([html], { type: 'text/html' });
     setGeneratedUrl(URL.createObjectURL(blob));
     setStep(Step.COMPLETE);
-  };
-
-  const FileDropZone = ({ title, icon, files, setFiles, color }: { title: string, icon: string, files: File[], setFiles: (f: File[]) => void, color: string }) => {
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files) setFiles(Array.from(e.target.files)); };
-    return (
-      <div className={`relative flex-1 min-w-[150px] border-2 border-dashed rounded-[2rem] p-6 text-center transition-all duration-300 shadow-xl border-[#2e3448] bg-[#1a1e28] hover:border-gray-500`}>
-        <input type="file" multiple onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-        <div className={`text-4xl mb-4`}>{icon}</div>
-        <p className={`text-[11px] font-black uppercase tracking-widest mb-3 text-gray-400`}>{title}</p>
-        {files.length > 0 ? (
-          <div className={`text-[10px] font-black text-white bg-${color}-600 px-4 py-2 rounded-full inline-block`}>{files.length}개 로드</div>
-        ) : (
-          <div className="text-[9px] text-gray-600 font-bold italic">클릭하여 업로드</div>
-        )}
-      </div>
-    );
   };
 
   return (

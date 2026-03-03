@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Day 2 | 간쓸개 주간과제 1-7</title>
+  <style>
+    :root {
+      --bg: #f5f0e8; --paper: #fefcf7; --ink: #1a1612; --ink-light: #4a4540;
+      --rule: #c8bfaa; --accent: #2c4a7c; --accent-light: #d4e0f0;
+      --correct: #2d6a4f; --correct-bg: #d8f3dc; --wrong: #9b2335; --wrong-bg: #fde8ea;
+      --selected: #1a3560; --selected-bg: #dce8f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: 'Noto Serif KR','Nanum Myeongjo',Georgia,serif; color: var(--ink); padding: 20px; }
+    .exam-wrapper { max-width: 860px; margin: 0 auto; }
+    .exam-header { text-align: center; border-bottom: 3px double var(--accent); padding-bottom: 16px; margin-bottom: 28px; }
+    .exam-header h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 6px; }
+    .exam-header .meta { font-size: 0.85rem; color: var(--ink-light); }
+    .score-badge { display: inline-block; background: var(--accent); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.9rem; margin-top: 8px; }
+    .section-header { display: flex; align-items: center; gap: 10px; margin: 32px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); }
+    .section-header h2 { font-size: 1.1rem; color: var(--accent); }
+    .badge { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; color: #fff; }
+    .badge-required { background: #7c2c2c; } .badge-lit { background: #4a2c7c; }
+    .passage-section { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 28px 32px; margin-bottom: 24px; line-height: 1.95; font-size: 1rem; }
+    .passage-title { font-size: 1.05rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+    .passage-section p { margin-bottom: 12px; }
+    .underline { text-decoration: underline; text-underline-offset: 3px; }
+    .bracket-section { border-left: 3px solid var(--accent); padding: 8px 16px; margin: 12px 0; background: #f0f4fb; border-radius: 0 6px 6px 0; }
+    .bracket-label { font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+    .bogi-box { border: 1px solid var(--rule); background: #f8f5f0; border-radius: 6px; padding: 16px 20px; margin: 14px 0; }
+    .bogi-title { font-weight: 700; font-size: 0.9rem; color: var(--accent); margin-bottom: 8px; text-align: center; }
+    .footnotes { border-top: 1px solid var(--rule); margin-top: 16px; padding-top: 10px; font-size: 0.83rem; color: var(--ink-light); line-height: 1.6; }
+    .poem-block { font-family: 'Noto Serif KR','Nanum Myeongjo',serif; line-height: 2.1; white-space: pre-line; margin-bottom: 16px; }
+    .poem-title { font-weight: 700; font-size: 0.95rem; color: var(--accent); margin-bottom: 6px; }
+    .poem-author { font-size: 0.82rem; color: var(--ink-light); text-align: right; margin-top: 4px; }
+    .question-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 22px 28px; margin-bottom: 20px; }
+    .question-number { font-size: 0.8rem; font-weight: 700; color: #fff; background: var(--accent); display: inline-block; padding: 2px 10px; border-radius: 12px; margin-bottom: 10px; }
+    .question-title { font-size: 0.975rem; line-height: 1.75; margin-bottom: 14px; color: var(--ink); }
+    .choices { display: flex; flex-direction: column; gap: 8px; }
+    .choice-btn { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1.5px solid var(--rule); border-radius: 6px; background: var(--paper); cursor: pointer; font-family: inherit; font-size: 0.94rem; line-height: 1.6; text-align: left; color: var(--ink); transition: all 0.15s; }
+    .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-light); }
+    .choice-btn.selected { border-color: var(--selected); background: var(--selected-bg); color: var(--selected); font-weight: 600; }
+    .choice-btn.correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); font-weight: 700; }
+    .choice-btn.wrong { border-color: var(--wrong); background: var(--wrong-bg); color: var(--wrong); text-decoration: line-through; }
+    .choice-btn.reveal-correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); font-weight: 700; opacity: 0.8; }
+    .choice-num { font-weight: 700; min-width: 20px; color: var(--accent); }
+    .choice-btn.correct .choice-num, .choice-btn.reveal-correct .choice-num { color: var(--correct); }
+    .choice-btn.wrong .choice-num { color: var(--wrong); }
+    .result-bar { display: none; margin-top: 14px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; }
+    .result-bar.show { display: block; }
+    .result-bar.ok { background: var(--correct-bg); color: var(--correct); border: 1px solid #b7e4c7; }
+    .result-bar.ng { background: var(--wrong-bg); color: var(--wrong); border: 1px solid #f5c6cb; }
+    .result-icon { font-size: 1.3rem; margin-right: 6px; }
+    .q-status { float: right; font-size: 1.2rem; }
+    #final-panel { display: none; background: var(--paper); border: 2px solid var(--accent); border-radius: 12px; padding: 32px; text-align: center; margin-top: 32px; }
+    #final-panel.show { display: block; }
+    .final-score-ring { width: 110px; height: 110px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 18px; }
+    .final-score-ring .big { font-size: 2rem; font-weight: 700; } .final-score-ring .small { font-size: 0.75rem; }
+    .final-msg { font-size: 1.05rem; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+    .final-sub { font-size: 0.88rem; color: var(--ink-light); }
+    .retry-btn { margin-top: 20px; padding: 10px 30px; background: var(--accent); color: #fff; border: none; border-radius: 20px; cursor: pointer; font-size: 0.95rem; font-family: inherit; }
+    .retry-btn:hover { background: #1e3560; }
+    @media (max-width: 600px) { .passage-section, .question-card { padding: 16px 14px; } body { padding: 10px; } }
+  </style>
+</head>
+<body>
+<div class="exam-wrapper">
+
+  <div class="exam-header">
+    <h1>간쓸개 주간과제 1-7 · Day 2</h1>
+    <div class="meta">독서 (필수) · 문학 | 총 13문항</div>
+    <div class="score-badge">점수: <span id="score-display">0</span> / <span id="total-display">13</span></div>
+  </div>
+
+  <!-- ═══ 독서 필수 ═══ -->
+  <div class="section-header">
+    <h2>독서</h2>
+    <span class="badge badge-required">필수</span>
+    <span style="font-size:0.9rem;color:var(--ink-light);">별의 진화 과정</span>
+  </div>
+
+  <div class="passage-section">
+    <div class="passage-title">[9~13] 다음 글을 읽고 물음에 답하시오.</div>
+    <p>최초의 별은 은하가 탄생할 때 태어났지만, 이후에도 수소 분자, 먼지 등으로 이루어진 성간 물질로부터 별이 계속 태어난다. 성간 물질이 중력에 의해 수축하면 온도와 밀도가 상승하여 원시별이 생성된다. 원시별이 생성되면 그 주변의 성간 물질도 계속 끌려들어 원시별의 질량이 늘어나고 수축이 더 심화된다. 원시별의 내부 온도가 1천만℃에 도달하면 중심부에서 수소 원자들이 결합하여 헬륨 원자를 만드는 핵융합 반응이 일어나기 시작하며, 이때 원시별은 주계열성이 된다.</p>
+    <p>주계열성 단계에서는 핵융합 반응으로 발생하는 압력이 중력과 균형을 이루면서 별이 안정적으로 빛을 낸다. 별의 질량이 클수록 더 높은 온도와 압력 하에서 핵융합 반응이 일어나고 더 밝게 빛나지만, 그만큼 에너지 소모량도 급격히 커져 주계열성 단계에서 보내는 시간이 짧아진다.</p>
+    <p>주계열성의 중심부에 있는 수소 원자가 모두 헬륨 원자로 바뀌면 주계열성 단계가 끝난다. 더 이상 중심부에서 핵융합이 일어나지 않으므로 중심부는 중력에 의해 수축하지만, 중심부 주변의 껍질층에서는 수소의 핵융합 반응이 지속된다. 이때 발생하는 에너지로 인해 별의 외부 층이 팽창하는데, 이렇게 크기가 커질수록 열에너지가 표면까지 충분히 전달되지 못해 표면 온도가 하락하고 별은 붉은빛을 띠는 적색 거성이 된다. 이후 적색 거성의 수축하는 중심부 온도가 1억℃에 달하면 헬륨 원자들이 결합하여 탄소 원자를 만드는 핵융합이 시작되고, 이때 방출되는 에너지로 껍질층의 핵융합도 폭발적으로 활성화된다. 그 결과 질량의 일부를 이룬 껍질이 흩어져 버리고 중심의 핵만 남아, 더 이상 스스로 에너지를 만들어 내지 못하고 작지만 밀도가 크고 탄소 원자가 풍부한 백색 왜성이 된다.</p>
+    <p>태양 질량의 약 4~8배에 해당하는 적색 거성에서 진화한 백색 왜성은, 적색 거성과 쌍성을 이루는 경우 쌍성으로부터 물질을 끌어들인다. 백색 왜성이 충분한 물질을 끌어들여 질량이 한계점을 넘어서면 중력이 전자의 반발력보다 커져 원자가 붕괴되고, 전자와 양성자가 결합하여 중성자가 됨으로써 원자 내부의 빈 공간이 거의 없이 중성자로만 구성된 초고밀도의 중성자별 상태가 된다. 중심부의 밀도가 원자핵의 밀도와 비슷해지면 반발력에 의해 폭발이 일어나는데, 이를 <span class="underline">㉣제1형 초신성</span>이라 한다.</p>
+    <p>태양 질량의 8배 이상인 별은 외부로부터 물질 유입이 없어도 자체적인 중력에 의한 수축의 정도가 강해서 내부의 온도가 매우 높이 올라간다. 이에 따라 가벼운 원소들을 압축하여 무거운 원소로 바꾸는 핵융합 과정이 연쇄적으로 일어나면서 빛을 낸다. 시간이 갈수록 중심부에는 철 원자가 쌓이는데, 철 원자의 핵은 가장 안정적이어서 더 이상 핵융합의 원료로 사용될 수 없다. 중심부의 철 원자가 핵융합을 하지 못하여 중력에 저항할 수 있는 압력을 유지할 수 없게 되면 별이 붕괴하면서 급속도로 압축된다. 마침내 중심부의 밀도가 원자핵의 밀도와 비슷해지면 반발력에 의해 폭발이 일어나는데, 이를 제2형 초신성이라 한다.</p>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card" id="q9">
+    <span class="question-number">독서 09</span><span class="q-status" id="status-9"></span>
+    <div class="question-title">9. 윗글의 표제와 부제로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(9,1,5)"><span class="choice-num">①</span><span>천문 현상 연구의 가치 — 별의 진화 이론의 학술적 활용 방안을 중심으로</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(9,2,5)"><span class="choice-num">②</span><span>천문 현상의 연구와 그 의미 — 별의 종류와 물리적 특성을 중심으로</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(9,3,5)"><span class="choice-num">③</span><span>은하를 이루는 천체의 다양성 — 별들 사이의 물리적 상호 작용을 중심으로</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(9,4,5)"><span class="choice-num">④</span><span>천문 현상에 대한 탐구 방법론 — 별의 생성 원인과 결과를 중심으로</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(9,5,5)"><span class="choice-num">⑤</span><span>천체의 생성과 변화의 과학적 원리 — 별의 진화 과정을 중심으로</span></button>
+    </div>
+    <div class="result-bar" id="result-9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="question-card" id="q10">
+    <span class="question-number">독서 10</span><span class="q-status" id="status-10"></span>
+    <div class="question-title">10. 윗글에 대한 이해로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(10,1,3)"><span class="choice-num">①</span><span>별의 내부에서 핵융합이 활발히 일어날수록 그 별의 수명은 길다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(10,2,3)"><span class="choice-num">②</span><span>적색 거성은 고밀도의 백색 왜성으로 진화하면서 질량이 증가한다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(10,3,3)"><span class="choice-num">③</span><span>별이 에너지를 방출하는 과정에서는 중력과 반대 방향으로 압력이 발생한다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(10,4,3)"><span class="choice-num">④</span><span>별의 내부 온도가 1천만℃에 이르면 핵융합에 의해 탄소 원자가 생성된다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(10,5,3)"><span class="choice-num">⑤</span><span>중심부의 수소 원자가 모두 헬륨 원자로 바뀐 별은 더 이상 에너지를 방출하지 않는다.</span></button>
+    </div>
+    <div class="result-bar" id="result-10"></div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="question-card" id="q11">
+    <span class="question-number">독서 11</span><span class="q-status" id="status-11"></span>
+    <div class="question-title">11. [주계열성 단계]에 대한 설명으로 적절하지 않은 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(11,1,4)"><span class="choice-num">①</span><span>별의 질량이 클수록 에너지 소모량도 큰 단계이다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(11,2,4)"><span class="choice-num">②</span><span>중심부의 수소 원자가 헬륨 원자로 바뀌는 단계이다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(11,3,4)"><span class="choice-num">③</span><span>별의 진화 과정에서 상당 기간을 보내는 단계이다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(11,4,4)"><span class="choice-num">④</span><span>원시별에서 중심부의 핵융합 반응이 모두 끝난 후에 진입하는 단계이다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(11,5,4)"><span class="choice-num">⑤</span><span>별에서 압력과 수축력이 균형을 이루면서 안정적으로 빛을 발하는 단계이다.</span></button>
+    </div>
+    <div class="result-bar" id="result-11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="question-card" id="q12">
+    <span class="question-number">독서 12</span><span class="q-status" id="status-12"></span>
+    <div class="question-title">12. 윗글을 바탕으로 〈보기〉의 (A)~(C)에 들어갈 말을 바르게 짝지은 것은?</div>
+    <div class="bogi-box">
+      <div class="bogi-title">〈보기〉</div>
+      <p>원시별에서 별 내부의 압력이 중력보다 ( A ) 별의 중심부 온도가 상승하여 수소 원자가 헬륨 원자로 변하는 핵융합이 일어난다. 이후 주계열성에서 중심부의 수소 원자가 모두 소진되면 중심부가 수축하고, 그 결과 별의 크기는 ( B ) 별의 표면 온도는 하락하여 ( C )이 된다.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(12,1,4)"><span class="choice-num">①</span><span>A: 커지면 &nbsp; B: 커지고 &nbsp; C: 백색 왜성</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(12,2,4)"><span class="choice-num">②</span><span>A: 커지면 &nbsp; B: 작아지고 &nbsp; C: 백색 왜성</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(12,3,4)"><span class="choice-num">③</span><span>A: 작아지면 &nbsp; B: 작아지고 &nbsp; C: 백색 왜성</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(12,4,4)"><span class="choice-num">④</span><span>A: 작아지면 &nbsp; B: 커지고 &nbsp; C: 적색 거성</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(12,5,4)"><span class="choice-num">⑤</span><span>A: 작아지면 &nbsp; B: 작아지고 &nbsp; C: 적색 거성</span></button>
+    </div>
+    <div class="result-bar" id="result-12"></div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="question-card" id="q13">
+    <span class="question-number">독서 13</span><span class="q-status" id="status-13"></span>
+    <div class="question-title">13. 윗글의 ㉣과 〈보기〉의 ㉤을 비교하여 이해한 내용으로 가장 적절한 것은?</div>
+    <div class="bogi-box">
+      <div class="bogi-title">〈보기〉</div>
+      <p>태양의 8배 이상의 질량을 가진 별은 외부로부터의 물질 유입이 없어도 자체적인 중력에 의한 수축이 강해서 내부의 온도가 매우 높이 올라간다. 그에 따라 가벼운 원소들을 압축하고 가열하여 무거운 원소로 바꾸는 핵융합 과정이 연쇄적으로 일어나 빛을 낸다. 시간이 갈수록 중심부에는 철 원자가 쌓이는데, 철 원자의 핵은 가장 안정적이어서 더 이상 핵융합의 원료로 사용될 수 없다. 이로 인해 중력에 저항할 압력이 없어진 별이 붕괴하고 급속도로 압축되면서 중심부의 밀도가 원자핵의 밀도와 비슷해지면 반발력에 의해 폭발이 일어난다. 이것을 ㉤제2형 초신성이라 한다.</p>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(13,1,2)"><span class="choice-num">①</span><span>㉣과 ㉤은 모두 폭발 전에 중심부에 다량의 철 원자를 포함한다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(13,2,2)"><span class="choice-num">②</span><span>㉣과 ㉤은 모두 폭발 전에 중심부의 밀도가 원자핵의 밀도와 비슷해지는 것을 거친다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(13,3,2)"><span class="choice-num">③</span><span>㉣은 ㉤과 달리 폭발 전에 중성자의 반발력에 의해 별이 내부로 붕괴되는 과정을 거친다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(13,4,2)"><span class="choice-num">④</span><span>㉣은 ㉤과 달리 폭발 전에 자신과 쌍성을 이루던 천체의 물질을 끌어들이는 과정을 거친다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(13,5,2)"><span class="choice-num">⑤</span><span>㉤은 ㉣과 달리 폭발 전에 원자 내의 빈 공간이 거의 없어지는 원자의 붕괴 과정을 거친다.</span></button>
+    </div>
+    <div class="result-bar" id="result-13"></div>
+  </div>
+
+  <!-- ═══ 문학 ═══ -->
+  <div class="section-header">
+    <h2>문학</h2>
+    <span class="badge badge-lit">필수</span>
+    <span style="font-size:0.9rem;color:var(--ink-light);">현대시 (생의 감각 · 음지의 꽃)</span>
+  </div>
+
+  <div class="passage-section">
+    <div class="passage-title">[7~10] 다음 글을 읽고 물음에 답하시오.</div>
+    <div class="poem-title">(가)</div>
+    <div class="poem-block">여명(黎明)의 종이 울린다.
+새벽 별이 반짝이고 사람들이 같이 산다.
+닭이 운다. 개가 짖는다.
+오는 사람도 있고 가는 사람도 있다.
+오는 사람이 내게로 오고
+가는 사람이 내게서 간다.
+
+아픔에 하늘이 무너졌다.
+깨진 하늘이 아물 때에도
+가슴에 뼈가 서지 못해서
+푸른빛은 장마에
+넘쳐흐르는 흐린 강물 위에 떠서 황야에 갔다.
+
+나는 무너지는 둑에 혼자 섰다.
+기슭에는 채송화가 무더기로 피어서
+생(生)의 감각(感覺)을 흔들어 주었다.</div>
+    <div class="poem-author">- 김광섭, 「생의 감각」 -</div>
+
+    <div class="poem-title" style="margin-top:20px;">(나)</div>
+    <div class="poem-block">우리는 썩어 가는 참나무 떼.
+벌목의 슬픔으로 서 있는 이 땅
+패역의 골짜기에서
+<div class="bracket-section"><div class="bracket-label">[A]</div>서로에게 기댄 채 겨울을 난다</div>
+함께 썩어 갈수록
+바람은 더 높은 곳에서 우리를 흔들고
+이윽고 잠자던 홀씨들이 일어나
+<div class="bracket-section"><div class="bracket-label">[B]</div>우리 몸에 돋았던 상처마다 버섯이 피어난다</div>
+황홀한 음지의 꽃이여
+우리는 서서히 썩어 가지만
+너는 소나기처럼 후드득 피어나
+<div class="bracket-section"><div class="bracket-label">[C]</div>그 고통을 순간에 멈추게 하는구나</div>
+오, 버섯이여
+산비탈에 구르는 낙엽으로도
+골짜기를 떠도는 바람으로도
+덮을 길 없는 우리의 몸을
+<div class="bracket-section"><div class="bracket-label">[D]</div>뿌리 없는 너의 독기로 채우는구나</div></div>
+    <div class="poem-author">- 나희덕, 「음지의 꽃」 -</div>
+    <div class="footnotes">* 패역: 사람으로서 마땅히 하여야 할 도리에 어긋나고 순리를 거슬러 불순함.</div>
+  </div>
+
+  <!-- 문학 Q7 -->
+  <div class="question-card" id="q201">
+    <span class="question-number">문학 07</span><span class="q-status" id="status-201"></span>
+    <div class="question-title">7. (가)에 대한 이해로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(201,1,5)"><span class="choice-num">①</span><span>음성 상징어를 활용하여 시적 대상의 아름다움을 생동감 있게 나타내고 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(201,2,5)"><span class="choice-num">②</span><span>반어적 표현을 활용하여 부정적 현실에 대한 화자의 저항 의지를 강조하고 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(201,3,5)"><span class="choice-num">③</span><span>의인화된 자연물에 의탁하여 자신이 처한 상황에 대한 화자의 만족감을 표출하고 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(201,4,5)"><span class="choice-num">④</span><span>현재의 상황을 초래한 과거 사건을 언급하여 지나간 삶의 과정을 나타내고 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(201,5,5)"><span class="choice-num">⑤</span><span>유사한 문장 형태의 반복을 통해 자신을 중심으로 세계를 새롭게 인식하는 화자의 태도를 부각하고 있다.</span></button>
+    </div>
+    <div class="result-bar" id="result-201"></div>
+  </div>
+
+  <!-- 문학 Q8 -->
+  <div class="question-card" id="q202">
+    <span class="question-number">문학 08</span><span class="q-status" id="status-202"></span>
+    <div class="question-title">8. '채송화'와 '음지의 꽃'에 대한 설명으로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(202,1,1)"><span class="choice-num">①</span><span>'채송화'와 '음지의 꽃'은 모두 척박한 환경에서 살아가는 생명의 강인한 모습을 환기하는 소재이다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(202,2,1)"><span class="choice-num">②</span><span>'채송화'와 '음지의 꽃'은 모두 세속적인 가치에 연연하지 않는 자연 친화적인 태도를 부각하는 자연물이다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(202,3,1)"><span class="choice-num">③</span><span>'채송화'는 개체의 독립성이 중요함을, '음지의 꽃'은 개체 간의 조화가 중요함을 강조하는 소재이다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(202,4,1)"><span class="choice-num">④</span><span>'채송화'는 다양성이 존중되는 상황을, '음지의 꽃'은 개성이 획일적인 질서에 합몰되는 상황을 나타낸다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(202,5,1)"><span class="choice-num">⑤</span><span>'채송화'는 힘겹게 살아가는 고단한 삶의 모습을, '음지의 꽃'은 부조리한 사회의 어두운 면을 상징한다.</span></button>
+    </div>
+    <div class="result-bar" id="result-202"></div>
+  </div>
+
+  <!-- 문학 Q9 -->
+  <div class="question-card" id="q203">
+    <span class="question-number">문학 09</span><span class="q-status" id="status-203"></span>
+    <div class="question-title">9. [A]~[D]에 대한 이해로 적절하지 않은 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(203,1,2)"><span class="choice-num">①</span><span>[A]에서 '벌목'을 당한 참나무들이 '서로에게 기댄 채 겨울을 난다'는 것은, 고통받는 존재들이 연대하며 시련을 견디는 모습을 환기한다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(203,2,2)"><span class="choice-num">②</span><span>[B]에서 '썩어' 가는 참나무에서 '잠자던 홀씨들'이 '일어나'는 것은, 다른 존재에게 아픔을 준 존재가 스스로를 반성하게 된 상황을 환기한다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(203,3,2)"><span class="choice-num">③</span><span>[C]에서 참나무가 '서서히 썩어' 갈 때 버섯이 '소나기처럼 후드득 피어나'는 것은, 시련을 겪어 온 존재에게 상황 전환의 계기가 생겨나는 모습을 환기한다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(203,4,2)"><span class="choice-num">④</span><span>[D]에서 '낙엽'과 '바람'이 상처받은 참나무를 '덮을 길 없다'는 것은, 고통 속에 살아가는 존재가 외부로부터 위로나 보호를 구할 수 없는 상황을 환기한다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(203,5,2)"><span class="choice-num">⑤</span><span>[D]에서 버섯이 참나무의 썩어 가는 몸을 '독기로 채우는' 것은, 소외되고 불안정한 존재에게 삶을 지탱할 힘이 발현되는 상황을 환기한다.</span></button>
+    </div>
+    <div class="result-bar" id="result-203"></div>
+  </div>
+
+  <!-- 문학 Q10 -->
+  <div class="question-card" id="q204">
+    <span class="question-number">문학 10</span><span class="q-status" id="status-204"></span>
+    <div class="question-title">10. 〈보기〉를 바탕으로 (가)와 (나)를 감상한 내용으로 적절하지 않은 것은?
+      <div class="bogi-box" style="margin-top:10px;">
+        <div class="bogi-title">〈보기〉</div>
+        <p>생명에 대한 인식을 드러낸 시에서, 시인은 고통이나 죽음의 이미지를 활용하여 생명의 힘을 부각하기도 한다. (가)는 병고로 인해 생사의 갈림길에 섰던 시인이 자신의 체험을 바탕으로 생명력의 회복을 감각적으로 형상화한 작품이고, (나)는 썩은 나무에 핀 버섯에 주목한 시인이 나무의 입장을 상상하여 시련에 굴하지 않는 생명의 힘을 노래한 작품이다.</p>
+      </div>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(204,1,3)"><span class="choice-num">①</span><span>(가): '여명의 종'과 '새벽 별'은 시인이 건강을 회복하고 맞은 아침의 인상을, '하늘이 무너졌다'와 '깨진 하늘'은 시인이 병고를 치를 때의 심정을 감각적으로 형상화한 것이겠군.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(204,2,3)"><span class="choice-num">②</span><span>(가): '푸른빛'이 '황야에 갔다'는 것은 시인이 생명력을 잃어 갔던 상황을, '무너지는 둑에 혼자 섰다'는 것은 시인이 생사의 기로에 섰던 상황을 환기하는 것으로 볼 수 있겠군.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(204,3,3)"><span class="choice-num">③</span><span>(나): '썩어 가는 참나무 떼'가 '패역의 골짜기'를 벗어나려 한다는 것은, 시인이 나무의 입장을 상상함으로써 절망적 상황에 맞서려는 생명의 힘을 보여 주는 것이겠군.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(204,4,3)"><span class="choice-num">④</span><span>(나): 참나무들의 '돋았던 상처마다 버섯이 피어난다'라는 표현에서, 고통의 이미지를 활용하여 생명의 힘을 부각하려는 시인의 의도를 엿볼 수 있겠군.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(204,5,3)"><span class="choice-num">⑤</span><span>(나): 썩어 가는 참나무에 돋아난 버섯을 '황홀'하다고 표현한 것에서, 시련에 굴하지 않는 생명의 힘을 긍정하는 시인의 태도를 확인할 수 있겠군.</span></button>
+    </div>
+    <div class="result-bar" id="result-204"></div>
+  </div>
+
+  <!-- ═══ 문학 세트 2 ═══ -->
+  <div class="section-header">
+    <h2>문학</h2>
+    <span class="badge badge-lit">필수</span>
+    <span style="font-size:0.9rem;color:var(--ink-light);">현대시 (나비의 여행 · 상행)</span>
+  </div>
+
+  <div class="passage-section">
+    <div class="passage-title">[11~14] 다음 글을 읽고 물음에 답하시오.</div>
+    <div class="poem-title">(가)</div>
+    <div class="poem-block">아가는 밤마다 길을 떠난다.
+하늘하늘 밤의 어둠을 흔들면서
+수면(睡眠)의 강을 건너
+빛 뿌리는 기억의 들판을,
+출렁이는 내일의 바다를 날아다가
+깜깜한 절벽,
+헤어날 수 없는 미로에 부딪히곤
+까무라쳐 돌아온다.
+
+한 장 검은 표지를 열고 들어서면
+아비귀환하는 화약 냄새 소용돌이,
+전쟁은 언제나 거기서 그냥 타고
+연자색 안개의 베일 속
+파란 공포의 강물은 발길을 끊어 버리고
+사랑은 날아가는 파랑새
+해후는 언제나 넘겨지는 초조
+그리움은 꿈에서도 잡히지 않는다.
+
+꿈에서 지금 막 돌아와
+꿈의 이슬에 촉촉히 젖은 나래를
+내 팔 안에서 기진맥진 접는
+아가야!
+오늘은 어느 사나운 골짜기에서
+공포의 독수리를 만나
+소스라쳐 돌아왔느냐.</div>
+    <div class="poem-author">- 정한모, 「나비의 여행-아가의 방 5」 -</div>
+
+    <div class="poem-title" style="margin-top:20px;">(나)</div>
+    <div class="poem-block">가을 연기 자욱한 저녁 들판으로
+상행 열차를 타고 평택을 지나갈 때
+흔들리는 차창에서 너는
+<span class="underline">㉠문득 낯선 얼굴을 발견하</span>지도 모른다
+그것이 너의 모습이라고 생각지 말아 다오
+오징어를 씹으며 화투판을 벌이는
+<span class="underline">㉡낯익은 얼굴들이</span> 네 곁에 있지 않느냐
+
+황혼 속에 고삐 풀린 원색의 지붕들과
+잠자리처럼 파들거리는 TV 안테나들
+흥미 있는 주간지들 보며
+<span class="underline">㉢고개를 끄덕여 다오</span>
+
+농약으로 질식한 풀벌레의 울음 같은
+심야 방송이 잠든 뒤의 전파 소리 같은
+<span class="underline">㉣듣기 힘든 소리에 귀 기울이지 말아 다오</span>
+
+확성기마다 울려 나오는 힘찬 노래와
+고속도로를 달려가는 자동차 소리는 얼마나 경쾌하냐
+
+예부터 인생은 여행에 비유되었으니
+맥주나 콜라를 마시며
+즐거운 여행을 해 다오
+
+되도록 생각을 하지 말아 다오
+<span class="underline">㉤놀라울 때는 다만〈아!〉라고 말해 다오</span>
+보다 긴 말을 하고 싶으면 침묵해 다오
+침묵이 어색할 때는
+오랫동안 가문 날씨에 관하여
+아르헨티나의 축구 경기에 관하여
+성장하는 GNP와 증권 시세에 관하여
+이야기해 다오
+
+너를 위하여
+그리고 나를 위하여</div>
+    <div class="poem-author">- 김광규, 「상행」 -</div>
+  </div>
+
+  <!-- 문학 Q11 -->
+  <div class="question-card" id="q205">
+    <span class="question-number">문학 11</span><span class="q-status" id="status-205"></span>
+    <div class="question-title">11. (가), (나)의 공통점으로 가장 적절한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(205,1,3)"><span class="choice-num">①</span><span>감각적 이미지를 활용하여 환상적 분위기를 조성하고 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(205,2,3)"><span class="choice-num">②</span><span>계절감을 드러내는 표현으로 대상의 변화를 보여 주고 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(205,3,3)"><span class="choice-num">③</span><span>말을 건네는 방식을 활용하여 대상에 대한 관심을 드러내고 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(205,4,3)"><span class="choice-num">④</span><span>구체적인 지명을 제시하여 시적 상황에 현실감을 부여하고 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(205,5,3)"><span class="choice-num">⑤</span><span>시간의 흐름에 따라 시상을 전개하여 상황의 급박한 전환을 보여 주고 있다.</span></button>
+    </div>
+    <div class="result-bar" id="result-205"></div>
+  </div>
+
+  <!-- 문학 Q12 -->
+  <div class="question-card" id="q206">
+    <span class="question-number">문학 12</span><span class="q-status" id="status-206"></span>
+    <div class="question-title">12. (가)에 대한 설명으로 적절하지 않은 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(206,1,5)"><span class="choice-num">①</span><span>1연의 '하늘하늘'은 나비가 나는 모습을 연상시키며 '아가'의 여리고 순수한 이미지를 부각한다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(206,2,5)"><span class="choice-num">②</span><span>1연의 '수면의 강을 건너'는 3연의 '꿈에서 지금 막 돌아와'와 연결되어 '아가'의 여행이 잠에 들어 꿈속을 헤매다 깨어나는 것임을 보여 준다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(206,3,5)"><span class="choice-num">③</span><span>2연의 '한 장 검은 표지를 열고 들어서면'은 꿈의 공간 속으로 진입하는 장면을 연상하게 한다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(206,4,5)"><span class="choice-num">④</span><span>2연에서는 '사랑'이 '날아가' 버리고 '해후'가 이루어지지 않는다는 진술을 통해 꿈속의 부정적인 상황을 드러낸다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(206,5,5)"><span class="choice-num">⑤</span><span>3연의 '오늘은'은 1연의 '밤마다'와 대비되어 '아가'의 경험을 현재로 한정하면서 새로운 상황으로의 변화를 암시한다.</span></button>
+    </div>
+    <div class="result-bar" id="result-206"></div>
+  </div>
+
+  <!-- 문학 Q13 -->
+  <div class="question-card" id="q207">
+    <span class="question-number">문학 13</span><span class="q-status" id="status-207"></span>
+    <div class="question-title">13. 다음 선생님의 안내에 따라 ㉠~㉤을 탐구한 내용으로 적절하지 않은 것은?
+      <div class="bogi-box" style="margin-top:10px;">
+        <p>반어를 작품의 중심적인 구성 방식으로 채택한 시에서 화자의 목소리는 진심이 담겨 있지 않은 표면의 진술과 진심이 담겨 있는 이면의 진술로 나뉩니다. 이와 같은 진술이 작품 속에 나타난 양상을 확인하고 이면의 의미를 생각해 봅시다.</p>
+      </div>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(207,1,1)"><span class="choice-num">①</span><span>㉠의 이면에는 진숙한 본연의 자아를 찾으려는 요구가 담겨 있다.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(207,2,1)"><span class="choice-num">②</span><span>㉡의 이면에는 향락만을 쫓는 소시민적 삶을 경계하라는 요청이 담겨 있다.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(207,3,1)"><span class="choice-num">③</span><span>㉢의 이면에는 물질문명의 화려함이나 소비문화에 매몰되지 않기를 바라는 마음이 담겨 있다.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(207,4,1)"><span class="choice-num">④</span><span>㉣의 이면에는 산업화의 풍요 뒤에 은폐된 사회적 모순을 잊지 말라는 당부가 담겨 있다.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(207,5,1)"><span class="choice-num">⑤</span><span>㉤의 이면에는 사회 문제에 대해 적극적으로 발언하기를 바라는 마음이 담겨 있다.</span></button>
+    </div>
+    <div class="result-bar" id="result-207"></div>
+  </div>
+
+  <!-- 문학 Q14 -->
+  <div class="question-card" id="q208">
+    <span class="question-number">문학 14</span><span class="q-status" id="status-208"></span>
+    <div class="question-title">14. 〈보기〉를 참고하여 (가)와 (나)를 감상한 내용으로 적절하지 않은 것은?
+      <div class="bogi-box" style="margin-top:10px;">
+        <div class="bogi-title">〈보기〉</div>
+        <p>(가)와 (나)는 모두 특정한 인물을 작품에 등장시켜 현실에 대한 비판적 태도를 형상화하고 있다. (가)의 화자는 인물의 천진난만한 꿈이 전쟁의 공포로 인해 좌절되는 과정을 제시하여 폭력이 없지 않는 세계를 비판한다. (나)의 화자는 여행 중인 인물로부터 거리를 둔 채 그의 삶과 그가 속한 사회의 부정적인 면모를 비판하다가, 마지막에 인물과의 거리를 좁힘으로써 비판적 성찰의 필요성을 부각하고 있다.</p>
+      </div>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" data-num="1" onclick="answer(208,1,4)"><span class="choice-num">①</span><span>(가)에서 '아가'가 '길을 떠났다'가 '미로에 부딪혀' '까무라쳐 돌아온다'는 것은, 인물의 천진난만한 꿈이 좌절되는 과정을 보여 주는군.</span></button>
+      <button class="choice-btn" data-num="2" onclick="answer(208,2,4)"><span class="choice-num">②</span><span>(가)에서 '언제나 거기서' 있는 '전쟁'과 '파란 공포의 강물'을 결부하여 진술한 것은, 전쟁의 공포가 인물의 꿈을 가로막고 있음을 드러내는군.</span></button>
+      <button class="choice-btn" data-num="3" onclick="answer(208,3,4)"><span class="choice-num">③</span><span>(나)의 화자가 '너'에게 특정 행동을 하라고 하거나 하지 말라고 하는 요구를 반복하는 것에서, 인물로부터 거리를 둔 채 그를 비판적으로 바라보고 있는 화자의 태도가 부각되는군.</span></button>
+      <button class="choice-btn" data-num="4" onclick="answer(208,4,4)"><span class="choice-num">④</span><span>(나)의 '너'가 현실의 병폐를 알면서도 '성장하는 GNP와 증권 시세'를 더 중요시하는 모습에서, 현대인이 지닌 이중적 태도에 대한 화자의 비판적 인식을 엿볼 수 있군.</span></button>
+      <button class="choice-btn" data-num="5" onclick="answer(208,5,4)"><span class="choice-num">⑤</span><span>(나)에서 '너를 위하여'와 '나를 위하여'를 병치한 것은, 화자 자신의 삶의 모습 역시 비판의 대상인 인물과 다르지 않다는 뜻을 나타냄으로써 비판적 성찰의 필요성을 부각하고 있군.</span></button>
+    </div>
+    <div class="result-bar" id="result-208"></div>
+  </div>
+
+  <div id="final-panel">
+    <div class="final-score-ring">
+      <span class="big" id="final-score">0</span>
+      <span class="small">/ <span id="final-total">13</span></span>
+    </div>
+    <div class="final-msg" id="final-msg"></div>
+    <div class="final-sub" id="final-sub"></div>
+    <button class="retry-btn" onclick="location.reload()">다시 풀기 🔄</button>
+  </div>
+
+</div>
+<script>
+const state = { answers: {}, score: 0, total: 13 };
+const CORRECT = {
+  9:5, 10:3, 11:4, 12:4, 13:2,
+  201:5, 202:1, 203:2, 204:3,
+  205:3, 206:5, 207:1, 208:4
+};
+const EXPLANATIONS = {
+  9: { correct: "✅ 정답 ⑤: 글 전체는 별이 생성되어 주계열성→적색 거성→백색 왜성/초신성으로 진화하는 과학적 원리를 중심으로 서술합니다.", wrong: (c) => `❌ ${c}번: 이 글은 별의 진화 '과정'을 과학적으로 설명하며, 연구 방법론이나 학술적 활용이 아닌 진화의 원리 자체를 다룹니다.` },
+  10: { correct: "✅ 정답 ③: 핵융합 반응이 일어날 때 발생하는 압력은 중력에 맞서는 방향으로 작용합니다.", wrong: (c) => `❌ ${c}번: ①활발한 핵융합 = 에너지 소모 증가 = 수명 단축. ②적색 거성→백색 왜성 시 껍질이 날아가 질량 감소. ④1천만℃ = 수소→헬륨 핵융합, 탄소 생성은 1억℃. ⑤껍질층 핵융합이 지속됩니다.` },
+  11: { correct: "✅ 정답 ④: 원시별에서 내부 온도가 1천만℃에 달해 핵융합이 '시작되는' 시점에 주계열성이 됩니다. '모두 끝난 후'가 아닙니다.", wrong: (c) => `❌ ${c}번: ①②③⑤는 모두 주계열성 단계에 대한 적절한 설명입니다.` },
+  12: { correct: "✅ 정답 ④: A: 원시별 수축 과정에서 압력이 중력보다 '작아지면' 온도 상승 → 핵융합 시작. B: 껍질층 핵융합으로 외부 층 팽창 → 크기가 '커지고'. C: 표면 온도 하락 → '적색 거성'.", wrong: (c) => `❌ ${c}번: 원시별은 중력 수축 중(압력<중력)에 온도가 오르고, 수소 소진 후 별은 팽창하여 적색 거성이 됩니다.` },
+  13: { correct: "✅ 정답 ②: 제1형(㉣): '중심부의 밀도가 원자핵의 밀도와 비슷해지면 반발력에 의해 폭발' ✓ 제2형(㉤): '중심부의 밀도가 원자핵의 밀도와 비슷해지면 반발력에 의해 폭발' ✓ — 둘 다 같은 과정을 거칩니다.", wrong: (c) => `❌ ${c}번: ①제1형은 철 원자 축적이 아닌 쌍성 물질 흡수가 원인. ③두 경우 모두 유사한 붕괴 과정. ④맞지만 정답은 ②의 공통점. ⑤두 경우 모두 원자 붕괴를 거칩니다.` },
+  201: { correct: "✅ 정답 ⑤: 1연 '오는 사람이 내게로 오고 / 가는 사람이 내게서 간다'와 같이 유사한 형태를 반복해 화자 자신을 세계의 중심으로 인식하는 태도를 부각합니다.", wrong: (c) => `❌ ${c}번: ①음성 상징어 활용 없음. ②반어적 표현과 저항 의지 없음. ③채송화는 의인화 소재이나 만족감 표출이 아님. ④과거 사건 언급이 없습니다.` },
+  202: { correct: "✅ 정답 ①: '채송화'는 무너지는 둑(절망적 환경)에서 피어난 생명으로, '음지의 꽃(버섯)'은 썩어 가는 나무(척박한 환경)에서 핀 생명으로, 둘 다 척박한 환경에서의 강인한 생명력을 환기합니다.", wrong: (c) => `❌ ${c}번: ②자연 친화적 태도는 핵심이 아닙니다. ③④소재를 개체 독립성/다양성으로 해석하기 어렵습니다. ⑤고단함/부조리는 지나치게 한정적입니다.` },
+  203: { correct: "✅ 정답 ②: [B]에서 홀씨들이 일어나는 것은 고통받는 존재(참나무)에게서 새로운 생명(버섯)이 생겨나는 것을 나타냅니다. '다른 존재에게 아픔을 준 존재가 반성한다'는 해석은 적절하지 않습니다.", wrong: (c) => `❌ ${c}번: ①③④⑤는 각 단락의 의미를 적절히 설명합니다.` },
+  204: { correct: "✅ 정답 ③: (나)에서 '썩어 가는 참나무 떼'가 '패역의 골짜기를 벗어나려 한다'는 표현은 텍스트에 없습니다. 오히려 골짜기에서 겨울을 나며 버텨 내는 모습을 보여 줍니다.", wrong: (c) => `❌ ${c}번: ①②④⑤는 〈보기〉를 바탕으로 한 적절한 감상입니다.` },
+  205: { correct: "✅ 정답 ③: (가)에서 '아가야!'라고 부르며 말을 건네고, (나)에서도 '너'에게 '~해 다오'라고 말을 건네는 방식을 활용하여 대상에 대한 관심을 드러냅니다.", wrong: (c) => `❌ ${c}번: ①환상적 분위기는 (가)에만. ②계절감 변화는 핵심이 아님. ④지명은 (나)에만(평택). ⑤상황의 급박한 전환은 해당하지 않습니다.` },
+  206: { correct: "✅ 정답 ⑤: '오늘은'은 '밤마다' 꿈을 꾸는 아가의 오늘 꿈에 대한 구체적 언급으로, '새로운 상황으로의 변화 암시'가 아닙니다. 공포 상황이 반복됨을 보여 줍니다.", wrong: (c) => `❌ ${c}번: ①②③④는 모두 적절한 설명입니다.` },
+  207: { correct: "✅ 정답 ①: ㉠의 이면은 '낯선 얼굴이 바로 너의 진짜 모습임을 인식하라'는 뜻으로, '진숙한 자아를 찾으려는 요구'가 아니라 현실에 길들여진 자신의 모습을 자각하라는 요구입니다.", wrong: (c) => `❌ ${c}번: ②③④⑤는 반어의 이면을 적절히 파악한 내용입니다.` },
+  208: { correct: "✅ 정답 ④: 텍스트에서 '너'가 현실의 병폐를 '알면서도' GNP를 중요시한다는 것은 나타나지 않습니다. 화자는 단지 GNP 등에 관해 이야기하라고 반어적으로 말할 뿐입니다.", wrong: (c) => `❌ ${c}번: ①②③⑤는 〈보기〉를 바탕으로 적절하게 감상한 내용입니다.` }
+};
+const MSGS = ['다시 한번 도전해 보세요! 💪','조금 더 힘내세요! 📚','절반 이상 맞았어요! 🌱','잘했어요! 복습하면 완벽해요 ⭐','훌륭합니다! 거의 다 맞았어요 🎯','만점! 완벽한 이해입니다! 🏆'];
+function answer(qId, chosen, correct) {
+  if (state.answers[qId] !== undefined) return;
+  state.answers[qId] = chosen;
+  const ok = (chosen === correct);
+  if (ok) state.score++;
+  document.querySelectorAll(`#q${qId} .choice-btn`).forEach(btn => {
+    btn.disabled = true;
+    const n = parseInt(btn.dataset.num);
+    if (n === chosen && ok)  btn.classList.add('correct');
+    if (n === chosen && !ok) btn.classList.add('wrong');
+    if (n === correct && !ok) btn.classList.add('reveal-correct');
+  });
+  const bar = document.getElementById(`result-${qId}`);
+  const exp = EXPLANATIONS[qId];
+  bar.classList.add('show', ok ? 'ok' : 'ng');
+  bar.innerHTML = `<span class="result-icon">${ok ? '✅' : '❌'}</span>` + (ok ? exp.correct : exp.wrong(chosen));
+  const statusEl = document.getElementById(`status-${qId}`);
+  if (statusEl) statusEl.textContent = ok ? '✅' : '❌';
+  document.getElementById('score-display').textContent = state.score;
+  if (Object.keys(state.answers).length === state.total) showFinal();
+}
+function showFinal() {
+  const panel = document.getElementById('final-panel');
+  panel.classList.add('show');
+  document.getElementById('final-score').textContent = state.score;
+  document.getElementById('final-total').textContent = state.total;
+  const idx = Math.min(Math.floor(state.score / state.total * (MSGS.length - 1)), MSGS.length - 1);
+  document.getElementById('final-msg').textContent = MSGS[idx];
+  document.getElementById('final-sub').textContent = `정답 ${state.score}문항 / 오답 ${state.total - state.score}문항`;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+</body>
+</html>

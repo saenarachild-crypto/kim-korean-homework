@@ -19,6 +19,8 @@ export interface LearnerData {
   passage: string;
   questions: Question[];
   sourceFileId?: string;
+  releaseDate?: string;
+  recommendedTime?: number;
 }
 
 export interface SourceFile {
@@ -41,7 +43,7 @@ export interface WeeklyConfig {
 
 export enum Step {
   INPUT = 1,
-  SETTINGS = 2,
-  PROCESSING = 3,
+  PROCESSING = 2,
+  SETTINGS = 3,
   COMPLETE = 4
 }
