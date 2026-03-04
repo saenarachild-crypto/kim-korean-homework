@@ -1,577 +1,808 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>문학/독서 과제 생성기 · 셀프분석</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>통합 셀프분석 + 제출(GAS 고정)</title>
 <style>
   :root{
-    --bg:#f6f7fb; --card:#ffffff; --line:#e6e9f2; --soft:#f3f5fa;
-    --text:#1f2937; --muted:#6b7280; --p:#6c5ce7;
-    --ok:#c8f1d0; --maybe:#ffe5b4; --bad:#ffd1d1;
+    --bg:#f5f6fa; --card:#fff; --soft:#f3f4f7; --line:#e6e8ef;
+    --ok:#c8f1d0; --maybe:#ffe5b4; --bad:#ffd1d1; --text:#222;
+    --primary:#4f7cff;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);font-family:Pretendard,system-ui,-apple-system,Segoe UI,Roboto,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--text)}
-  .wrap{max-width:980px;margin:24px auto;padding:0 14px 60px}
-  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--p),#a29bfe);}
-  .ttl{font-weight:900;letter-spacing:-.3px}
-  .sub{font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.12em}
-  .btn{border:0;border-radius:999px;padding:10px 14px;cursor:pointer;font-weight:700}
-  .btn.p{background:var(--p);color:#fff}
-  .btn.g{background:var(--soft);color:var(--text)}
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px rgba(31,41,55,.06);padding:18px}
-  .row{display:flex;gap:12px;flex-wrap:wrap}
-  .col{flex:1;min-width:220px}
-  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px;font-weight:700}
-  input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:14px}
-  textarea{min-height:86px;resize:vertical}
-  .hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.35}
-  .sep{height:1px;background:var(--line);margin:14px 0}
-  .hide{display:none !important}
-
-  /* student */
-  .chip{display:inline-flex;align-items:center;gap:8px;background:var(--soft);border:1px solid var(--line);padding:8px 12px;border-radius:999px;font-weight:800}
-  .chip b{color:var(--p)}
-  .chips{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .pillbtn{border:0;border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer}
-  .pillbtn.ok{background:var(--ok)}
-  .pillbtn.maybe{background:var(--maybe)}
-  .pillbtn.bad{background:var(--bad)}
-  .pillbtn.dim{opacity:.55}
-  .sectionttl{font-size:18px;font-weight:900;margin:6px 0 10px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
-  .problem{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:12px}
-  .phead{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .pnum{font-weight:900;font-size:22px}
-  .choices{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center}
-  .cbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-weight:900;cursor:pointer;min-width:40px}
-  .cbtn.on{border-color:var(--p);box-shadow:0 0 0 2px rgba(108,92,231,.15)}
-  .status{display:flex;gap:10px;align-items:center}
-  .status .pillbtn{padding:10px 14px}
-  .actbar{position:fixed;left:0;right:0;bottom:0;background:rgba(246,247,251,.88);backdrop-filter:blur(6px);border-top:1px solid var(--line)}
-  .actbar .in{max-width:980px;margin:0 auto;padding:10px 14px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
-  .btn.full{padding:12px 16px}
-  .okmsg{background:var(--ok);border:1px solid #b9e7c3}
-  .warnmsg{background:var(--maybe);border:1px solid #f2d59a}
-  .errmsg{background:var(--bad);border:1px solid #f4bcbc}
+  body{margin:0;font-family:Pretendard,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--text)}
+  .wrap{max-width:980px;margin:32px auto;padding:0 16px}
+  .panel{background:var(--card);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:22px;margin-bottom:18px}
+  h1{font-size:20px;margin:0 0 8px}
+  h2{font-size:18px;margin:18px 0 10px}
+  label{display:block;margin:12px 0 6px;font-weight:700}
+  input[type="text"],input[type="number"],select,textarea{
+    width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff
+  }
+  textarea{min-height:88px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .btn{border:0;border-radius:999px;padding:9px 14px;cursor:pointer;font-weight:700}
+  .btn.primary{background:var(--primary);color:#fff}
+  .btn.ghost{background:#eef1f7}
+  .btn.ok{background:var(--ok)}
+  .btn.maybe{background:var(--maybe)}
+  .btn.bad{background:var(--bad)}
+  .pill{border-radius:999px;padding:6px 12px;background:#eef1f7;font-size:12px}
+  .muted{color:#666;font-size:12px}
+  .hidden{display:none}
+  .card{background:var(--soft);border-radius:16px;padding:14px;margin-top:12px;border:1px solid rgba(0,0,0,.03)}
+  .cardHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .cardTitle{font-weight:900}
+  .divider{height:1px;background:var(--line);margin:14px 0}
+  .mini{font-size:12px}
+  .right{margin-left:auto}
+  .danger{color:#b00020}
+  .choiceRow .btn{padding:7px 12px}
+  .status .btn{opacity:.45}
+  .status .btn.active{opacity:1}
+  .choiceRow .btn{opacity:.45}
+  .choiceRow .btn.active{opacity:1}
+  .stickyFooter{
+    position:sticky;bottom:0;background:rgba(245,246,250,.95);
+    padding:10px 0;margin-top:10px;
+  }
+  .footerInner{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:6px}
+  .badgeDot{width:10px;height:10px;border-radius:50%}
+  .dotOk{background:#26a269}.dotMaybe{background:#c9a000}.dotBad{background:#c01c28}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <div class="brand">
-      <div class="logo"></div>
+
+  <!-- 생성기 -->
+  <div class="panel" id="genPanel">
+    <h1>과제 생성기 (여러 작품/지문 지원)</h1>
+    <div class="grid2">
       <div>
-        <div class="ttl">수능특강 셀프분석+해설지</div>
-        <div class="sub">INTEGRATED SELF-STUDY NOTE</div>
-      </div>
-    </div>
-    <button class="btn g" id="btnGoGen">생성기</button>
-  </div>
-
-  <!-- GENERATOR -->
-  <div class="panel" id="viewGen">
-    <div class="sectionttl">과제 생성</div>
-    <div class="row">
-      <div class="col">
         <label>과제 제목</label>
-        <input id="gTitle" placeholder="예: 3월 1주차 수특 문학"/>
+        <input id="g-title" type="text" placeholder="예: 3월 1주차 수특 문학/독서" />
       </div>
-      <div class="col">
-        <label>과목/유형</label>
-        <select id="gType">
-          <option value="lit_poetry_modern">문학 · 현대시</option>
-          <option value="lit_poetry_classic">문학 · 고전시가</option>
-          <option value="lit_novel_modern">문학 · 현대소설</option>
-          <option value="lit_novel_classic">문학 · 고전소설</option>
-          <option value="reading">독서(비문학)</option>
-        </select>
-        <div class="hint">문학은 ‘익숙/낯섦’ 분류 + 장르별 분석 구조로 자동 생성됩니다.</div>
+      <div>
+        <label>도전 횟수 (1~3)</label>
+        <input id="g-attempts" type="number" min="1" max="3" value="3" />
       </div>
-      <div class="col">
-        <label>문항 수</label>
-        <input id="gQCount" type="number" min="1" max="45" value="5"/>
+      <div>
+        <label>시험지 링크</label>
+        <input id="g-testlink" type="text" placeholder="예: https://..." />
+      </div>
+      <div>
+        <label>해설지 링크</label>
+        <input id="g-solutionlink" type="text" placeholder="예: https://..." />
       </div>
     </div>
 
-    <div class="row">
-      <div class="col">
-        <label>도전 횟수(1~3)</label>
-        <input id="gAttempts" type="number" min="1" max="3" value="3"/>
-      </div>
-      <div class="col">
-        <label>시험지 링크(선택)</label>
-        <input id="gTestLink" placeholder="https://..."/>
-      </div>
-      <div class="col">
-        <label>해설지 링크(선택)</label>
-        <input id="gSolLink" placeholder="https://..."/>
-      </div>
-    </div>
+    <div class="divider"></div>
 
-    <div class="sep"></div>
-
-    <div class="sectionttl">정답 입력</div>
-    <div class="hint">문항 번호 옆에 정답을 입력하면, 학생이 도전 제출할 때 자동 채점됩니다.</div>
-    <div class="row" id="gAnsWrap"></div>
-
-    <div class="sep"></div>
-
-    <div class="sectionttl">지문/작품 정보</div>
-    <div class="row">
-      <div class="col">
-        <label>지문/작품 제목(선택)</label>
-        <input id="gWorkTitle" placeholder="예: 김소월, 길 / (독서) 수소 원자 모형"/>
-      </div>
-      <div class="col">
-        <label>지문/작품 링크(선택)</label>
-        <input id="gWorkLink" placeholder="https://..."/>
-      </div>
-    </div>
-
-    <div class="hint">완료 후 아래 버튼을 눌러 학생 화면으로 이동하세요.</div>
-    <div class="row" style="justify-content:flex-end;margin-top:10px">
-      <button class="btn p" id="btnStart">학생 화면 시작</button>
-    </div>
-  </div>
-
-  <!-- STUDENT -->
-  <div class="panel hide" id="viewStudent">
-    <div class="chips">
-      <span class="chip">도전 <b id="sTry">1</b> / <span id="sTryMax">3</span></span>
-      <span class="chip">정답 <b id="sScore">-</b> / <span id="sQMax">-</span></span>
-      <span class="chip">해설지 <b id="sSolState">잠김</b></span>
-    </div>
-
-    <div class="sep"></div>
-
-    <div class="row">
-      <div class="col">
-        <label>이름</label>
-        <input id="sName" placeholder="이름"/>
-      </div>
-      <div class="col">
-        <label>전화번호(또는 학번)</label>
-        <input id="sPhone" placeholder="010-xxxx-xxxx 또는 학번"/>
-      </div>
-    </div>
-
-    <div id="litFamiliarBox" class="card" style="margin-top:12px">
-      <div class="sectionttl" style="margin:0 0 10px">지문 체감 분류</div>
+    <div class="row" style="justify-content:space-between">
       <div class="row">
-        <button class="pillbtn ok dim" id="btnFam">익숙</button>
-        <button class="pillbtn maybe dim" id="btnUnfam">낯섦</button>
-        <div class="hint" id="famText" style="margin-top:10px"></div>
+        <span class="pill">작품/지문 목록</span>
+        <span class="muted">작품(문학)·지문(독서)을 원하는 만큼 추가하세요.</span>
+      </div>
+      <div class="row">
+        <button class="btn ghost" id="btnAddPassage">+ 작품/지문 추가</button>
       </div>
     </div>
 
-    <div class="sep"></div>
+    <div id="passageList"></div>
 
-    <div class="sectionttl">작품 분석</div>
-    <div id="analysisArea" class="card"></div>
+    <div class="divider"></div>
 
-    <div class="sep"></div>
+    <div class="row" style="justify-content:space-between">
+      <span class="muted">※ 정답은 각 작품/지문 카드에서 문항 수만큼 입력하세요.</span>
+      <button class="btn primary" id="btnBuild">학생 화면 시작</button>
+    </div>
+  </div>
 
-    <div class="sectionttl">문제 분석</div>
-    <div id="problemArea"></div>
+  <!-- 학생 -->
+  <div class="panel hidden" id="studentPanel">
+    <div class="row" style="justify-content:space-between">
+      <h1 id="s-title">셀프분석</h1>
+      <div class="pill" id="tryInfo">도전 1 / 3</div>
+    </div>
 
-    <div class="sep"></div>
-
-    <div id="resultBox" class="card hide">
-      <div class="sectionttl" style="margin:0 0 8px">제출 결과</div>
-      <div id="resultMsg" class="hint"></div>
-      <div class="row" style="margin-top:10px;gap:10px;flex-wrap:wrap">
-        <a id="btnOpenTest" class="btn g hide" target="_blank" rel="noopener">시험지 열기</a>
-        <a id="btnOpenSol" class="btn p hide" target="_blank" rel="noopener">해설지 열기</a>
+    <div class="grid2">
+      <div>
+        <label>이름</label>
+        <input id="s-name" type="text" placeholder="이름" />
       </div>
-      <div class="hint" style="margin-top:10px">해설지는 과제를 제출한 뒤(만점 또는 마지막 도전 종료)에만 열립니다.</div>
+      <div>
+        <label>전화번호(또는 학번)</label>
+        <input id="s-phone" type="text" placeholder="010-xxxx-xxxx / 학번" />
+      </div>
     </div>
-  </div>
-</div>
 
-<div class="actbar hide" id="actbar">
-  <div class="in">
-    <div class="hint" id="autosaveHint">자동 저장됨</div>
-    <div class="row" style="margin-left:auto">
-      <button class="btn g full" id="btnSaveLocal">임시저장</button>
-      <button class="btn p full" id="btnSubmit">제출(도전)</button>
+    <div class="divider"></div>
+
+    <div id="studentPassages"></div>
+
+    <div class="stickyFooter">
+      <div class="footerInner">
+        <div class="row">
+          <button class="btn ghost" id="btnOpenTest">시험지 보기</button>
+          <button class="btn ghost hidden" id="btnOpenSol">해설지 보기</button>
+          <span class="muted" id="submitHint">해설지는 제출 완료 후(만점 또는 마지막 도전) 열립니다.</span>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="btnSubmit">제출(채점+전송)</button>
+        </div>
+      </div>
     </div>
   </div>
+
 </div>
 
 <script>
+/* =========================
+   고정 GAS URL (사용자 제공)
+========================= */
 const GAS_SUBMIT_URL = "https://script.google.com/macros/s/AKfycbw05gNe7MRMnFfo10otZ1BU-IXwKmLQGLTYQznrynRCfYzh7YMw7JYpyQjZUe8IbQFjHw/exec";
 
+/* =========================
+   유틸
+========================= */
 const $ = (id)=>document.getElementById(id);
-let CFG=null;
+const uid = ()=>crypto.randomUUID();
+function esc(s){return String(s||"").replace(/[&<>"]/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m]));}
+function toast(msg){alert(msg);}
 
-let familiarity=null;
-let studentAnswers={}; // q -> 1..5
-let statusMark={};     // q -> correct|confuse|wrong
-let tryCount=1;
-let solUnlocked=false;
+/* =========================
+   상태
+========================= */
+let ASGN = null;
+let currentTry = 1;
 
-function esc(s){return (s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-
-function renderAnsInputs(){
-  const wrap=$('gAnsWrap');
-  wrap.innerHTML='';
-  const q=parseInt($('gQCount').value||5);
-  for(let i=1;i<=q;i++){
-    const d=document.createElement('div');
-    d.className='col';
-    d.style.minWidth='140px';
-    d.innerHTML=`<label>${String(i).padStart(2,'0')}번 정답(1~5)</label><input id="gAns_${i}" type="number" min="1" max="5" placeholder="예: 3">`;
-    wrap.appendChild(d);
-  }
-}
-$('gQCount').addEventListener('change', renderAnsInputs);
-renderAnsInputs();
-
-function buildCFG(){
-  const q=parseInt($('gQCount').value||5);
-  const answers=[];
-  for(let i=1;i<=q;i++){
-    const v=parseInt(($('gAns_'+i)?.value||'').trim());
-    answers[i]=Number.isFinite(v)?v:null;
-  }
-  return {
-    id: crypto.randomUUID(),
-    title: $('gTitle').value.trim()||'수능특강 셀프분석',
-    type: $('gType').value,
-    qcount: q,
-    attempts: Math.max(1, Math.min(3, parseInt($('gAttempts').value||3))),
-    testLink: $('gTestLink').value.trim(),
-    solLink: $('gSolLink').value.trim(),
-    workTitle: $('gWorkTitle').value.trim(),
-    workLink: $('gWorkLink').value.trim(),
-    answers,
-  };
-}
-
-function isLiterature(type){return type.startsWith('lit_');}
-
-function renderAnalysis(){
-  const a=$('analysisArea');
-  const t=CFG.type;
-
-  let html='';
-  if(isLiterature(t)){
-    // poetry fields
-    if(t.includes('poetry')){
-      html += `
-        <label>정서</label><textarea data-k="emotion" placeholder="정서(감정의 결)를 한 문장으로 정리"></textarea>
-        <label>화자의 태도</label><textarea data-k="attitude" placeholder="대상/상황에 대한 태도(동경·체념·비판 등)"></textarea>
-        <label>주제</label><textarea data-k="theme" placeholder="주제(핵심 의미)"></textarea>
-        <label>제목의 상징성</label><textarea data-k="titleSymbol" placeholder="제목이 상징하는 의미/핵심 이미지"></textarea>
-        <label>표현상 특징</label><textarea data-k="expression" placeholder="심상·비유·어조·반복·대조 등 근거 포함"></textarea>
-        <label>장르 분석</label><textarea data-k="genreAnalysis" placeholder="서정/서사 요소, 전통/현대적 특징 등"></textarea>
-      `;
-    } else {
-      // novel fields
-      html += `
-        <label>시점</label><textarea data-k="viewpoint" placeholder="1인칭/3인칭/관찰자/전지적 등"></textarea>
-        <label>주동인물</label><textarea data-k="protagonist" placeholder="주동인물(핵심 욕망/목표 포함)"></textarea>
-        <label>반동인물</label><textarea data-k="antagonist" placeholder="반동인물(갈등 유발 요인 포함)"></textarea>
-        <label>갈등</label><textarea data-k="conflict" placeholder="갈등 구조(대립 축/갈등의 원인)"></textarea>
-        <label>지문 줄거리</label><textarea data-k="summary" placeholder="사건 흐름 요약(핵심만)"></textarea>
-        <label>서술상 특징</label><textarea data-k="narrative" placeholder="서술/묘사/대화, 아이러니, 시공간 전환 등"></textarea>
-      `;
+/*
+ASGN = {
+  id, title, attempts, testlink, solutionlink,
+  passages: [
+    {
+      id, label, kind: 'reading'|'modern_poetry'|'classic_poetry'|'modern_novel'|'classic_novel',
+      text, qcount,
+      answers: {1:3,2:5...}
     }
-  } else {
-    // reading(비문학) - 간단 구조
-    html += `
-      <label>핵심 주장/중심 내용</label><textarea data-k="main" placeholder="지문 중심 주장/핵심 내용"></textarea>
-      <label>구조(전개 방식)</label><textarea data-k="structure" placeholder="문제-해결 / 비교-대조 / 원인-결과 등"></textarea>
-      <label>선지 판단 기준</label><textarea data-k="criteria" placeholder="정답 판단의 기준(근거 위치, 조건, 범위)"></textarea>
-      <label>내 취약 포인트</label><textarea data-k="weak" placeholder="헷갈린 이유/실수 포인트"></textarea>
+  ]
+}
+*/
+
+// 학생 입력 상태(작품/지문별)
+let S = {
+  familiarity: {}, // passageId -> '익숙'|'낯섦'
+  analysis: {},     // passageId -> {field:value}
+  pNotes: {},       // passageId -> {qKey: text}
+  pStatus: {},      // passageId -> {qNum: 'correct'|'confuse'|'wrong'}
+  pAnswer: {},      // passageId -> {qNum: 1..5}
+};
+
+/* =========================
+   생성기: 작품/지문 추가/삭제
+========================= */
+const passageList = $('passageList');
+
+function passageTemplate(p){
+  const isLit = p.kind !== 'reading';
+  const kindLabel = {
+    reading:'독서(비문학)',
+    modern_poetry:'현대시', classic_poetry:'고전시가',
+    modern_novel:'현대소설', classic_novel:'고전소설'
+  }[p.kind] || p.kind;
+
+  return `
+  <div class="card" data-pid="${p.id}">
+    <div class="cardHead">
+      <div class="row" style="gap:8px">
+        <div class="cardTitle">작품/지문</div>
+        <span class="pill">${kindLabel}</span>
+      </div>
+      <div class="row">
+        <button class="btn ghost mini" data-act="dup">복제</button>
+        <button class="btn ghost mini danger" data-act="del">삭제</button>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:10px">
+      <div>
+        <label>구분</label>
+        <select data-k="kind">
+          <option value="reading"${p.kind==='reading'?' selected':''}>독서(비문학)</option>
+          <option value="modern_poetry"${p.kind==='modern_poetry'?' selected':''}>현대시</option>
+          <option value="classic_poetry"${p.kind==='classic_poetry'?' selected':''}>고전시가</option>
+          <option value="modern_novel"${p.kind==='modern_novel'?' selected':''}>현대소설</option>
+          <option value="classic_novel"${p.kind==='classic_novel'?' selected':''}>고전소설</option>
+        </select>
+      </div>
+      <div>
+        <label>작품/지문 이름</label>
+        <input type="text" data-k="label" placeholder="예: (현대시) 진달래꽃 / (독서) 과학 기술 지문" value="${esc(p.label)}" />
+      </div>
+      <div>
+        <label>문항 수</label>
+        <input type="number" min="1" max="45" data-k="qcount" value="${p.qcount}" />
+      </div>
+    </div>
+
+    <label>작품/지문 텍스트(선택)</label>
+    <textarea data-k="text" placeholder="지문을 넣어도 되고, 생략해도 됩니다.">${esc(p.text)}</textarea>
+
+    <label>정답 입력(1~5)</label>
+    <div class="row" style="gap:8px;flex-wrap:wrap" data-zone="answers">
+      ${renderAnswerInputs(p)}
+    </div>
+
+    <div class="muted">※ 정답 미입력 문항은 채점에서 오답 처리됩니다.</div>
+  </div>`;
+}
+
+function renderAnswerInputs(p){
+  const q = Number(p.qcount||1);
+  const parts = [];
+  for(let i=1;i<=q;i++){
+    const v = (p.answers && p.answers[i]) ? p.answers[i] : '';
+    parts.push(`
+      <div class="row" style="gap:6px;align-items:center">
+        <span class="pill">${String(i).padStart(2,'0')}번</span>
+        <input type="number" min="1" max="5" style="width:70px" data-ans="${i}" value="${v}">
+      </div>
+    `);
+  }
+  return parts.join('');
+}
+
+let genPassages = [
+  { id: uid(), kind:'modern_poetry', label:'', text:'', qcount:3, answers:{} }
+];
+
+function rerenderGenerator(){
+  passageList.innerHTML = genPassages.map(passageTemplate).join('');
+
+  passageList.querySelectorAll('.card').forEach(card=>{
+    const pid = card.dataset.pid;
+    const getP = ()=>genPassages.find(x=>x.id===pid);
+
+    // 변경 핸들러
+    card.querySelectorAll('[data-k]').forEach(el=>{
+      el.addEventListener('input', ()=>{
+        const p = getP(); if(!p) return;
+        const k = el.dataset.k;
+        if(k==='qcount'){
+          p.qcount = Math.max(1, Math.min(45, Number(el.value||1)));
+          // answers input rerender
+          const zone = card.querySelector('[data-zone="answers"]');
+          zone.innerHTML = renderAnswerInputs(p);
+          // bind answer inputs
+          bindAnswerInputs(card, p);
+        }else if(k==='kind'){
+          p.kind = el.value;
+          rerenderGenerator();
+        }else{
+          p[k] = el.value;
+        }
+      });
+    });
+
+    bindAnswerInputs(card, getP());
+
+    // 복제/삭제
+    card.querySelectorAll('[data-act]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const act = btn.dataset.act;
+        if(act==='del'){
+          genPassages = genPassages.filter(x=>x.id!==pid);
+          if(genPassages.length===0){
+            genPassages = [{ id: uid(), kind:'reading', label:'', text:'', qcount:3, answers:{} }];
+          }
+          rerenderGenerator();
+        }
+        if(act==='dup'){
+          const p = getP();
+          if(!p) return;
+          const copy = JSON.parse(JSON.stringify(p));
+          copy.id = uid();
+          genPassages.push(copy);
+          rerenderGenerator();
+        }
+      };
+    });
+  });
+}
+
+function bindAnswerInputs(card, p){
+  if(!p) return;
+  card.querySelectorAll('input[data-ans]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const qn = Number(inp.dataset.ans);
+      const v = Number(inp.value);
+      if(!p.answers) p.answers = {};
+      if(!v) delete p.answers[qn];
+      else p.answers[qn]=Math.max(1,Math.min(5,v));
+    });
+  });
+}
+
+$('btnAddPassage').onclick = ()=>{
+  genPassages.push({ id: uid(), kind:'reading', label:'', text:'', qcount:3, answers:{} });
+  rerenderGenerator();
+};
+
+rerenderGenerator();
+
+/* =========================
+   빌드 → 학생 화면
+========================= */
+$('btnBuild').onclick = ()=>{
+  const title = $('g-title').value.trim() || '셀프분석';
+  const attempts = Math.max(1, Math.min(3, Number($('g-attempts').value||3)));
+  const testlink = $('g-testlink').value.trim();
+  const solutionlink = $('g-solutionlink').value.trim();
+
+  // 정리/검증
+  const passages = genPassages.map(p=>({
+    id: p.id,
+    kind: p.kind,
+    label: (p.label||'').trim() || '작품/지문',
+    text: p.text||'',
+    qcount: Math.max(1, Math.min(45, Number(p.qcount||1))),
+    answers: p.answers || {}
+  }));
+
+  ASGN = { id: uid(), title, attempts, testlink, solutionlink, passages };
+  currentTry = 1;
+
+  // 학생 상태 초기화
+  S = { familiarity:{}, analysis:{}, pNotes:{}, pStatus:{}, pAnswer:{} };
+
+  $('genPanel').classList.add('hidden');
+  $('studentPanel').classList.remove('hidden');
+  $('s-title').textContent = ASGN.title;
+  $('tryInfo').textContent = `도전 ${currentTry} / ${ASGN.attempts}`;
+
+  renderStudent();
+  loadState();
+};
+
+$('btnOpenTest').onclick = ()=>{ if(ASGN?.testlink) window.open(ASGN.testlink,'_blank'); };
+$('btnOpenSol').onclick = ()=>{ if(ASGN?.solutionlink) window.open(ASGN.solutionlink,'_blank'); };
+
+function kindLabel(kind){
+  return {
+    reading:'독서(비문학)',
+    modern_poetry:'현대시', classic_poetry:'고전시가',
+    modern_novel:'현대소설', classic_novel:'고전소설'
+  }[kind] || kind;
+}
+
+function renderStudent(){
+  const root = $('studentPassages');
+  root.innerHTML = '';
+
+  ASGN.passages.forEach((p, idx)=>{
+    const isLit = p.kind !== 'reading';
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.pid = p.id;
+    card.innerHTML = `
+      <div class="cardHead">
+        <div class="row" style="gap:8px">
+          <div class="cardTitle">${idx+1}. ${esc(p.label)}</div>
+          <span class="pill">${kindLabel(p.kind)}</span>
+        </div>
+        ${isLit ? `
+          <div class="row">
+            <span class="mini muted">체감</span>
+            <button class="btn ok mini" data-fam="익숙">익숙</button>
+            <button class="btn maybe mini" data-fam="낯섦">낯섦</button>
+            <span class="pill" data-famstate>미선택</span>
+          </div>
+        ` : `<span class="pill">독서 지문</span>`}
+      </div>
+
+      ${p.text ? `<label>텍스트(참고)</label><textarea readonly>${esc(p.text)}</textarea>` : ''}
+
+      <div class="divider"></div>
+      <div data-zone="analysis"></div>
+
+      <div class="divider"></div>
+      <h2 style="margin:0 0 6px">문제 분석</h2>
+      <div data-zone="questions"></div>
+    `;
+    root.appendChild(card);
+
+    // familiarity buttons
+    if(isLit){
+      const famState = card.querySelector('[data-famstate]');
+      card.querySelectorAll('button[data-fam]').forEach(b=>{
+        b.onclick = ()=>{
+          S.familiarity[p.id] = b.dataset.fam;
+          famState.textContent = b.dataset.fam;
+          saveState();
+        };
+      });
+    }
+
+    // analysis zone render
+    const az = card.querySelector('[data-zone="analysis"]');
+    az.innerHTML = analysisUI(p);
+
+    az.querySelectorAll('textarea').forEach(t=>{
+      t.addEventListener('input', ()=>{
+        if(!S.analysis[p.id]) S.analysis[p.id] = {};
+        S.analysis[p.id][t.dataset.k] = t.value;
+        saveState();
+      });
+    });
+
+    // questions render
+    const qz = card.querySelector('[data-zone="questions"]');
+    qz.innerHTML = questionsUI(p);
+
+    // bind status/choice/text
+    qz.querySelectorAll('.status .btn').forEach(btn=>{
+      btn.onclick = ()=>{
+        const qnum = Number(btn.dataset.q);
+        const status = btn.dataset.s;
+        if(!S.pStatus[p.id]) S.pStatus[p.id] = {};
+        S.pStatus[p.id][qnum] = status;
+
+        const group = btn.parentElement.querySelectorAll('.btn');
+        group.forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        saveState();
+      };
+    });
+
+    qz.querySelectorAll('.choiceRow .btn[data-a]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const qnum = Number(btn.dataset.q);
+        const ans = Number(btn.dataset.a);
+        if(!S.pAnswer[p.id]) S.pAnswer[p.id] = {};
+        S.pAnswer[p.id][qnum] = ans;
+
+        const group = btn.parentElement.querySelectorAll('.btn');
+        group.forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        saveState();
+      };
+    });
+
+    qz.querySelectorAll('textarea[data-note]').forEach(t=>{
+      t.addEventListener('input', ()=>{
+        const qnum = Number(t.dataset.note);
+        if(!S.pNotes[p.id]) S.pNotes[p.id] = {};
+        S.pNotes[p.id][qnum] = t.value;
+        saveState();
+      });
+    });
+  });
+
+  $('btnSubmit').onclick = submitToSheetWithGrading;
+}
+
+function analysisUI(p){
+  // 문학: 시/소설 분석, 독서: 간단 구조
+  if(p.kind==='modern_poetry' || p.kind==='classic_poetry'){
+    return `
+      <label>정서</label><textarea data-k="emotion"></textarea>
+      <label>화자의 태도</label><textarea data-k="attitude"></textarea>
+      <label>주제</label><textarea data-k="theme"></textarea>
+      <label>제목의 상징성</label><textarea data-k="titleSymbol"></textarea>
+      <label>표현상 특징</label><textarea data-k="expression"></textarea>
+      <label>장르 분석</label><textarea data-k="genreAnalysis"></textarea>
     `;
   }
-  a.innerHTML = html;
-  a.querySelectorAll('textarea').forEach(t=>t.addEventListener('input', autosave));
+  if(p.kind==='modern_novel' || p.kind==='classic_novel'){
+    return `
+      <label>시점</label><textarea data-k="viewpoint"></textarea>
+      <label>주동 인물</label><textarea data-k="protagonist"></textarea>
+      <label>반동 인물</label><textarea data-k="antagonist"></textarea>
+      <label>갈등</label><textarea data-k="conflict"></textarea>
+      <label>줄거리</label><textarea data-k="summary"></textarea>
+      <label>서술상 특징</label><textarea data-k="narrative"></textarea>
+    `;
+  }
+  // 독서(비문학) - 최소형(원하시면 단락 추가도 가능)
+  return `
+    <label>핵심 주장/정보</label><textarea data-k="main"></textarea>
+    <label>구조(전개)</label><textarea data-k="structure"></textarea>
+    <label>근거/예시 정리</label><textarea data-k="evidence"></textarea>
+  `;
 }
 
-function renderProblems(){
-  const area=$('problemArea');
-  area.innerHTML='';
-  for(let i=1;i<=CFG.qcount;i++){
-    const box=document.createElement('div');
-    box.className='problem';
-    box.innerHTML = `
-      <div class="phead">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <div class="pnum">${String(i).padStart(2,'0')}번</div>
-          <div class="choices" aria-label="내 정답">
-            ${[1,2,3,4,5].map(n=>`<button class="cbtn" data-q="${i}" data-a="${n}">${n}</button>`).join('')}
+function questionsUI(p){
+  const blocks = [];
+  for(let i=1;i<=p.qcount;i++){
+    blocks.push(`
+      <div class="card" style="background:#fff;border:1px solid var(--line)">
+        <div class="cardHead">
+          <div class="row" style="gap:10px">
+            <div class="cardTitle">${String(i).padStart(2,'0')}번</div>
+            <div class="row choiceRow" style="gap:6px">
+              <button class="btn ghost mini" data-q="${i}" data-a="1">①</button>
+              <button class="btn ghost mini" data-q="${i}" data-a="2">②</button>
+              <button class="btn ghost mini" data-q="${i}" data-a="3">③</button>
+              <button class="btn ghost mini" data-q="${i}" data-a="4">④</button>
+              <button class="btn ghost mini" data-q="${i}" data-a="5">⑤</button>
+            </div>
+          </div>
+          <div class="status">
+            <button class="btn ok mini" data-q="${i}" data-s="correct">정답</button>
+            <button class="btn maybe mini" data-q="${i}" data-s="confuse">헷갈림</button>
+            <button class="btn bad mini" data-q="${i}" data-s="wrong">오답</button>
           </div>
         </div>
-        <div class="status">
-          <button class="pillbtn ok dim" data-q="${i}" data-s="correct">정답</button>
-          <button class="pillbtn maybe dim" data-q="${i}" data-s="confuse">헷갈림</button>
-          <button class="pillbtn bad dim" data-q="${i}" data-s="wrong">오답</button>
-        </div>
+        <label class="mini muted">문제 분석</label>
+        <textarea data-note="${i}" placeholder="문제 분석"></textarea>
       </div>
-      <div style="margin-top:10px">
-        <textarea data-k="p_${i}" placeholder="문제 분석"></textarea>
-      </div>
-    `;
-    area.appendChild(box);
+    `);
   }
-
-  // choice buttons
-  area.querySelectorAll('.cbtn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const q=b.dataset.q;
-      const a=parseInt(b.dataset.a);
-      studentAnswers[q]=a;
-      // UI update
-      b.parentElement.querySelectorAll('.cbtn').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
-      autosave();
-    });
-  });
-
-  // status buttons (self mark)
-  area.querySelectorAll('.status .pillbtn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const q=b.dataset.q;
-      const s=b.dataset.s;
-      statusMark[q]=s;
-      b.parentElement.querySelectorAll('.pillbtn').forEach(x=>x.classList.add('dim'));
-      b.classList.remove('dim');
-      autosave();
-    });
-  });
-
-  area.querySelectorAll('textarea').forEach(t=>t.addEventListener('input', autosave));
+  return blocks.join('');
 }
 
-function updateFamiliarUI(){
-  if(!isLiterature(CFG.type)){
-    $('litFamiliarBox').classList.add('hide');
-    return;
-  }
-  $('litFamiliarBox').classList.remove('hide');
-  $('btnFam').classList.toggle('dim', familiarity!=='익숙');
-  $('btnUnfam').classList.toggle('dim', familiarity!=='낯섦');
-  $('famText').textContent = familiarity ? `선택: ${familiarity}` : '익숙/낯섦 중 하나를 선택하세요.';
-}
-
-$('btnFam').addEventListener('click', ()=>{familiarity='익숙'; updateFamiliarUI(); autosave();});
-$('btnUnfam').addEventListener('click', ()=>{familiarity='낯섦'; updateFamiliarUI(); autosave();});
-
-function localKey(){
-  // 과제별 + 학생별 기본키(전화번호 없으면 임시)
-  const phone=$('sPhone')?.value?.trim()||'anon';
-  const name=$('sName')?.value?.trim()||'noname';
-  return `hw_${CFG.id}__${phone}__${name}`;
-}
-
-function collectAll(){
-  const analysis={};
-  $('analysisArea').querySelectorAll('textarea').forEach(t=>analysis[t.dataset.k]=t.value);
-  const problems={};
-  $('problemArea').querySelectorAll('textarea').forEach(t=>problems[t.dataset.k]=t.value);
-  return {analysis, problems};
-}
-
+/* =========================
+   제출/채점/해설 공개
+========================= */
 function allFilled(){
-  // 필수: 이름/전화 + (문학이면 익숙/낯섦) + 모든 textarea 작성 + 모든 문항 답 선택
-  const name=$('sName').value.trim();
-  const phone=$('sPhone').value.trim();
-  if(!name||!phone) return {ok:false, msg:'이름과 전화번호(또는 학번)를 입력하세요.'};
-  if(isLiterature(CFG.type) && !familiarity) return {ok:false, msg:'지문 체감(익숙/낯섦)을 선택하세요.'};
-  const texts=document.querySelectorAll('#analysisArea textarea, #problemArea textarea');
-  for(const t of texts) if(!t.value.trim()) return {ok:false, msg:'모든 분석 칸을 작성하세요.'};
-  for(let i=1;i<=CFG.qcount;i++) if(!studentAnswers[i]) return {ok:false, msg:`${String(i).padStart(2,'0')}번의 내 정답(①~⑤)을 선택하세요.`};
-  return {ok:true};
+  // 이름/전화
+  const name = $('s-name').value.trim();
+  const phone = $('s-phone').value.trim();
+  if(!name) { toast('이름을 입력하세요.'); return false; }
+  if(!phone) { toast('전화번호(또는 학번)를 입력하세요.'); return false; }
+
+  // 작품/지문별: 분석 textarea 모두 작성 + 문제분석 textarea 모두 작성 + 답 선택 모두
+  for(const p of ASGN.passages){
+    const a = S.analysis[p.id] || {};
+    // analysis fields required: all textarea in card analysis zone must be non-empty
+    const card = document.querySelector(`.card[data-pid="${p.id}"]`);
+    if(card){
+      const az = card.querySelector('[data-zone="analysis"]');
+      const reqA = az ? Array.from(az.querySelectorAll('textarea')) : [];
+      for(const t of reqA){
+        if(!(a[t.dataset.k]||'').trim()) return false;
+      }
+
+      const qz = card.querySelector('[data-zone="questions"]');
+      const notes = S.pNotes[p.id] || {};
+      const ans = S.pAnswer[p.id] || {};
+      // all notes
+      for(let i=1;i<=p.qcount;i++){
+        if(!(notes[i]||'').trim()) return false;
+        if(!(ans[i]>=1 && ans[i]<=5)) return false;
+      }
+    }else{
+      return false;
+    }
+
+    // 문학이면 익숙/낯섦 필수
+    if(p.kind!=='reading'){
+      if(!S.familiarity[p.id]) return false;
+    }
+  }
+  return true;
 }
 
 function grade(){
-  const wrong=[];
-  for(let i=1;i<=CFG.qcount;i++){
-    const ca=CFG.answers[i];
-    const sa=studentAnswers[i];
-    if(!ca || ca!==sa) wrong.push(i);
+  // 전체 문항 기준 점수
+  let total = 0;
+  let wrong = []; // ["1-03", ...] (passageIndex-question)
+  ASGN.passages.forEach((p, idx)=>{
+    const ans = S.pAnswer[p.id] || {};
+    const keyPrefix = `${idx+1}-`;
+    for(let i=1;i<=p.qcount;i++){
+      total++;
+      const ca = p.answers && p.answers[i];
+      const sa = ans[i];
+      if(!ca || !sa || Number(ca)!==Number(sa)){
+        wrong.push(`${keyPrefix}${String(i).padStart(2,'0')}`);
+      }
+    }
+  });
+  const score = total - wrong.length;
+  return { total, score, wrong };
+}
+
+function revealSolution(){
+  if(ASGN?.solutionlink){
+    $('btnOpenSol').classList.remove('hidden');
+    $('submitHint').textContent = '해설지가 열렸습니다.';
   }
-  return {wrong, score: CFG.qcount - wrong.length};
 }
 
-function unlockSolutionIfNeeded(wrong){
-  // 만점 or 마지막 도전 종료
-  if(wrong.length===0) solUnlocked=true;
-  if(tryCount>=CFG.attempts) solUnlocked=true;
-  $('sSolState').textContent = solUnlocked ? '열림' : '잠김';
+async function postToGAS(url, data){
+  const body = new URLSearchParams({ payload: JSON.stringify(data) });
+  const res = await fetch(url, { method:'POST', body });
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch { return { ok:false, error:'Invalid response', raw:txt }; }
 }
 
-function showResultBox(msg, kind){
-  const box=$('resultBox');
-  box.classList.remove('hide');
-  box.classList.remove('okmsg','warnmsg','errmsg');
-  box.classList.add(kind||'warnmsg');
-  $('resultMsg').textContent = msg;
+// 제출 실패 대비 큐
+function QKEY(){ return `queue_${ASGN.id}`; }
+function loadQueue(){ try { return JSON.parse(localStorage.getItem(QKEY())||'[]'); } catch { return []; } }
+function saveQueue(q){ localStorage.setItem(QKEY(), JSON.stringify(q)); }
 
-  // links
-  if(CFG.testLink){ $('btnOpenTest').classList.remove('hide'); $('btnOpenTest').href=CFG.testLink; }
-  else $('btnOpenTest').classList.add('hide');
-
-  if(solUnlocked && CFG.solLink){ $('btnOpenSol').classList.remove('hide'); $('btnOpenSol').href=CFG.solLink; }
-  else $('btnOpenSol').classList.add('hide');
-}
-
-function autosave(){
-  if(!CFG) return;
-  const payload={ familiarity, studentAnswers, statusMark, tryCount, solUnlocked, name:$('sName')?.value||'', phone:$('sPhone')?.value||'', ...collectAll() };
-  localStorage.setItem(localKey(), JSON.stringify(payload));
-  $('autosaveHint').textContent='자동 저장됨';
-}
-
-$('btnSaveLocal').addEventListener('click', ()=>{ autosave(); alert('임시저장 완료'); });
-
-function loadSaved(){
+let flushing = false;
+async function flushQueue(){
+  if(flushing) return;
+  flushing = true;
   try{
-    const raw=localStorage.getItem(localKey());
+    const q = loadQueue();
+    if(!q.length) return;
+    const remain = [];
+    for(const item of q){
+      try{
+        const r = await postToGAS(GAS_SUBMIT_URL, item);
+        if(!r.ok) remain.push(item);
+      }catch(e){
+        remain.push(item);
+      }
+    }
+    saveQueue(remain);
+  } finally {
+    flushing = false;
+  }
+}
+window.addEventListener('load', ()=>{ setInterval(flushQueue, 10000); });
+
+async function submitToSheetWithGrading(){
+  if(!allFilled()){
+    toast('미작성 항목이 있습니다.\n(분석/문제분석/내답/익숙·낯섦/이름·번호 확인)');
+    return;
+  }
+
+  const name = $('s-name').value.trim();
+  const phone = $('s-phone').value.trim();
+
+  const g = grade();
+  const key = `${ASGN.id}__${phone}__${name}`;
+
+  const payload = {
+    key,
+    assignmentId: ASGN.id,
+    assignmentTitle: ASGN.title,
+    tryCount: currentTry,
+    attempts: ASGN.attempts,
+    name, phone,
+    score: g.score,
+    total: g.total,
+    wrongList: g.wrong,
+    // 상세 저장
+    passages: ASGN.passages.map((p, idx)=>({
+      index: idx+1,
+      passageId: p.id,
+      kind: p.kind,
+      label: p.label,
+      familiarity: S.familiarity[p.id] || '',
+      analysis: S.analysis[p.id] || {},
+      answers: S.pAnswer[p.id] || {},
+      status: S.pStatus[p.id] || {},
+      notes: S.pNotes[p.id] || {},
+      correct: p.answers || {}
+    })),
+    links: { test: ASGN.testlink||'', solution: ASGN.solutionlink||'' },
+    meta: { submittedAt: new Date().toISOString(), userAgent: navigator.userAgent }
+  };
+
+  // 버튼 잠금
+  const btn = $('btnSubmit');
+  const old = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+
+  try{
+    const r = await postToGAS(GAS_SUBMIT_URL, payload);
+    if(r.ok){
+      alert(`제출 완료!\n점수: ${g.score}/${g.total}\n오답: ${g.wrong.length? g.wrong.join(', '): '없음'}`);
+
+      // 해설 공개 조건
+      if(g.wrong.length===0){
+        revealSolution();
+      }else{
+        currentTry++;
+        if(currentTry > ASGN.attempts){
+          revealSolution();
+        }else{
+          $('tryInfo').textContent = `도전 ${currentTry} / ${ASGN.attempts}`;
+          alert('오답을 수정하고 다시 도전하세요.');
+        }
+      }
+
+      flushQueue();
+      saveState();
+      return;
+    }
+
+    // 실패 → 큐
+    const q = loadQueue(); q.push(payload); saveQueue(q);
+    alert('제출 전송이 일시적으로 실패했습니다.\n자동으로 재전송됩니다(인터넷 확인).');
+  }catch(e){
+    const q = loadQueue(); q.push(payload); saveQueue(q);
+    alert('네트워크 문제로 제출이 임시 저장되었습니다.\n연결되면 자동으로 전송됩니다.');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = old;
+  }
+}
+
+/* =========================
+   저장/복원
+========================= */
+function SKEY(){ return `state_${ASGN.id}`; }
+
+function saveState(){
+  if(!ASGN) return;
+  const data = {
+    currentTry,
+    name: $('s-name')?.value || '',
+    phone: $('s-phone')?.value || '',
+    S
+  };
+  localStorage.setItem(SKEY(), JSON.stringify(data));
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(SKEY());
     if(!raw) return;
-    const d=JSON.parse(raw);
-    familiarity=d.familiarity||null;
-    studentAnswers=d.studentAnswers||{};
-    statusMark=d.statusMark||{};
-    tryCount=d.tryCount||1;
-    solUnlocked=!!d.solUnlocked;
-    // fill textareas
-    $('analysisArea').querySelectorAll('textarea').forEach(t=>{ if(d.analysis?.[t.dataset.k]!=null) t.value=d.analysis[t.dataset.k]; });
-    $('problemArea').querySelectorAll('textarea').forEach(t=>{ if(d.problems?.[t.dataset.k]!=null) t.value=d.problems[t.dataset.k]; });
-    // apply buttons
-    $('problemArea').querySelectorAll('.cbtn').forEach(b=>{
-      const q=b.dataset.q, a=parseInt(b.dataset.a);
-      if(studentAnswers[q]===a) b.classList.add('on');
+    const data = JSON.parse(raw);
+    currentTry = data.currentTry || 1;
+    $('tryInfo').textContent = `도전 ${currentTry} / ${ASGN.attempts}`;
+    if($('s-name')) $('s-name').value = data.name || '';
+    if($('s-phone')) $('s-phone').value = data.phone || '';
+    S = data.S || S;
+
+    // UI 반영
+    ASGN.passages.forEach((p, idx)=>{
+      const card = document.querySelector(`.card[data-pid="${p.id}"]`);
+      if(!card) return;
+
+      // familiarity
+      const famState = card.querySelector('[data-famstate]');
+      if(famState && S.familiarity[p.id]) famState.textContent = S.familiarity[p.id];
+
+      // analysis
+      const az = card.querySelector('[data-zone="analysis"]');
+      if(az){
+        az.querySelectorAll('textarea').forEach(t=>{
+          const v = (S.analysis[p.id]||{})[t.dataset.k];
+          if(v!=null) t.value = v;
+        });
+      }
+
+      // notes
+      const qz = card.querySelector('[data-zone="questions"]');
+      if(qz){
+        qz.querySelectorAll('textarea[data-note]').forEach(t=>{
+          const qnum = Number(t.dataset.note);
+          const v = (S.pNotes[p.id]||{})[qnum];
+          if(v!=null) t.value = v;
+        });
+
+        // status
+        Object.entries(S.pStatus[p.id]||{}).forEach(([qnum, st])=>{
+          const b = qz.querySelector(`.status .btn[data-q="${qnum}"][data-s="${st}"]`);
+          if(b) b.classList.add('active');
+        });
+
+        // answers
+        Object.entries(S.pAnswer[p.id]||{}).forEach(([qnum, a])=>{
+          const b = qz.querySelector(`.choiceRow .btn[data-q="${qnum}"][data-a="${a}"]`);
+          if(b) b.classList.add('active');
+        });
+      }
     });
-    $('problemArea').querySelectorAll('.status .pillbtn').forEach(b=>{
-      const q=b.dataset.q, s=b.dataset.s;
-      if(statusMark[q]===s) b.classList.remove('dim');
-    });
-    $('sTry').textContent=tryCount;
-    $('sSolState').textContent=solUnlocked?'열림':'잠김';
-    updateFamiliarUI();
+
+    // 해설 버튼 노출 상태는 제출 조건으로만(저장 복원으로 켜지지 않게 유지)
   }catch(e){}
 }
 
-async function postToGAS(data){
-  const body=new URLSearchParams({payload: JSON.stringify(data)});
-  const res=await fetch(GAS_SUBMIT_URL, {method:'POST', body});
-  const txt=await res.text();
-  try{return JSON.parse(txt);}catch(e){return {ok:false, raw:txt};}
-}
-
-async function submit(){
-  const ok=allFilled();
-  if(!ok.ok){ alert(ok.msg); return; }
-
-  const {wrong, score} = grade();
-  $('sScore').textContent=score;
-  $('sQMax').textContent=CFG.qcount;
-
-  unlockSolutionIfNeeded(wrong);
-
-  // payload for sheet
-  const name=$('sName').value.trim();
-  const phone=$('sPhone').value.trim();
-  const key=`${CFG.id}__${phone}__${name}`;
-
-  const payload={
-    key,
-    assignmentId: CFG.id,
-    assignmentTitle: CFG.title,
-    genre: CFG.type,
-    familiarity: familiarity||'',
-    name, phone,
-    tryCount,
-    score,
-    wrongList: wrong,
-    answers: studentAnswers,
-    analysis: collectAll().analysis,
-    problems: collectAll().problems,
-    meta: {submittedAt:new Date().toISOString()}
-  };
-
-  // send
-  let r;
-  try{
-    $('btnSubmit').disabled=true;
-    $('btnSubmit').textContent='제출 중...';
-    r = await postToGAS(payload);
-  }catch(e){ r={ok:false, error:String(e)}; }
-  finally{
-    $('btnSubmit').disabled=false;
-    $('btnSubmit').textContent='제출(도전)';
-  }
-
-  if(r && r.ok){
-    // 성공
-    autosave();
-    const wrongMsg = wrong.length ? `오답: ${wrong.join(', ')}` : '오답 없음(만점)';
-    const base = `제출 완료 · 점수 ${score}/${CFG.qcount} · ${wrongMsg}`;
-    let kind = wrong.length===0 ? 'okmsg' : (tryCount>=CFG.attempts ? 'warnmsg' : 'warnmsg');
-    showResultBox(base, kind);
-
-    if(!solUnlocked && wrong.length>0){
-      tryCount++;
-      $('sTry').textContent = tryCount;
-      $('sTryMax').textContent = CFG.attempts;
-      showResultBox(base + `\n다시 도전하세요 (남은 도전: ${Math.max(0, CFG.attempts-tryCount+1)})`, kind);
-    } else {
-      // 해설 열림 처리
-      unlockSolutionIfNeeded(wrong);
-      showResultBox(base + (solUnlocked && CFG.solLink ? '\n해설지가 열렸습니다.' : ''), wrong.length===0?'okmsg':'warnmsg');
-    }
-    autosave();
-  } else {
-    // 실패: 로컬 저장 + 재시도 안내
-    autosave();
-    showResultBox('제출 전송 실패. 네트워크/권한 문제일 수 있습니다.\n연결 확인 후 다시 제출하세요.', 'errmsg');
-  }
-}
-
-$('btnSubmit').addEventListener('click', submit);
-
-$('btnStart').addEventListener('click', ()=>{
-  CFG = buildCFG();
-  // show student view
-  $('viewGen').classList.add('hide');
-  $('viewStudent').classList.remove('hide');
-  $('actbar').classList.remove('hide');
-
-  // init
-  $('sTry').textContent=tryCount;
-  $('sTryMax').textContent=CFG.attempts;
-  $('sQMax').textContent=CFG.qcount;
-  $('sScore').textContent='-';
-  $('sSolState').textContent='잠김';
-  solUnlocked=false;
-
-  renderAnalysis();
-  renderProblems();
-  updateFamiliarUI();
-
-  // title + default links
-  document.title = CFG.title;
-  // load saved (after inputs typed) - we load on blur for name/phone too
-  $('sName').addEventListener('change', loadSaved);
-  $('sPhone').addEventListener('change', loadSaved);
-
-  // initial hint
-  $('autosaveHint').textContent='자동 저장됨';
-});
-
-$('btnGoGen').addEventListener('click', ()=>{
-  $('viewStudent').classList.add('hide');
-  $('actbar').classList.add('hide');
-  $('viewGen').classList.remove('hide');
-});
-
-window.addEventListener('beforeunload', ()=>{ try{autosave();}catch(e){} });
+window.addEventListener('beforeunload', saveState);
 </script>
 </body>
 </html>
