@@ -1,4 +1,15 @@
-<!DOCTYPE html>
+<!DOC
+    <div id="s-final" class="card hide" style="margin-top:14px">
+      <div class="card-ttl">제출 결과</div>
+      <div id="s-attempt-info" class="meta"></div>
+      <div id="s-score-info" class="meta" style="margin-top:6px"></div>
+      <div class="btn-row" style="margin-top:12px;gap:10px;flex-wrap:wrap">
+        <a id="s-exam-link" class="btn ghost hide" target="_blank" rel="noopener">시험지 열기</a>
+        <a id="s-solution-link" class="btn hide" target="_blank" rel="noopener">해설지 열기</a>
+      </div>
+      <div class="hint" style="margin-top:10px">해설지는 과제를 제출한 뒤에만 열리도록 설정됩니다.</div>
+    </div>
+TYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -240,6 +251,11 @@ label.lbl{display:block;font-size:10.5px;font-weight:700;color:var(--t2);text-tr
   body{background:#fff}
   .asgn-hd,.prow{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+.ans-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ans-btn{border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;font-weight:700;cursor:pointer;transition:.12s}
+.ans-btn.on{background:rgba(108,92,231,.12);border-color:rgba(108,92,231,.55)}
+
 </style>
 </head>
 <body>
@@ -511,6 +527,25 @@ function addPassageRow(){
         </div>
       </div>
     </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label class="lbl">정답 도전 횟수(1~3회)</label>
+        <select class="inp" id="g-maxAttempts">
+          <option value="1">1회</option>
+          <option value="2">2회</option>
+          <option value="3" selected>3회</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lbl">시험지 링크(선택)</label>
+        <input class="inp" id="g-examLink" placeholder="예) https://...">
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl">해설지 링크(선택)</label>
+      <input class="inp" id="g-solutionLink" placeholder="예) https://...">
+    </div>
     <div id="pr-read-fields-${i}" class="hide">
       <div style="margin-bottom:10px">
         <label class="lbl">주제 분야</label>
@@ -623,7 +658,7 @@ function collectAssignment(){
     if(num&&ans)questions.push({num,ans,ansLabel:circled[ans]||String(ans)});
   });
   questions.sort((a,b)=>a.num-b.num);
-  return{title,period:$('g-period').value.trim(),deadline:$('g-deadline').value,message:$('g-message').value.trim(),passages,questions};
+  return{title,period:$('g-period').value.trim(),deadline:$('g-deadline').value,message:$('g-message').value.trim(),maxAttempts:parseInt($('g-maxAttempts')?.value)||3,examLink:$('g-examLink')?.value.trim()||'',solutionLink:$('g-solutionLink')?.value.trim()||'',passages,questions};
 }
 
 function generateFile(){
@@ -651,7 +686,7 @@ let CURSEC='analysis'; // 'analysis' | 'expl'
 
 function loadStudent(a){
   if(!a?.passages?.length){toast('⚠️ 유효하지 않은 링크입니다');loadGenerator();return;}
-  ASGN=a;CUR=0;
+  ASGN=a;CUR=0;buildQuestionMap();
   DATA=a.passages.map(()=>({}));
   MODES=a.passages.map(()=>'single');
   QSTS=a.passages.map(p=>Array.from({length:p.qs||3},(_,i)=>({[i]:null})).reduce((o,x)=>({...o,...x}),{}));
@@ -814,28 +849,29 @@ function renderPassage(i){
     <textarea class="inp ${inpCls}" id="f-flow" rows="4" placeholder="${flowPH}" oninput="onChange()">${esc(d.flow||'')}</textarea>
   </div>`;
 
-  const paraLabel=isLit?'단락 / 연별 분석':'단락별 독해법';
-  const paraKwPH=isLit?'핵심 시어 / 구절':'단락 핵심어';
-  const paraPtPH=isLit?'표현법·심상·정서 등 분석':'독해 포인트 (주제문, 논리 구조 등)';
-  const paras=d.paras||Array.from({length:p.paras||3},()=>({method:'정독',keyword:'',point:''}));
-  html+=`<div class="card">
-    <div class="card-ttl ${ttlCls}">2. ${paraLabel}</div>
-    <div id="f-paras">`;
-  paras.forEach((pr,j)=>{
-    html+=`<div class="para-blk">
-      <div class="para-hd">
-        <span class="para-num ${isLit?'lit':'read'}">${isLit?'연':'PARA'} ${j+1}</span>
-        <select class="method-sel" id="f-pm-${j}" onchange="onChange()">
-          ${['정독','속독','발췌독'].map(v=>`<option${pr.method===v?' selected':''}>${v}</option>`).join('')}
-        </select>
-      </div>
-      <div class="field"><input class="inp sm ${inpCls}" id="f-pk-${j}" placeholder="${paraKwPH}" value="${esc(pr.keyword)}" oninput="onChange()"></div>
-      <textarea class="inp sm ${inpCls}" id="f-pp-${j}" rows="2" placeholder="${paraPtPH}" oninput="onChange()">${esc(pr.point)}</textarea>
-    </div>`;
-  });
-  html+=`</div></div>`;
+  
+  if(isLit){
+    const genre=(d.genre||p.genre||'').trim();
+    const fam=d.familiarity||'익숙';
+    const isPoem=(genre==='현대시' || genre==='고전시가');
+    const isNovel=(genre==='현대소설' || genre==='고전소설');
 
-  const qArr=d.questions||Array.from({length:p.qs||3},(_,j)=>({num:String(j+1).padStart(2,'0'),status:null,analysis:''}));
+    html+=`<div class="card">
+      <div class="card-ttl lit-ttl">2. 작품 분석</div>
+      <div class="grid2">
+        <div class="field"><label class="lbl">익숙/낯섦</label>
+          <select class="inp sm lit" id="f-fam" onchange="onChange()">
+            <option${fam==='익숙'?' selected':''}>익숙</option>
+            <option${fam==='낯섦'?' selected':''}>낯섦</option>
+          </select>
+        </div>
+`;
+    });
+    html+=`</div></div>`;
+  }
+
+const qKey=(ASGN._qByPassage?.[i]||[]);
+  const qArr=d.questions||Array.from({length:p.qs||3},(_,j)=>({num:(qKey[j]?.num)||String(j+1).padStart(2,'0'),status:null,myAns:0,analysis:''}));
   html+=`<div class="card">
     <div class="card-ttl ${ttlCls}">3. 문제 분석</div>
     <div id="f-qs">`;
@@ -843,7 +879,10 @@ function renderPassage(i){
     const s=qs[j]??q.status;
     html+=`<div class="q-blk">
       <div class="q-hd">
-        <span class="q-num">${String(j+1).padStart(2,'0')}번</span>
+        <span class="q-num">${String((q.num)|| (j+1)).padStart(2,'0')}번</span>
+        <div class="ans-row" aria-label="내 정답">
+          ${[1,2,3,4,5].map(n=>`<button class="ans-btn ${((q.myAns||0)===n)?'on':''}" onclick="setMyAns(${i},${j},${n},this)">${['①','②','③','④','⑤'][n-1]}</button>`).join('')}
+        </div>
         <div class="st-row">
           <button class="st-btn${s==='correct'?' on-c':''}" id="st-c-${j}" onclick="setQst(${j},'correct')" title="정답">○</button>
           <button class="st-btn${s==='uncertain'?' on-u':''}" id="st-u-${j}" onclick="setQst(${j},'uncertain')" title="헷갈림">△</button>
@@ -1016,25 +1055,96 @@ function onNameInput(){localStorage.setItem('sna_name',$('s-name').value);update
 
 function saveCurrentPassage(){
   const p=ASGN.passages[CUR];
-  const pc=p.paras||3,qc=p.qs||3;
+  const qc=p.qs||3;
   const isLit=p.type==='lit';
-  const paras=[];
-  for(let j=0;j<pc;j++)paras.push({method:$(`f-pm-${j}`)?.value||'정독',keyword:$(`f-pk-${j}`)?.value||'',point:$(`f-pp-${j}`)?.value||''});
+
+  const prev=DATA[CUR]||{};
+  const out={...prev};
+
+  // common
+  out.date=$('f-date')?.value||'';
+  out.pages=$('f-pages')?.value||'';
+  out.passageMode=MODES[CUR]||'single';
+  out.targetTime=$('f-target')?.value||'';
+  out.actualTime=$('f-actual')?.value||'';
+  out.flow=$('f-flow')?.value||'';
+  out.feedback=$('f-feedback')?.value||'';
+
+  if(isLit){
+    out.genre=$('f-genre')?.value||out.genre||p.genre||'';
+    out.author=$('f-author')?.value||out.author||p.author||'';
+    out.narrator=$('f-narrator')?.value||out.narrator||'';
+    out.situation=$('f-situation')?.value||out.situation||'';
+    out.familiarity=$('f-fam')?.value||out.familiarity||'익숙';
+
+    // poem (현대시/고전시가)
+    out.po_emotion=$('f-po-emotion')?.value||out.po_emotion||'';
+    out.po_attitude=$('f-po-attitude')?.value||out.po_attitude||'';
+    out.po_theme=$('f-po-theme')?.value||out.po_theme||'';
+    out.po_titleSym=$('f-po-titleSym')?.value||out.po_titleSym||'';
+    out.po_expression=$('f-po-expression')?.value||out.po_expression||'';
+    out.po_genreA=$('f-po-genreA')?.value||out.po_genreA||'';
+
+    // novel (현대소설/고전소설)
+    out.no_view=$('f-no-view')?.value||out.no_view||'';
+    out.no_pro=$('f-no-pro')?.value||out.no_pro||'';
+    out.no_anti=$('f-no-anti')?.value||out.no_anti||'';
+    out.no_conflict=$('f-no-conflict')?.value||out.no_conflict||'';
+    out.no_summary=$('f-no-summary')?.value||out.no_summary||'';
+    out.no_narr=$('f-no-narr')?.value||out.no_narr||'';
+
+    // others
+    out.li_core=$('f-li-core')?.value||out.li_core||'';
+
+    // no paras for literature
+    out.paras = out.paras || [];
+    out.field = '';
+    out.thesis = '';
+    out.structure = '';
+  }else{
+    // reading passage
+    out.field=$('f-field')?.value||out.field||p.field||'';
+    out.thesis=$('f-thesis')?.value||out.thesis||'';
+    out.structure=$('f-structure')?.value||out.structure||'';
+
+    const pc=p.paras||3;
+    const paras=[];
+    for(let j=0;j<pc;j++) paras.push({
+      method:$(`f-pm-${j}`)?.value||'정독',
+      keyword:$(`f-pk-${j}`)?.value||'',
+      point:$(`f-pp-${j}`)?.value||''
+    });
+    out.paras=paras;
+  }
+
+  // questions (per passage)
+  const qKey=(ASGN._qByPassage?.[CUR]||[]);
   const questions=[];
-  for(let j=0;j<qc;j++)questions.push({num:String(j+1).padStart(2,'0'),status:QSTS[CUR][j]??null,analysis:$(`f-qa-${j}`)?.value||''});
+  for(let j=0;j<qc;j++){
+    const num=(qKey[j]?.num)||String(j+1).padStart(2,'0');
+    const analysis=$(`f-qa-${j}`)?.value||'';
+    const myAns=(prev.questions?.[j]?.myAns)||0;
+    questions.push({num,status:QSTS[CUR][j]??null,myAns,analysis});
+  }
+  out.questions=questions;
+
+  // concepts
   const concepts=[];
-  for(let j=0;j<CC[CUR];j++){const t=$(`fc-t-${j}`)?.value||'',d2=$(`fc-d-${j}`)?.value||'';if(t||d2)concepts.push({term:t,def:d2});}
+  for(let j=0;j<CC[CUR];j++){
+    const t=$(`fc-t-${j}`)?.value||'',d2=$(`fc-d-${j}`)?.value||'';
+    if(t||d2)concepts.push({term:t,def:d2});
+  }
+  out.concepts=concepts;
+
+  // words
   const words=[];
-  for(let j=0;j<WC[CUR];j++){const t=$(`fw-t-${j}`)?.value||'',m=$(`fw-m-${j}`)?.value||'';if(t||m)words.push({term:t,mean:m});}
-  DATA[CUR]={
-    date:$('f-date')?.value||'',pages:$('f-pages')?.value||'',
-    passageMode:MODES[CUR],targetTime:$('f-target')?.value||'',actualTime:$('f-actual')?.value||'',
-    genre:isLit?$('f-genre')?.value||'':'',field:!isLit?$('f-field')?.value||'':'',
-    author:isLit?$('f-author')?.value||'':'',narrator:isLit?$('f-narrator')?.value||'':'',
-    situation:isLit?$('f-situation')?.value||'':'',thesis:!isLit?$('f-thesis')?.value||'':'',
-    structure:!isLit?$('f-structure')?.value||'':'',
-    flow:$('f-flow')?.value||'',paras,questions,concepts,words,feedback:$('f-feedback')?.value||''
-  };
+  for(let j=0;j<WC[CUR];j++){
+    const t=$(`fw-t-${j}`)?.value||'',m=$(`fw-m-${j}`)?.value||'';
+    if(t||m)words.push({term:t,mean:m});
+  }
+  out.words=words;
+
+  DATA[CUR]=out;
   updateTabs();autoSave();
 }
 
@@ -1072,48 +1182,90 @@ function submitStudent(){
   if(!name){toast('⚠️ 이름을 입력해주세요');return;}
   if(!DATA.some(d=>d.flow?.trim())){toast('⚠️ 최소 1개 이상 분석을 작성해주세요');return;}
 
-  const sub={assignment:ASGN,studentName:name,passages:DATA,explanations:EXPL,submittedAt:new Date().toISOString()};
+  // 채점(도전 횟수)
+  const maxAttempts=parseInt(ASGN.maxAttempts)||3;
+  const attKey=`sna_attempt_${ASGN.title}__${name}`;
+  let attempts=parseInt(localStorage.getItem(attKey)||'0');
 
-  // 1) 우선 온라인으로 선생님께 전송 (학생은 로그인/설치 없이 버튼 1번)
+  if(attempts>=maxAttempts){
+    toast(`⚠️ 도전 횟수(${maxAttempts}회)를 모두 사용했습니다.`); 
+  }
+
+  // 채점 가능한 문항만(정답표가 있는 문항)
+  let total=0,correct=0,wrong=0,missing=0;
+  (ASGN._qByPassage||[]).forEach((qList,pi)=>{
+    const d=DATA[pi]||{};
+    const qArr=d.questions||[];
+    qList.forEach((qk,qi)=>{
+      if(!qk || !qk.ans) return;
+      total++;
+      const my=(qArr[qi]?.myAns)||0;
+      if(!my){missing++; return;}
+      const st=(my===qk.ans)?'correct':'wrong';
+      if(st==='correct') correct++; else wrong++;
+
+      // 상태 반영(화면 배지)
+      if(!QSTS[pi]) QSTS[pi]={};
+      QSTS[pi][qi]=st;
+
+      qArr[qi]=qArr[qi]||{num:qk.num,status:null,myAns:0,analysis:''};
+      qArr[qi].num=qk.num;
+      qArr[qi].status=st;
+      d.questions=qArr;
+      DATA[pi]=d;
+    });
+  });
+
+  if(total>0 && missing>0){
+    toast(`⚠️ 정답을 입력하지 않은 문항이 ${missing}개 있습니다.`);
+    return;
+  }
+
+  attempts=Math.min(maxAttempts, attempts+1);
+  localStorage.setItem(attKey, String(attempts));
+
+  const isPerfect = (total>0 && wrong===0);
+  const isFinal = isPerfect || (attempts>=maxAttempts);
+
+  // 결과 카드 표시
+  const fin=$('s-final');
+  fin?.classList.remove('hide');
+  $('s-attempt-info').textContent = `도전 ${attempts}/${maxAttempts}회`;
+  $('s-score-info').textContent = total?`채점 결과: ${correct}/${total} 정답`:'채점할 문항이 없습니다.';
+
+  if(ASGN.examLink){
+    const a=$('s-exam-link'); a.href=ASGN.examLink; a.classList.remove('hide');
+  }
+  if(isFinal && ASGN.solutionLink){
+    const a=$('s-solution-link'); a.href=ASGN.solutionLink; a.classList.remove('hide');
+  }else{
+    $('s-solution-link')?.classList.add('hide');
+  }
+
+  // 제출 payload
+  const sub={
+    assignment:ASGN,
+    studentName:name,
+    attempts,
+    maxAttempts,
+    grading:{total,correct,wrong,isPerfect,isFinal},
+    passages:DATA,
+    explanations:EXPL,
+    submittedAt:new Date().toISOString()
+  };
+
   toast('📤 전송 중… 잠시만요', 2500);
   postToGAS(sub).then((ok)=>{
     if(ok){
-      localStorage.removeItem('sna_'+ASGN.title);
-      toast('✅ 전송 완료! 제출 끝.', 3500);
-      // (선택) 학생이 원하면 파일로도 저장할 수 있게 안내만
-      // download는 자동으로 하지 않음(제출 편의 최우선)
+      if(isPerfect){toast('✅ 전송 완료! (전 문항 정답)');}
+      else if(isFinal){toast('✅ 전송 완료! (마지막 도전)');}
+      else{toast(`✅ 전송 완료! 남은 도전: ${maxAttempts-attempts}회`);}
+      // 화면 갱신(정답/오답 배지 반영)
+      renderCurrent();
     }else{
-      // 2) 실패 시: 파일 저장 방식으로 백업
-      const safeTitle=ASGN.title.replace(/[\/\\:*?"<>|]/g,'_');
-      const filename=`제출_${name}_${safeTitle}.html`;
-      downloadBakedFile(sub,'sub',filename);
-      localStorage.removeItem('sna_'+ASGN.title);
-      toast(`⚠️ 전송이 막혀 파일로 저장했습니다.\n"${filename}"을 카톡으로 전송하세요.`, 5000);
+      toast('⚠️ 전송 실패: 네트워크/권한 설정을 확인해주세요', 3500);
     }
   });
-}
-
-/* ═══════════════════════════════════════════════════════════
-   REVIEW
-═══════════════════════════════════════════════════════════ */
-let RDATA=null,RCUR=0,RCUR_IS_EXPL=false;
-
-function loadReview(sub){
-  if(!sub?.passages){toast('⚠️ 유효하지 않은 링크');loadGenerator();return;}
-  RDATA=sub;RCUR=0;RCUR_IS_EXPL=false;
-  setView('review');
-  document.title=`[${sub.studentName}] ${sub.assignment.title}`;
-  const a=sub.assignment;
-  $('r-period').textContent=a.period||'주간 과제';
-  $('r-title').textContent=a.title;
-  $('r-student').textContent=sub.studentName;
-  $('r-count').textContent=a.passages.length;
-  if(a.questions?.length){
-    $('r-q-meta').classList.remove('hide');
-    $('r-qcount').textContent=a.questions.length;
-  }
-  if(sub.submittedAt){const d=new Date(sub.submittedAt);$('r-submitted').textContent=`제출: ${d.toLocaleDateString('ko')} ${d.toLocaleTimeString('ko',{hour:'2-digit',minute:'2-digit'})}`;}
-  buildReviewTabs();renderReview(0);
 }
 
 function buildReviewTabs(){
