@@ -1,847 +1,129 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>통합 셀프분석 + 제출(GAS 고정)</title>
-<style>
-  :root{
-    --bg:#f7f8fb;
-    --card:#ffffff;
-    --soft:#f4f6fb;
-    --line:#e7ebf3;
-    --text:#1f2430;
-    --muted:#6b7280;
 
-    --accent:#6c5ce7;          /* modern purple */
-    --accent-soft:#efeefe;
-
-    --good:#dff7e6;
-    --warn:#fff1d6;
-    --bad:#ffe0e0;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Pretendard,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--text);letter-spacing:-0.2px}
-  .wrap{max-width:980px;margin:32px auto;padding:0 16px}
-  .panel{background:var(--card);border-radius:20px;box-shadow:0 8px 26px rgba(31,36,48,.06);border:1px solid rgba(231,235,243,.9);padding:22px;margin-bottom:18px}
-  h1{font-size:20px;margin:0 0 8px}
-  h2{font-size:18px;margin:18px 0 10px}
-  label{display:block;margin:12px 0 6px;font-weight:700}
-  input[type="text"],input[type="number"],select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff;outline:none}input[type="text"]:focus,input[type="number"]:focus,select:focus,textarea:focus{border-color:rgba(108,92,231,.45);box-shadow:0 0 0 4px rgba(108,92,231,.10)}
-  textarea{min-height:88px;resize:vertical}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-  .btn{border:1px solid transparent;border-radius:999px;padding:9px 14px;cursor:pointer;font-weight:800;background:#eef1f8;color:var(--text);transition:transform .06s ease,background .15s ease,border-color .15s ease,opacity .15s ease}
-  .btn.primary{background:var(--accent);color:#fff;border-color:rgba(0,0,0,0)}
-  .btn.ghost{background:#f1f3f9;border-color:#e7ebf3}
-  .btn.ok{background:var(--good);border-color:#cfeedd}
-  .btn.maybe{background:var(--warn);border-color:#ffe2ad}
-  .btn.bad{background:var(--bad);border-color:#ffc5c5}
-  .pill{border-radius:999px;padding:6px 12px;background:var(--accent-soft);color:#2c2f3a;font-size:12px;border:1px solid rgba(108,92,231,.12)}
-  .muted{color:var(--muted);font-size:12px}
-  .hidden{display:none}
-  .card{background:var(--soft);border-radius:16px;padding:14px;margin-top:12px;border:1px solid rgba(0,0,0,.03)}
-  .cardHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
-  .cardTitle{font-weight:900}
-  .divider{height:1px;background:var(--line);margin:14px 0}
-  .mini{font-size:12px}
-  .right{margin-left:auto}
-  .danger{color:#b00020}
-  .choiceRow .btn{padding:7px 12px}
-  .status .btn{opacity:.55}
-  .status .btn.active{opacity:1;border-color:rgba(31,36,48,.18)}
-  .choiceRow .btn{opacity:.6}
-  .choiceRow .btn.active{opacity:1;border-color:rgba(31,36,48,.18)}
-  .stickyFooter{
-    position:sticky;bottom:0;background:rgba(245,246,250,.95);
-    padding:10px 0;margin-top:10px;
-  }
-  .footerInner{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center}
-  .badge{display:inline-flex;align-items:center;gap:6px}
-  .badgeDot{width:10px;height:10px;border-radius:50%}
-  .dotOk{background:#26a269}.dotMaybe{background:#c9a000}.dotBad{background:#c01c28}
-</style>
-</head>
-<body>
-<div class="wrap">
-
-  <!-- 생성기 -->
-  <div class="panel" id="genPanel">
-    <h1>과제 생성기 (여러 작품/지문 지원)</h1>
-    <div class="grid2">
-      <div>
-        <label>과제 제목</label>
-        <input id="g-title" type="text" placeholder="예: 3월 1주차 수특 문학/독서" />
-      </div>
-      <div>
-        <label>도전 횟수 (1~3)</label>
-        <input id="g-attempts" type="number" min="1" max="3" value="3" />
-      </div>
-      <div>
-        <label>시험지 링크</label>
-        <input id="g-testlink" type="text" placeholder="예: https://..." />
-      </div>
-      <div>
-        <label>해설지 링크</label>
-        <input id="g-solutionlink" type="text" placeholder="예: https://..." />
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="row" style="justify-content:space-between">
-      <div class="row">
-        <span class="pill">작품/지문 목록</span>
-        <span class="muted">작품(문학)·지문(독서)을 원하는 만큼 추가하세요.</span>
-      </div>
-      <div class="row">
-        <button class="btn ghost" id="btnAddPassage">+ 작품/지문 추가</button>
-      </div>
-    </div>
-
-    <div id="passageList"></div>
-
-    <div class="divider"></div>
-
-    <div class="row" style="justify-content:space-between">
-      <span class="muted">※ 정답은 각 작품/지문 카드에서 문항 수만큼 입력하세요.</span>
-      <button class="btn primary" id="btnBuild">학생 화면 시작</button>
-    </div>
-  </div>
-
-  <!-- 학생 -->
-  <div class="panel hidden" id="studentPanel">
-    <div class="row" style="justify-content:space-between">
-      <h1 id="s-title">셀프분석</h1>
-      <div class="pill" id="tryInfo">도전 1 / 3</div>
-    </div>
-
-    <div class="grid2">
-      <div>
-        <label>이름</label>
-        <input id="s-name" type="text" placeholder="이름" />
-      </div>
-      <div>
-        <label>전화번호(또는 학번)</label>
-        <input id="s-phone" type="text" placeholder="010-xxxx-xxxx / 학번" />
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div id="studentPassages"></div>
-
-    <div class="stickyFooter">
-      <div class="footerInner">
-        <div class="row">
-          <button class="btn ghost" id="btnOpenTest">시험지 보기</button>
-          <button class="btn ghost hidden" id="btnOpenSol">해설지 보기</button>
-          <span class="muted" id="submitHint">해설지는 제출 완료 후(만점 또는 마지막 도전) 열립니다.</span>
-        </div>
-        <div class="row">
-          <button class="btn primary" id="btnSubmit">제출(채점+전송)</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-/* =========================
-   고정 GAS URL (사용자 제공)
-========================= */
-const GAS_SUBMIT_URL = "https://script.google.com/macros/s/AKfycbw05gNe7MRMnFfo10otZ1BU-IXwKmLQGLTYQznrynRCfYzh7YMw7JYpyQjZUe8IbQFjHw/exec";
-
-/* =========================
-   유틸
-========================= */
-const $ = (id)=>document.getElementById(id);
-const uid = ()=>crypto.randomUUID();
-function esc(s){return String(s||"").replace(/[&<>"]/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m]));}
-function toast(msg){alert(msg);}
-
-/* =========================
-   상태
-========================= */
-let ASGN = null;
-let currentTry = 1;
-
-/*
-ASGN = {
-  id, title, attempts, testlink, solutionlink,
-  passages: [
-    {
-      id, label, kind: 'reading'|'modern_poetry'|'classic_poetry'|'modern_novel'|'classic_novel',
-      text, qcount,
-      answers: {1:3,2:5...}
-    }
-  ]
-}
-*/
-
-// 학생 입력 상태(작품/지문별)
-let S = {
-  familiarity: {}, // passageId -> '익숙'|'낯섦'
-  analysis: {},     // passageId -> {field:value}
-  pNotes: {},       // passageId -> {qKey: text}
-  pStatus: {},      // passageId -> {qNum: 'correct'|'confuse'|'wrong'}
-  pAnswer: {},      // passageId -> {qNum: 1..5}
-};
-
-/* =========================
-   생성기: 작품/지문 추가/삭제
-========================= */
-const passageList = $('passageList');
-
-function passageTemplate(p){
-  const isLit = p.kind !== 'reading';
-  const kindLabel = {
-    reading:'독서(비문학)',
-    modern_poetry:'현대시', classic_poetry:'고전시가',
-    modern_novel:'현대소설', classic_novel:'고전소설'
-  }[p.kind] || p.kind;
-
-  return `
-  <div class="card" data-pid="${p.id}">
-    <div class="cardHead">
-      <div class="row" style="gap:8px">
-        <div class="cardTitle">작품/지문</div>
-        <span class="pill">${kindLabel}</span>
-      </div>
-      <div class="row">
-        <button class="btn ghost mini" data-act="dup">복제</button>
-        <button class="btn ghost mini danger" data-act="del">삭제</button>
-      </div>
-    </div>
-
-    <div class="grid3" style="margin-top:10px">
-      <div>
-        <label>구분</label>
-        <select data-k="kind">
-          <option value="reading"${p.kind==='reading'?' selected':''}>독서(비문학)</option>
-          <option value="modern_poetry"${p.kind==='modern_poetry'?' selected':''}>현대시</option>
-          <option value="classic_poetry"${p.kind==='classic_poetry'?' selected':''}>고전시가</option>
-          <option value="modern_novel"${p.kind==='modern_novel'?' selected':''}>현대소설</option>
-          <option value="classic_novel"${p.kind==='classic_novel'?' selected':''}>고전소설</option>
-        </select>
-      </div>
-      <div>
-        <label>작품/지문 이름</label>
-        <input type="text" data-k="label" placeholder="예: (현대시) 진달래꽃 / (독서) 과학 기술 지문" value="${esc(p.label)}" />
-      </div>
-      <div>
-        <label>문항 수</label>
-        <input type="number" min="1" max="45" data-k="qcount" value="${p.qcount}" />
-      </div>
-    </div>
-
-    <label>작품/지문 텍스트(선택)</label>
-    <textarea data-k="text" placeholder="지문을 넣어도 되고, 생략해도 됩니다.">${esc(p.text)}</textarea>
-
-    <label>정답 입력(1~5)</label>
-    <div class="row" style="gap:8px;flex-wrap:wrap" data-zone="answers">
-      ${renderAnswerInputs(p)}
-    </div>
-
-    <div class="muted">※ 정답 미입력 문항은 채점에서 오답 처리됩니다.</div>
-  </div>`;
-}
-
-function renderAnswerInputs(p){
-  const q = Number(p.qcount||1);
-  const parts = [];
-  for(let i=1;i<=q;i++){
-    const v = (p.answers && p.answers[i]) ? p.answers[i] : '';
-    parts.push(`
-      <div class="row" style="gap:6px;align-items:center">
-        <span class="pill">${String(i).padStart(2,'0')}번</span>
-        <input type="number" min="1" max="5" style="width:70px" data-ans="${i}" value="${v}">
-      </div>
-    `);
-  }
-  return parts.join('');
-}
-
-let genPassages = [
-  { id: uid(), kind:'modern_poetry', label:'', text:'', qcount:3, answers:{} }
-];
-
-function rerenderGenerator(){
-  passageList.innerHTML = genPassages.map(passageTemplate).join('');
-
-  passageList.querySelectorAll('.card').forEach(card=>{
-    const pid = card.dataset.pid;
-    const getP = ()=>genPassages.find(x=>x.id===pid);
-
-    // 변경 핸들러
-    card.querySelectorAll('[data-k]').forEach(el=>{
-      el.addEventListener('input', ()=>{
-        const p = getP(); if(!p) return;
-        const k = el.dataset.k;
-        if(k==='qcount'){
-          p.qcount = Math.max(1, Math.min(45, Number(el.value||1)));
-          // answers input rerender
-          const zone = card.querySelector('[data-zone="answers"]');
-          zone.innerHTML = renderAnswerInputs(p);
-          // bind answer inputs
-          bindAnswerInputs(card, p);
-        }else if(k==='kind'){
-          p.kind = el.value;
-          rerenderGenerator();
-        }else{
-          p[k] = el.value;
-        }
-      });
-    });
-
-    bindAnswerInputs(card, getP());
-
-    // 복제/삭제
-    card.querySelectorAll('[data-act]').forEach(btn=>{
-      btn.onclick = ()=>{
-        const act = btn.dataset.act;
-        if(act==='del'){
-          genPassages = genPassages.filter(x=>x.id!==pid);
-          if(genPassages.length===0){
-            genPassages = [{ id: uid(), kind:'reading', label:'', text:'', qcount:3, answers:{} }];
-          }
-          rerenderGenerator();
-        }
-        if(act==='dup'){
-          const p = getP();
-          if(!p) return;
-          const copy = JSON.parse(JSON.stringify(p));
-          copy.id = uid();
-          genPassages.push(copy);
-          rerenderGenerator();
-        }
-      };
-    });
-  });
-}
-
-function bindAnswerInputs(card, p){
-  if(!p) return;
-  card.querySelectorAll('input[data-ans]').forEach(inp=>{
-    inp.addEventListener('input', ()=>{
-      const qn = Number(inp.dataset.ans);
-      const v = Number(inp.value);
-      if(!p.answers) p.answers = {};
-      if(!v) delete p.answers[qn];
-      else p.answers[qn]=Math.max(1,Math.min(5,v));
-    });
-  });
-}
-
-$('btnAddPassage').onclick = ()=>{
-  genPassages.push({ id: uid(), kind:'reading', label:'', text:'', qcount:3, answers:{} });
-  rerenderGenerator();
-};
-
-rerenderGenerator();
-
-/* =========================
-   빌드 → 학생 화면
-========================= */
-$('btnBuild').onclick = ()=>{
-  const title = $('g-title').value.trim() || '셀프분석';
-  const attempts = Math.max(1, Math.min(3, Number($('g-attempts').value||3)));
-  const testlink = $('g-testlink').value.trim();
-  const solutionlink = $('g-solutionlink').value.trim();
-
-  // 정리/검증
-  const passages = genPassages.map(p=>({
-    id: p.id,
-    kind: p.kind,
-    label: (p.label||'').trim() || '작품/지문',
-    text: p.text||'',
-    qcount: Math.max(1, Math.min(45, Number(p.qcount||1))),
-    answers: p.answers || {}
-  }));
-
-  ASGN = { id: uid(), title, attempts, testlink, solutionlink, passages };
-  currentTry = 1;
-
-  // 학생 상태 초기화
-  S = { familiarity:{}, analysis:{}, pNotes:{}, pStatus:{}, pAnswer:{} };
-
-  $('genPanel').classList.add('hidden');
-  $('studentPanel').classList.remove('hidden');
-  $('s-title').textContent = ASGN.title;
-  $('tryInfo').textContent = `도전 ${currentTry} / ${ASGN.attempts}`;
-
-  renderStudent();
-  loadState();
-};
-
-$('btnOpenTest').onclick = ()=>{ if(ASGN?.testlink) window.open(ASGN.testlink,'_blank'); };
-$('btnOpenSol').onclick = ()=>{ if(ASGN?.solutionlink) window.open(ASGN.solutionlink,'_blank'); };
-
-function kindLabel(kind){
+/* ═══════════════════════════════════════════════════════════
+   DRAFT (임시저장 파일 / 불러오기 / 초기화)
+═══════════════════════════════════════════════════════════ */
+function makeSnapshot(isDraft){
+  saveCurrentPassage();
+  saveAllExplanations();
+  const name = $('s-name')?.value?.trim() || '';
   return {
-    reading:'독서(비문학)',
-    modern_poetry:'현대시', classic_poetry:'고전시가',
-    modern_novel:'현대소설', classic_novel:'고전소설'
-  }[kind] || kind;
-}
-
-function renderStudent(){
-  const root = $('studentPassages');
-  root.innerHTML = '';
-
-  ASGN.passages.forEach((p, idx)=>{
-    const isLit = p.kind !== 'reading';
-
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.pid = p.id;
-    card.innerHTML = `
-      <div class="cardHead">
-        <div class="row" style="gap:8px">
-          <div class="cardTitle">${idx+1}. ${esc(p.label)}</div>
-          <span class="pill">${kindLabel(p.kind)}</span>
-        </div>
-        ${isLit ? `
-          <div class="row">
-            <span class="mini muted">예상</span>
-            <button class="btn ok mini" data-fam="확신">확신</button>
-            <button class="btn maybe mini" data-fam="애매">애매</button>
-            <button class="btn bad mini" data-fam="못품">못품</button>
-            <span class="pill" data-famstate>미선택</span>
-          </div>
-        ` : `<span class="pill">독서 지문</span>`}
-      </div>
-
-      ${p.text ? `<label>텍스트(참고)</label><textarea readonly>${esc(p.text)}</textarea>` : ''}
-
-      <div class="divider"></div>
-      <div data-zone="analysis"></div>
-
-      <div class="divider"></div>
-      <h2 style="margin:0 0 6px">문제 분석</h2>
-      <div data-zone="questions"></div>
-    `;
-    root.appendChild(card);
-
-    // familiarity buttons
-    if(isLit){
-      const famState = card.querySelector('[data-famstate]');
-      card.querySelectorAll('button[data-fam]').forEach(b=>{
-        b.onclick = ()=>{
-          S.familiarity[p.id] = b.dataset.fam;
-          famState.textContent = b.dataset.fam;
-          saveState();
-        };
-      });
-    }
-
-    // analysis zone render
-    const az = card.querySelector('[data-zone="analysis"]');
-    az.innerHTML = analysisUI(p);
-
-    az.querySelectorAll('textarea').forEach(t=>{
-      t.addEventListener('input', ()=>{
-        if(!S.analysis[p.id]) S.analysis[p.id] = {};
-        S.analysis[p.id][t.dataset.k] = t.value;
-        saveState();
-      });
-    });
-
-    // questions render
-    const qz = card.querySelector('[data-zone="questions"]');
-    qz.innerHTML = questionsUI(p);
-
-    // bind status/choice/text
-    qz.querySelectorAll('.status .btn').forEach(btn=>{
-      btn.onclick = ()=>{
-        const qnum = Number(btn.dataset.q);
-        const status = btn.dataset.s;
-        if(!S.pStatus[p.id]) S.pStatus[p.id] = {};
-        S.pStatus[p.id][qnum] = status;
-
-        const group = btn.parentElement.querySelectorAll('.btn');
-        group.forEach(x=>x.classList.remove('active'));
-        btn.classList.add('active');
-        saveState();
-      };
-    });
-
-    qz.querySelectorAll('.choiceRow .btn[data-a]').forEach(btn=>{
-      btn.onclick = ()=>{
-        const qnum = Number(btn.dataset.q);
-        const ans = Number(btn.dataset.a);
-        if(!S.pAnswer[p.id]) S.pAnswer[p.id] = {};
-        S.pAnswer[p.id][qnum] = ans;
-
-        const group = btn.parentElement.querySelectorAll('.btn');
-        group.forEach(x=>x.classList.remove('active'));
-        btn.classList.add('active');
-        saveState();
-      };
-    });
-
-    qz.querySelectorAll('textarea[data-note]').forEach(t=>{
-      t.addEventListener('input', ()=>{
-        const qnum = Number(t.dataset.note);
-        if(!S.pNotes[p.id]) S.pNotes[p.id] = {};
-        S.pNotes[p.id][qnum] = t.value;
-        saveState();
-      });
-    });
-  });
-
-  $('btnSubmit').onclick = submitToSheetWithGrading;
-}
-
-function analysisUI(p){
-  // 문학: 시/소설 분석, 독서: 간단 구조
-  if(p.kind==='modern_poetry' || p.kind==='classic_poetry'){
-    return `
-      <label>정서</label><textarea data-k="emotion"></textarea>
-      <label>화자의 태도</label><textarea data-k="attitude"></textarea>
-      <label>주제</label><textarea data-k="theme"></textarea>
-      <label>제목의 상징성</label><textarea data-k="titleSymbol"></textarea>
-      <label>표현상 특징</label><textarea data-k="expression"></textarea>
-      <label>장르 분석</label><textarea data-k="genreAnalysis"></textarea>
-    `;
-  }
-  if(p.kind==='modern_novel' || p.kind==='classic_novel'){
-    return `
-      <label>시점</label><textarea data-k="viewpoint"></textarea>
-      <label>주동 인물</label><textarea data-k="protagonist"></textarea>
-      <label>반동 인물</label><textarea data-k="antagonist"></textarea>
-      <label>갈등</label><textarea data-k="conflict"></textarea>
-      <label>줄거리</label><textarea data-k="summary"></textarea>
-      <label>서술상 특징</label><textarea data-k="narrative"></textarea>
-    `;
-  }
-  // 독서(비문학) - 최소형(원하시면 단락 추가도 가능)
-  return `
-    <label>핵심 주장/정보</label><textarea data-k="main"></textarea>
-    <label>구조(전개)</label><textarea data-k="structure"></textarea>
-    <label>근거/예시 정리</label><textarea data-k="evidence"></textarea>
-  `;
-}
-
-function questionsUI(p){
-  const blocks = [];
-  for(let i=1;i<=p.qcount;i++){
-    blocks.push(`
-      <div class="card" style="background:#fff;border:1px solid var(--line)">
-        <div class="cardHead">
-          <div class="row" style="gap:10px">
-            <div class="cardTitle">${String(i).padStart(2,'0')}번</div>
-            <div class="row choiceRow" style="gap:6px">
-              <button class="btn ghost mini" data-q="${i}" data-a="1">①</button>
-              <button class="btn ghost mini" data-q="${i}" data-a="2">②</button>
-              <button class="btn ghost mini" data-q="${i}" data-a="3">③</button>
-              <button class="btn ghost mini" data-q="${i}" data-a="4">④</button>
-              <button class="btn ghost mini" data-q="${i}" data-a="5">⑤</button>
-            </div>
-          </div>
-          <div class="status">
-            <button class="btn ok mini" data-q="${i}" data-s="correct">확신</button>
-            <button class="btn maybe mini" data-q="${i}" data-s="confuse">애매</button>
-            <button class="btn bad mini" data-q="${i}" data-s="wrong">못품</button>
-          </div>
-        </div>
-        <label class="mini muted">문제 분석</label>
-        <textarea data-note="${i}" placeholder="문제 분석"></textarea>
-      </div>
-    `);
-  }
-  return blocks.join('');
-}
-
-/* =========================
-   제출/채점/해설 공개
-========================= */
-function allFilled(){
-  // 이름/전화
-  const name = $('s-name').value.trim();
-  const phone = $('s-phone').value.trim();
-  if(!name) { toast('이름을 입력하세요.'); return false; }
-  if(!phone) { toast('전화번호(또는 학번)를 입력하세요.'); return false; }
-
-  // 작품/지문별: 분석 textarea 모두 작성 + 문제분석 textarea 모두 작성 + 답 선택 모두
-  for(const p of ASGN.passages){
-    const a = S.analysis[p.id] || {};
-    // analysis fields required: all textarea in card analysis zone must be non-empty
-    const card = document.querySelector(`.card[data-pid="${p.id}"]`);
-    if(card){
-      const az = card.querySelector('[data-zone="analysis"]');
-      const reqA = az ? Array.from(az.querySelectorAll('textarea')) : [];
-      for(const t of reqA){
-        if(!(a[t.dataset.k]||'').trim()) return false;
-      }
-
-      const qz = card.querySelector('[data-zone="questions"]');
-      const notes = S.pNotes[p.id] || {};
-      const ans = S.pAnswer[p.id] || {};
-      // all notes
-      for(let i=1;i<=p.qcount;i++){
-        if(!(notes[i]||'').trim()) return false;
-        if(!(ans[i]>=1 && ans[i]<=5)) return false;
-      }
-    }else{
-      return false;
-    }
-
-    // 문학이면 익숙/낯섦 필수
-    if(p.kind!=='reading'){
-      if(!S.familiarity[p.id]) return false;
-    }
-  }
-  return true;
-}
-
-function grade(){
-  // 전체 문항 기준 점수
-  let total = 0;
-  let wrong = []; // ["1-03", ...] (passageIndex-question)
-  ASGN.passages.forEach((p, idx)=>{
-    const ans = S.pAnswer[p.id] || {};
-    const keyPrefix = `${idx+1}-`;
-    for(let i=1;i<=p.qcount;i++){
-      total++;
-      const ca = p.answers && p.answers[i];
-      const sa = ans[i];
-      if(!ca || !sa || Number(ca)!==Number(sa)){
-        wrong.push(`${keyPrefix}${String(i).padStart(2,'0')}`);
-      }
-    }
-  });
-  const score = total - wrong.length;
-  return { total, score, wrong };
-}
-
-function revealSolution(){
-  if(ASGN?.solutionlink){
-    $('btnOpenSol').classList.remove('hidden');
-    $('submitHint').textContent = '해설지가 열렸습니다.';
-  }
-}
-
-// ---- CORS 회피: sendBeacon 우선(응답 확인 불가) + fetch(no-cors) 보조 ----
-function buildPayloadBody(data){
-  return new URLSearchParams({ payload: JSON.stringify(data) }).toString();
-}
-
-function postToGASBeacon(url, data){
-  const bodyStr = buildPayloadBody(data);
-
-  // 1) sendBeacon (가장 안정적으로 cross-origin 전송)
-  if (navigator.sendBeacon){
-    const blob = new Blob([bodyStr], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
-    const ok = navigator.sendBeacon(url, blob);
-    if (ok) return { ok: true, mode: 'beacon' };
-  }
-
-  // 2) fetch no-cors (응답은 opaque라 ok 판정 불가하지만 전송 시도 가능)
-  try{
-    fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: bodyStr,
-      keepalive: true
-    });
-    return { ok: true, mode: 'no-cors' };
-  }catch(e){
-    return { ok: false, error: String(e) };
-  }
-}
-
-// 제출 실패 대비 큐
-function QKEY(){ return `queue_${ASGN.id}`; }
-function loadQueue(){ try { return JSON.parse(localStorage.getItem(QKEY())||'[]'); } catch { return []; } }
-function saveQueue(q){ localStorage.setItem(QKEY(), JSON.stringify(q)); }
-
-let flushing = false;
-async function flushQueue(){
-  if(flushing) return;
-  flushing = true;
-  try{
-    const q = loadQueue();
-    if(!q.length) return;
-    const remain = [];
-    for(const item of q){
-      try{
-        const r = postToGASBeacon(GAS_SUBMIT_URL, item);
-        // 응답 확인 불가 모드라도 전송 시도는 했으므로 큐에서 제거(중복 제출 방지)
-        // 실제 실패 시에는 학생이 다시 제출하면 동일 key로 시트에서 덮어쓰기됩니다.
-        if(!r.ok) remain.push(item);
-      }catch(e){
-        remain.push(item);
-      }
-    }
-    saveQueue(remain);
-  } finally {
-    flushing = false;
-  }
-}
-window.addEventListener('load', ()=>{ setInterval(flushQueue, 10000); });
-
-async function submitToSheetWithGrading(){
-  if(!allFilled()){
-    toast('미작성 항목이 있습니다.\n(분석/문제분석/내답/예상 선택/이름·번호 확인)');
-    return;
-  }
-
-  const name = $('s-name').value.trim();
-  const phone = $('s-phone').value.trim();
-
-  const g = grade();
-  const key = `${ASGN.id}__${phone}__${name}`;
-
-  const payload = {
-    key,
-    assignmentId: ASGN.id,
-    assignmentTitle: ASGN.title,
-    tryCount: currentTry,
-    attempts: ASGN.attempts,
-    name, phone,
-    score: g.score,
-    total: g.total,
-    wrongList: g.wrong,
-    // 상세 저장
-    passages: ASGN.passages.map((p, idx)=>({
-      index: idx+1,
-      passageId: p.id,
-      kind: p.kind,
-      label: p.label,
-      familiarity: S.familiarity[p.id] || '',
-      analysis: S.analysis[p.id] || {},
-      answers: S.pAnswer[p.id] || {},
-      status: S.pStatus[p.id] || {},
-      notes: S.pNotes[p.id] || {},
-      correct: p.answers || {}
-    })),
-    links: { test: ASGN.testlink||'', solution: ASGN.solutionlink||'' },
-    meta: { submittedAt: new Date().toISOString(), userAgent: navigator.userAgent }
+    assignment: ASGN,
+    studentName: name,
+    passages: DATA,
+    explanations: EXPL,
+    modes: MODES,
+    qsts: QSTS,
+    cc: CC,
+    wc: WC,
+    savedAt: new Date().toISOString(),
+    isDraft: !!isDraft
   };
-
-  // 버튼 잠금
-  const btn = $('btnSubmit');
-  const old = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = '제출 중...';
-
-  try{
-    const r = postToGASBeacon(GAS_SUBMIT_URL, payload);
-
-    // CORS 때문에 브라우저에서 '성공 응답'을 확인할 수 없는 경우가 많습니다.
-    // 따라서 '전송 시도'에 성공하면 제출 완료 안내를 띄우고,
-    // 실제 저장 여부는 선생님 시트에서 확인됩니다(동일 key는 덮어쓰기).
-    if(r.ok){
-      alert(`제출 전송 완료!\n점수: ${g.score}/${g.total}\n오답: ${g.wrong.length? g.wrong.join(', '): '없음'}`);
-
-      // 해설 공개 조건
-      if(g.wrong.length===0){
-        revealSolution();
-      }else{
-        currentTry++;
-        if(currentTry > ASGN.attempts){
-          revealSolution();
-        }else{
-          $('tryInfo').textContent = `도전 ${currentTry} / ${ASGN.attempts}`;
-          alert('오답을 수정하고 다시 도전하세요.');
-        }
-      }
-
-      // 큐 비우기 시도(있으면)
-      flushQueue();
-      saveState();
-      return;
-    }
-
-    // 전송 자체가 실패한 경우만 큐 저장
-    const q = loadQueue(); q.push(payload); saveQueue(q);
-    alert('네트워크 문제로 제출이 임시 저장되었습니다.\n연결되면 자동으로 전송됩니다.');
-  }catch(e){
-    const q = loadQueue(); q.push(payload); saveQueue(q);
-    alert('네트워크 문제로 제출이 임시 저장되었습니다.\n연결되면 자동으로 전송됩니다.');
-  }finally{
-    btn.disabled = false;
-    btn.textContent = old;
-  }
 }
 
-/* =========================
-   저장/복원
-========================= */
-function SKEY(){ return `state_${ASGN.id}`; }
+function applySnapshot(snap){
+  // ASGN은 loadStudent에서 초기화되므로, loadStudent 먼저 실행 후 덮어씌웁니다.
+  if(snap.studentName) $('s-name').value = snap.studentName;
+  if(snap.passages) DATA = snap.passages;
+  if(snap.explanations) EXPL = snap.explanations;
+  if(snap.modes) MODES = snap.modes;
+  if(snap.qsts) QSTS = snap.qsts;
+  if(snap.cc) CC = snap.cc;
+  if(snap.wc) WC = snap.wc;
 
-function saveState(){
+  // 로컬 자동저장도 즉시 반영
+  autoSave();
+  renderPassage(CUR);
+  updateTabs();
+  updateProgress();
+}
+
+function saveDraftFile(){
+  if(!ASGN){ toast('⚠️ 과제를 불러온 뒤 사용하세요'); return; }
+  const name = $('s-name')?.value?.trim() || '';
+  if(!name){ toast('⚠️ 이름을 입력해주세요'); return; }
+  const snap = makeSnapshot(true);
+  const safeTitle = (ASGN.title||'과제').replace(/[\/\\:*?"<>|]/g,'_');
+  const filename = `임시저장_${name}_${safeTitle}.html`;
+  downloadBakedFile(snap,'draft',filename);
+  toast('✅ 임시저장 파일 저장됨! (다음에 이 파일로 이어쓰기)', 3200);
+}
+
+function openDraftImport(){
+  const inp = $('draft-file');
+  if(!inp) return;
+  inp.value = '';
+  inp.onchange = async (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const text = await f.text();
+    // 1) JSON 단독 파일인 경우
+    try{
+      const obj = JSON.parse(text);
+      if(obj && obj.assignment && obj.passages){
+        loadDraft(obj);
+        return;
+      }
+    }catch(_){}
+    // 2) HTML baked 파일인 경우: window.__BAKED_DRAFT__를 파싱하기 어려우므로,
+    //    사용자가 '열기'로 실행하면 자동 로딩되도록 설계됨.
+    //    여기서는 안내만 합니다.
+    toast('📌 임시저장 HTML은 "파일 열기"로 실행하면 자동으로 이어서 로딩됩니다.', 4200);
+  };
+  inp.click();
+}
+
+function loadDraft(d){
+  if(!d?.assignment?.passages?.length){ toast('⚠️ 임시저장 파일이 올바르지 않습니다'); return; }
+  // 과제 로딩
+  loadStudent(d.assignment);
+  // 스냅샷 적용
+  setTimeout(()=>applySnapshot(d), 0);
+  toast('✅ 임시저장 내용 불러오기 완료', 2600);
+}
+
+function clearLocalWork(){
   if(!ASGN) return;
-  const data = {
-    currentTry,
-    name: $('s-name')?.value || '',
-    phone: $('s-phone')?.value || '',
-    S
+  const key = 'sna_' + ASGN.title;
+  localStorage.removeItem(key);
+  toast('🧹 이 과제의 자동저장 기록을 삭제했습니다.', 2600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PDF Export (다운로드 + 모바일이면 공유 시도)
+═══════════════════════════════════════════════════════════ */
+async function exportPdf(){
+  const view = document.querySelector('#view-review:not(.hide)') ? 'review' : (document.querySelector('#view-student:not(.hide)') ? 'student' : 'gen');
+  if(view==='gen'){ toast('⚠️ 학생용/검토 화면에서 PDF 저장이 가능합니다'); return; }
+
+  // 학생용: 최신 입력 저장
+  if(view==='student'){
+    saveCurrentPassage();
+    saveAllExplanations();
+  }
+
+  const el = (view==='review') ? $('view-review') : $('view-student');
+
+  const aTitle = (view==='review') ? (RDATA?.assignment?.title||'과제') : (ASGN?.title||'과제');
+  const sName = (view==='review') ? (RDATA?.studentName||'학생') : ($('s-name')?.value?.trim()||'학생');
+  const safeTitle = aTitle.replace(/[\/\\:*?"<>|]/g,'_');
+  const filename = `${sName}_${safeTitle}.pdf`;
+
+  toast('⏳ PDF 생성 중...', 2000);
+
+  const opt = {
+    margin:       6,
+    filename:     filename,
+    image:        { type: 'jpeg', quality: 0.95 },
+    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
-  localStorage.setItem(SKEY(), JSON.stringify(data));
-}
 
-function loadState(){
+  // pdf 저장(다운로드)
   try{
-    const raw = localStorage.getItem(SKEY());
-    if(!raw) return;
-    const data = JSON.parse(raw);
-    currentTry = data.currentTry || 1;
-    $('tryInfo').textContent = `도전 ${currentTry} / ${ASGN.attempts}`;
-    if($('s-name')) $('s-name').value = data.name || '';
-    if($('s-phone')) $('s-phone').value = data.phone || '';
-    S = data.S || S;
-
-    // UI 반영
-    ASGN.passages.forEach((p, idx)=>{
-      const card = document.querySelector(`.card[data-pid="${p.id}"]`);
-      if(!card) return;
-
-      // familiarity
-      const famState = card.querySelector('[data-famstate]');
-      if(famState && S.familiarity[p.id]) famState.textContent = S.familiarity[p.id];
-
-      // analysis
-      const az = card.querySelector('[data-zone="analysis"]');
-      if(az){
-        az.querySelectorAll('textarea').forEach(t=>{
-          const v = (S.analysis[p.id]||{})[t.dataset.k];
-          if(v!=null) t.value = v;
-        });
-      }
-
-      // notes
-      const qz = card.querySelector('[data-zone="questions"]');
-      if(qz){
-        qz.querySelectorAll('textarea[data-note]').forEach(t=>{
-          const qnum = Number(t.dataset.note);
-          const v = (S.pNotes[p.id]||{})[qnum];
-          if(v!=null) t.value = v;
-        });
-
-        // status
-        Object.entries(S.pStatus[p.id]||{}).forEach(([qnum, st])=>{
-          const b = qz.querySelector(`.status .btn[data-q="${qnum}"][data-s="${st}"]`);
-          if(b) b.classList.add('active');
-        });
-
-        // answers
-        Object.entries(S.pAnswer[p.id]||{}).forEach(([qnum, a])=>{
-          const b = qz.querySelector(`.choiceRow .btn[data-q="${qnum}"][data-a="${a}"]`);
-          if(b) b.classList.add('active');
-        });
-      }
-    });
-
-    // 해설 버튼 노출 상태는 제출 조건으로만(저장 복원으로 켜지지 않게 유지)
-  }catch(e){}
+    await html2pdf().set(opt).from(el).save();
+    toast('✅ PDF 저장 완료! 카톡에서 "파일"로 전송하세요.', 3500);
+  }catch(e){
+    console.error(e);
+    toast('⚠️ PDF 생성에 실패했습니다. "인쇄 → PDF 저장"도 가능합니다.', 3800);
+  }
 }
-
-window.addEventListener('beforeunload', saveState);
-</script>
-</body>
-</html>
