@@ -6,32 +6,40 @@
 <title>통합 셀프분석 + 제출(GAS 고정)</title>
 <style>
   :root{
-    --bg:#f5f6fa; --card:#fff; --soft:#f3f4f7; --line:#e6e8ef;
-    --ok:#c8f1d0; --maybe:#ffe5b4; --bad:#ffd1d1; --text:#222;
-    --primary:#4f7cff;
+    --bg:#f7f8fb;
+    --card:#ffffff;
+    --soft:#f4f6fb;
+    --line:#e7ebf3;
+    --text:#1f2430;
+    --muted:#6b7280;
+
+    --accent:#6c5ce7;          /* modern purple */
+    --accent-soft:#efeefe;
+
+    --good:#dff7e6;
+    --warn:#fff1d6;
+    --bad:#ffe0e0;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:Pretendard,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--text)}
+  body{margin:0;font-family:Pretendard,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--text);letter-spacing:-0.2px}
   .wrap{max-width:980px;margin:32px auto;padding:0 16px}
-  .panel{background:var(--card);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:22px;margin-bottom:18px}
+  .panel{background:var(--card);border-radius:20px;box-shadow:0 8px 26px rgba(31,36,48,.06);border:1px solid rgba(231,235,243,.9);padding:22px;margin-bottom:18px}
   h1{font-size:20px;margin:0 0 8px}
   h2{font-size:18px;margin:18px 0 10px}
   label{display:block;margin:12px 0 6px;font-weight:700}
-  input[type="text"],input[type="number"],select,textarea{
-    width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff
-  }
+  input[type="text"],input[type="number"],select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff;outline:none}input[type="text"]:focus,input[type="number"]:focus,select:focus,textarea:focus{border-color:rgba(108,92,231,.45);box-shadow:0 0 0 4px rgba(108,92,231,.10)}
   textarea{min-height:88px;resize:vertical}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-  .btn{border:0;border-radius:999px;padding:9px 14px;cursor:pointer;font-weight:700}
-  .btn.primary{background:var(--primary);color:#fff}
-  .btn.ghost{background:#eef1f7}
-  .btn.ok{background:var(--ok)}
-  .btn.maybe{background:var(--maybe)}
-  .btn.bad{background:var(--bad)}
-  .pill{border-radius:999px;padding:6px 12px;background:#eef1f7;font-size:12px}
-  .muted{color:#666;font-size:12px}
+  .btn{border:1px solid transparent;border-radius:999px;padding:9px 14px;cursor:pointer;font-weight:800;background:#eef1f8;color:var(--text);transition:transform .06s ease,background .15s ease,border-color .15s ease,opacity .15s ease}
+  .btn.primary{background:var(--accent);color:#fff;border-color:rgba(0,0,0,0)}
+  .btn.ghost{background:#f1f3f9;border-color:#e7ebf3}
+  .btn.ok{background:var(--good);border-color:#cfeedd}
+  .btn.maybe{background:var(--warn);border-color:#ffe2ad}
+  .btn.bad{background:var(--bad);border-color:#ffc5c5}
+  .pill{border-radius:999px;padding:6px 12px;background:var(--accent-soft);color:#2c2f3a;font-size:12px;border:1px solid rgba(108,92,231,.12)}
+  .muted{color:var(--muted);font-size:12px}
   .hidden{display:none}
   .card{background:var(--soft);border-radius:16px;padding:14px;margin-top:12px;border:1px solid rgba(0,0,0,.03)}
   .cardHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -41,10 +49,10 @@
   .right{margin-left:auto}
   .danger{color:#b00020}
   .choiceRow .btn{padding:7px 12px}
-  .status .btn{opacity:.45}
-  .status .btn.active{opacity:1}
-  .choiceRow .btn{opacity:.45}
-  .choiceRow .btn.active{opacity:1}
+  .status .btn{opacity:.55}
+  .status .btn.active{opacity:1;border-color:rgba(31,36,48,.18)}
+  .choiceRow .btn{opacity:.6}
+  .choiceRow .btn.active{opacity:1;border-color:rgba(31,36,48,.18)}
   .stickyFooter{
     position:sticky;bottom:0;background:rgba(245,246,250,.95);
     padding:10px 0;margin-top:10px;
@@ -397,9 +405,10 @@ function renderStudent(){
         </div>
         ${isLit ? `
           <div class="row">
-            <span class="mini muted">체감</span>
-            <button class="btn ok mini" data-fam="익숙">익숙</button>
-            <button class="btn maybe mini" data-fam="낯섦">낯섦</button>
+            <span class="mini muted">예상</span>
+            <button class="btn ok mini" data-fam="확신">확신</button>
+            <button class="btn maybe mini" data-fam="애매">애매</button>
+            <button class="btn bad mini" data-fam="못품">못품</button>
             <span class="pill" data-famstate>미선택</span>
           </div>
         ` : `<span class="pill">독서 지문</span>`}
@@ -533,9 +542,9 @@ function questionsUI(p){
             </div>
           </div>
           <div class="status">
-            <button class="btn ok mini" data-q="${i}" data-s="correct">정답</button>
-            <button class="btn maybe mini" data-q="${i}" data-s="confuse">헷갈림</button>
-            <button class="btn bad mini" data-q="${i}" data-s="wrong">오답</button>
+            <button class="btn ok mini" data-q="${i}" data-s="correct">확신</button>
+            <button class="btn maybe mini" data-q="${i}" data-s="confuse">애매</button>
+            <button class="btn bad mini" data-q="${i}" data-s="wrong">못품</button>
           </div>
         </div>
         <label class="mini muted">문제 분석</label>
@@ -615,11 +624,34 @@ function revealSolution(){
   }
 }
 
-async function postToGAS(url, data){
-  const body = new URLSearchParams({ payload: JSON.stringify(data) });
-  const res = await fetch(url, { method:'POST', body });
-  const txt = await res.text();
-  try { return JSON.parse(txt); } catch { return { ok:false, error:'Invalid response', raw:txt }; }
+// ---- CORS 회피: sendBeacon 우선(응답 확인 불가) + fetch(no-cors) 보조 ----
+function buildPayloadBody(data){
+  return new URLSearchParams({ payload: JSON.stringify(data) }).toString();
+}
+
+function postToGASBeacon(url, data){
+  const bodyStr = buildPayloadBody(data);
+
+  // 1) sendBeacon (가장 안정적으로 cross-origin 전송)
+  if (navigator.sendBeacon){
+    const blob = new Blob([bodyStr], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
+    const ok = navigator.sendBeacon(url, blob);
+    if (ok) return { ok: true, mode: 'beacon' };
+  }
+
+  // 2) fetch no-cors (응답은 opaque라 ok 판정 불가하지만 전송 시도 가능)
+  try{
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: bodyStr,
+      keepalive: true
+    });
+    return { ok: true, mode: 'no-cors' };
+  }catch(e){
+    return { ok: false, error: String(e) };
+  }
 }
 
 // 제출 실패 대비 큐
@@ -637,7 +669,9 @@ async function flushQueue(){
     const remain = [];
     for(const item of q){
       try{
-        const r = await postToGAS(GAS_SUBMIT_URL, item);
+        const r = postToGASBeacon(GAS_SUBMIT_URL, item);
+        // 응답 확인 불가 모드라도 전송 시도는 했으므로 큐에서 제거(중복 제출 방지)
+        // 실제 실패 시에는 학생이 다시 제출하면 동일 key로 시트에서 덮어쓰기됩니다.
         if(!r.ok) remain.push(item);
       }catch(e){
         remain.push(item);
@@ -652,7 +686,7 @@ window.addEventListener('load', ()=>{ setInterval(flushQueue, 10000); });
 
 async function submitToSheetWithGrading(){
   if(!allFilled()){
-    toast('미작성 항목이 있습니다.\n(분석/문제분석/내답/익숙·낯섦/이름·번호 확인)');
+    toast('미작성 항목이 있습니다.\n(분석/문제분석/내답/예상 선택/이름·번호 확인)');
     return;
   }
 
@@ -696,9 +730,13 @@ async function submitToSheetWithGrading(){
   btn.textContent = '제출 중...';
 
   try{
-    const r = await postToGAS(GAS_SUBMIT_URL, payload);
+    const r = postToGASBeacon(GAS_SUBMIT_URL, payload);
+
+    // CORS 때문에 브라우저에서 '성공 응답'을 확인할 수 없는 경우가 많습니다.
+    // 따라서 '전송 시도'에 성공하면 제출 완료 안내를 띄우고,
+    // 실제 저장 여부는 선생님 시트에서 확인됩니다(동일 key는 덮어쓰기).
     if(r.ok){
-      alert(`제출 완료!\n점수: ${g.score}/${g.total}\n오답: ${g.wrong.length? g.wrong.join(', '): '없음'}`);
+      alert(`제출 전송 완료!\n점수: ${g.score}/${g.total}\n오답: ${g.wrong.length? g.wrong.join(', '): '없음'}`);
 
       // 해설 공개 조건
       if(g.wrong.length===0){
@@ -713,14 +751,15 @@ async function submitToSheetWithGrading(){
         }
       }
 
+      // 큐 비우기 시도(있으면)
       flushQueue();
       saveState();
       return;
     }
 
-    // 실패 → 큐
+    // 전송 자체가 실패한 경우만 큐 저장
     const q = loadQueue(); q.push(payload); saveQueue(q);
-    alert('제출 전송이 일시적으로 실패했습니다.\n자동으로 재전송됩니다(인터넷 확인).');
+    alert('네트워크 문제로 제출이 임시 저장되었습니다.\n연결되면 자동으로 전송됩니다.');
   }catch(e){
     const q = loadQueue(); q.push(payload); saveQueue(q);
     alert('네트워크 문제로 제출이 임시 저장되었습니다.\n연결되면 자동으로 전송됩니다.');
