@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>수능특강 고전시가 6일 암기 학습지</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family: '맑은 고딕','Malgun Gothic','나눔고딕','NanumGothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:12px; line-height:1.5; color:#2d3436;
+  background:#f0f2f5; padding:20px;
+}
+.cover {
+  text-align:center; padding:28px 20px 18px; background:white;
+  border-radius:10px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+.cover h1 { font-size:19px; font-weight:700; color:#1a1a2e; margin-bottom:6px; }
+.cover .sub { font-size:11px; color:#636e72; }
+.cover .stats { display:flex; justify-content:center; gap:20px; margin-top:14px; flex-wrap:wrap; }
+.stat-item { text-align:center; padding:7px 18px; background:#f8f9fa; border-radius:20px; font-size:11px; color:#495057; }
+.stat-item strong { display:block; font-size:15px; color:#2d3436; font-weight:700; }
+.nav-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; justify-content:center; }
+.nav-btn { padding:6px 14px; border-radius:20px; border:none; color:white; font-size:11px; cursor:pointer; text-decoration:none; font-family:inherit; font-weight:600; }
+.print-btn { background:#2d3436; padding:7px 18px; border-radius:20px; border:none; color:white; font-size:12px; cursor:pointer; font-family:inherit; font-weight:600; }
+.print-btn:hover { background:#1a1a2e; }
+.day-section { margin-bottom:22px; }
+.day-header { color:white; padding:11px 16px; border-radius:8px 8px 0 0; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+.day-label { font-size:17px; font-weight:800; letter-spacing:1px; }
+.day-subtitle { font-size:10px; opacity:.85; flex:1; }
+.work-card { background:white; margin-bottom:7px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.07); border:1px solid #e9ecef; border-top:none; }
+.work-title { display:flex; align-items:center; gap:10px; padding:7px 12px; color:white; }
+.work-num { background:rgba(255,255,255,.25); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
+.work-name { font-size:13px; font-weight:700; flex:1; }
+.work-galre { font-size:10px; background:rgba(255,255,255,.2); padding:2px 8px; border-radius:10px; opacity:.9; }
+.row-2col { display:flex; border-bottom:1px solid #e9ecef; align-items:stretch; }
+.col { flex:1; display:flex; flex-direction:column; }
+.col-juje { border-right:1px solid #e9ecef; }
+.col-label { background:#f8f9fa; padding:5px 9px; font-size:10px; font-weight:700; color:#6c757d; border-bottom:1px solid #e9ecef; letter-spacing:.3px; }
+.col-label-full { background:#f8f9fa; padding:6px 9px; font-size:10px; font-weight:700; color:#6c757d; min-width:72px; border-right:1px solid #e9ecef; display:flex; align-items:flex-start; flex-shrink:0; letter-spacing:.3px; }
+.col-content { padding:8px 10px; font-size:10.5px; flex:1; line-height:1.6; }
+.juje-line { padding:2px 0 3px; font-size:10.5px; color:#2d3436; font-weight:500; line-height:1.6; }
+.sieo-content { }
+.sieo-item { margin-bottom:9px; line-height:1.65; font-size:10.5px; }
+.sieo-item:last-child { margin-bottom:0; }
+.sieo-word { font-weight:900; color:#1a1a2e; font-size:11.5px; letter-spacing:.3px; }
+.sieo-colon { color:#868e96; }
+.sieo-exp { color:#495057; }
+.row-pyo { display:flex; align-items:stretch; border-bottom:1px solid #e9ecef; }
+.pyo-content { padding:7px 10px; flex:1; display:flex; flex-direction:column; gap:6px; }
+.pyo-item { font-size:10.5px; line-height:1.65; padding-bottom:5px; border-bottom:1px dashed #eee; }
+.pyo-item:last-child { border-bottom:none; padding-bottom:0; }
+.pyo-tech { font-weight:700; color:#2d6a9f; }
+.pyo-desc { color:#343a40; }
+.row-gaegwan { display:flex; align-items:stretch; }
+.gaegwan-text { padding:7px 10px; flex:1; font-size:10.5px; color:#495057; line-height:1.65; }
+.no-content { color:#adb5bd; font-style:italic; font-size:10px; }
+@media print {
+  body { background:white; padding:0; font-size:10.5px; }
+  .cover, .nav-bar { display:none !important; }
+  .day-section { break-after:page; page-break-after:always; margin:0; }
+  .day-section:last-child { page-break-after:avoid; }
+  .work-card { break-inside:avoid; page-break-inside:avoid; box-shadow:none; margin-bottom:5px; }
+  .day-header,.work-title,.col-label,.col-label-full,.row-gaegwan { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  @page { size:A4; margin:14mm 12mm 12mm 12mm; }
+}
+@media (max-width:600px) {
+  .row-2col { flex-direction:column; }
+  .col-juje { border-right:none; border-bottom:1px solid #e9ecef; }
+}
+</style>
+</head>
+<body>
+<div class="cover">
+  <h1>📚 수능특강 문학 고전시가 — 6일 암기 학습지</h1>
+  <p class="sub">작품별 핵심 시어 · 표현 기법 · 주제 정리 | 교사용 자료 기반</p>
+  <div class="stats">
+    <div class="stat-item"><strong>21</strong>작품</div>
+    <div class="stat-item"><strong>6일</strong>학습 계획</div>
+    <div class="stat-item"><strong>4–3–4–3–4–3</strong>편씩 배분</div>
+  </div>
+</div>
+<div class="nav-bar">
+  <a href="#day1" class="nav-btn" style="background:#2d6a9f">Day 1 (4편)</a><a href="#day2" class="nav-btn" style="background:#27ae60">Day 2 (3편)</a><a href="#day3" class="nav-btn" style="background:#8e44ad">Day 3 (4편)</a><a href="#day4" class="nav-btn" style="background:#d35400">Day 4 (3편)</a><a href="#day5" class="nav-btn" style="background:#c0392b">Day 5 (4편)</a><a href="#day6" class="nav-btn" style="background:#16a085">Day 6 (3편)</a>
+  <button class="print-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+</div>
+
+<div class="day-section" id="day1">
+  <div class="day-header" style="background:#2d6a9f">
+    <div class="day-label">Day 1</div>
+    <div class="day-subtitle">1. 내 영혼 술에 섞여 (김삼현)  |  2. 눈 맞아 휘어진 대를 (원천석)  |  3. 대장부 공 이루고 (작자 미상)  |  4. 두류산 양단수를 (조식)</div>
+  </div>
+  
+<div class="work-card">
+  <div class="work-title" style="background:#2d6a9f">
+    <span class="work-num">1</span>
+    <span class="work-name">내 영혼 술에 섞여 (김삼현)</span>
+    <span class="work-galre">사설시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 임의 변심에 대한 원망과 사랑을 되돌리고 싶은 강렬한 의지</div><div class="juje-line">• 배신한 임에 대한 응징과 집요한 사랑의 호소</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">술</span><span class="sieo-colon">: </span><span class="sieo-exp">화자의 분신인 ‘영혼’이 임의 내면(속)으로 침투하기 위해 선택한 수단이자 매개체.</span></div>
+<div class="sieo-item"><span class="sieo-word">창자</span><span class="sieo-colon">: </span><span class="sieo-exp">임의 ‘마음’이나 ‘속내’라는 추상적인 심리를 구체적인 신체 기관으로 형상화한 시어. 화자가 탐색해야 할 물리 적 공간으로 설정됨.</span></div>
+<div class="sieo-item"><span class="sieo-word">남 향한 마음</span><span class="sieo-colon">: </span><span class="sieo-exp">화자가 가장 경계하고 제거하려는 대상. 임의 변심(다른 사람을 사랑하는 마음)을 의미함.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">기발한 발상(변신 모티프):</span> <span class="pyo-desc">화자의 영혼이 술에 섞여 임의 뱃속으로 들어간다는 비현실적이고 독창적인 상상을 통해 사랑의 간절함을 극대화함. 예) 내 영혼 술에 섞여 임의 속에 흘러들어</span></div>
+<div class="pyo-item"><span class="pyo-tech">음성 상징어:</span> <span class="pyo-desc">‘굽이굽이’라는 의태어를 사용하여 임의 복잡한 속내와 화자의 철저하고 집요한 탐색 의지를 생생하게 강조함. 예) 굽이굽이 창자를 다 찾아다닐망정</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e8f3fc">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 후기 가객 김삼현의 시조로, 임의 사랑을 잃은 화자가 슬픔에 잠겨 체념하는 일반적인 이별가와 달리, 적극적이고 도발적인 방식으로 사랑을 쟁취하려는 태도를 보여 준다. 특히 자신이 술이 되어 임의 창자를 돌아다니 며 딴 마음을 태워버리겠다는 엽기적이면서도 해학적인 발상은, 화자의 절실한 심정을 효과적으로 전달하는 동시에 조선 후기 사설시조 등에서 보이는 유희적이고 직설적인 경향을 잘 보여 준다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#2d6a9f">
+    <span class="work-num">2</span>
+    <span class="work-name">눈 맞아 휘어진 대를 (원천석)</span>
+    <span class="work-galre">고전시가</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 대나무의 지조와 절개에 대한 예찬(고려 왕조에 대한 충절 다짐)</div><div class="juje-line">• 고려 왕조에 대한 끝없는 충의(忠義)와 절의</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">대립적 의미의 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">/ ‘눈’: 고난과 시련의 상징. 당시 시대적 상황(고려 말~조선 초)에서 충신들을 회유하거나 탄압하는 조선 건국 세력 (이성계 일파)을 상징함. / ‘대’(대나무): 지조와 절개의 상징. 시련 속에서도 푸르름을 잃지 않는 존재로, 두 왕조를 섬길 수 없다는 화자의 굳 은 절의(불사이군)를 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">화자의 신념을 드러내는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">‘푸를쏘냐’는 변치 않는 지조를, ‘세한고절(歲寒孤節)’은 온 세상이 변절하는 추운 상황 에서도 홀로 지키는 고고한 절개를 의미함.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">상징법:</span> <span class="pyo-desc">‘대나무’와 ‘눈’이라는 자연물을 통해 충절과 시련이라는 추상적인 관념을 구체적으로 형상화함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">‘뉘라서 굽다던고’와 ‘눈 속에 푸를쏘냐’라는 의문 형식을 통해, 대나무가 굽지 않았다는 사실과 변치 않는 지조를 강력하게 항변함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">의인법:</span> <span class="pyo-desc">대나무를 ‘너’라고 지칭하며 인격화하여, 화자와 뜻을 같이하는 동지적 대상으로 설정하고 친밀감을 드러냄.</span></div>
+<div class="pyo-item"><span class="pyo-tech">색채 이미지 활용:</span> <span class="pyo-desc">눈의 ‘흰색’과 대나무의 ‘푸른색’을 대비하여 절개를 시각적으로 부각함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e8f3fc">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 고려 말의 학자 원천석이 조선 왕조의 회유를 뿌리치고 고려에 대한 충절을 지키겠다는 의지를 노래한 회 고가(절의가)이다. 작가는 눈을 맞아 잠시 휘어진 대나무의 모습을 통해, 겉으로는 세상의 흐름에 순응하는 듯 보여 도 내면의 충절은 결코 변하지 않았음을 강조한다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#2d6a9f">
+    <span class="work-num">3</span>
+    <span class="work-name">대장부 공 이루고 (작자 미상)</span>
+    <span class="work-galre">사설시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 공을 이룬 후 자연에 묻혀 사는 대장부의 호탕한 기상과 풍류</div><div class="juje-line">• 은퇴 후 누리는 여유롭고 호사스러운 삶에 대한 자부심과 만족감</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">공간 및 배경</span><span class="sieo-colon">: </span><span class="sieo-exp">‘임천(자연)’, ‘초당’, ‘강구연월(태평성대)’은 화자가 은퇴 후 안식을 취하며 풍류를 즐기는 평화로운 공간과 시절을 의미함.</span></div>
+<div class="sieo-item"><span class="sieo-word">문(文)과 무(武)의 조화</span><span class="sieo-colon">: </span><span class="sieo-exp">‘만권 서책(문)’과 ‘천금준마·보라매(무)’를 함께 배치하여 사대부로서의 지적 욕구와 호연지 기를 동시에 추구함을 보여줌.</span></div>
+<div class="sieo-item"><span class="sieo-word">풍류와 향락의 소재</span><span class="sieo-colon">: </span><span class="sieo-exp">‘절대가인(미인)’, ‘금준(술)’, ‘거문고(음악)’ 등은 화자의 삶이 단순한 은거가 아니라 부유하고 호사스러운 풍류 생활임을 나타냄.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">열거법과 장형화:</span> <span class="pyo-desc">중장에서 은퇴 후 즐기는 다양한 기물과 행위(책, 말, 매, 미인, 술, 악기 등)를 숨 가쁘게 나열하 여 시상을 전개하고 사설시조 특유의 리듬감을 형성함. 예) 만권 서책 ~ 강구연월에 누웠으니</span></div>
+<div class="pyo-item"><span class="pyo-tech">과장법:</span> <span class="pyo-desc">‘만권’, ‘천금’, ‘절대’, ‘금준’ 등의 수식어를 사용하여 화자가 누리는 풍요로움을 과시적으로 표현함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e8f3fc">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 작자 미상의 사설시조로, 유교적 이념인 입신양명을 이룬 사대부가 은퇴 후 누리는 이상적인 삶의 모습을 그리고 있다. 일반적인 시조가 자연 속에서의 소박한 삶(안빈낙도)을 노래하는 것과 달리, 이 작품은 ‘만권 서책’, ‘천금준마’, ‘절대가인’ 등 구체적이고 화려한 소재를 열거하며 부유하고 호쾌한 향락적 은거 생활을 긍정하고 과시 한다는 점에서 차별화된다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#2d6a9f">
+    <span class="work-num">4</span>
+    <span class="work-name">두류산 양단수를 (조식)</span>
+    <span class="work-galre">평시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 두류산 양단수의 절경에 대한 예찬</div><div class="juje-line">• 자연에 귀의하여 안빈낙도하는 삶의 즐거움</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">두류산(지리산), 양단수</span><span class="sieo-colon">: </span><span class="sieo-exp">화자가 현재 머물며 풍류를 즐기는 구체적인 자연 공간.</span></div>
+<div class="sieo-item"><span class="sieo-word">도화(복숭아꽃)</span><span class="sieo-colon">: </span><span class="sieo-exp">봄이라는 계절감을 드러내는 소재이자, 동양적 이상향인 '무릉도원'을 연상시키는 매개체.</span></div>
+<div class="sieo-item"><span class="sieo-word">산영(산 그림자)</span><span class="sieo-colon">: </span><span class="sieo-exp">맑고 깨끗한 물의 이미지를 시각적으로 부각하는 소재.</span></div>
+<div class="sieo-item"><span class="sieo-word">무릉</span><span class="sieo-colon">: </span><span class="sieo-exp">속세와 단절된 이상적인 공간(무릉도원)으로, 화자는 양단수를 이에 비유하여 현실 만족감을 드러냄.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대비:</span> <span class="pyo-desc">'예 듣고(청각/과거)'와 '이제 보니(시각/현재)'를 대비하여 간접 경험이 직접 경험으로 전환됨을 표현함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">문답법(자문자답):</span> <span class="pyo-desc">'무릉이 어디오'라고 묻고 '나는 엔가 하노라'라고 스스로 답하는 방식을 통해 시상을 전개하고 화 자의 확신을 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">돈호법:</span> <span class="pyo-desc">'아희야'라고 청자를 부르며 시상을 환기함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">영탄법:</span> <span class="pyo-desc">'잠겼어라', '하노라' 등의 어미를 사용하여 감탄과 정서를 표출함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e8f3fc">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 중기의 학자 남명 조식이 지리산 자락에 산천재를 짓고 학문을 닦을 때 지은 평시조이다. 옛말에만 듣던 명승지를 직접 대면한 감회를 밝히고, 도화가 뜬 맑은 물과 산 그림자를 통해 무릉도원을 연상하며 속세를 떠 나 자연 속에 묻혀 사는 선비의 지극한 만족감과 호방한 기상을 노래하고 있다.</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="day-section" id="day2">
+  <div class="day-header" style="background:#27ae60">
+    <div class="day-label">Day 2</div>
+    <div class="day-subtitle">1. 만전춘 별사 (작자 미상)  |  2. 면앙정가 (송순)  |  3. 몽금포 타령 (작자 미상)</div>
+  </div>
+  
+<div class="work-card">
+  <div class="work-title" style="background:#27ae60">
+    <span class="work-num">1</span>
+    <span class="work-name">만전춘 별사 (작자 미상)</span>
+    <span class="work-galre">가사</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 임에 대한 변함없는 사랑과 정열, 그리고 이별의 정한(情恨)과 체념.</div><div class="juje-line">• 변치 않는 사랑에 대한 소망. 임과의 영원한 사랑 기원</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">극한적 상황을 나타내는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">'얼음', '댓잎 자리'. 춥고 고통스러운 최악의 상황을 설정하여, 역설적으로 임을 향한 화자의 뜨거운 사랑과 정열을 강조함.</span></div>
+<div class="sieo-item"><span class="sieo-word">화자의 처지와 대조되는 시어(객관적 상관물)</span><span class="sieo-colon">: </span><span class="sieo-exp">'도화(복숭아꽃)'. 시름에 잠긴 화자와 달리 봄바람에 웃는 모습(소춘 풍)으로 의인화되어, 화자의 비애와 고독을 심화시키는 역할.</span></div>
+<div class="sieo-item"><span class="sieo-word">임의 행태와 화자의 심리를 비유하는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">/ 오리, 비오리': 임을 비유함. / 여울: 화자를 비유한 시어. / 소(연못): 다른 여자를 비유한 시어.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-desc">분연체 ; 전체 6연으로 이루어진 분연체(분장체, 분절체) 구성</span></div>
+<div class="pyo-item"><span class="pyo-tech">각 연마다 독립된 시상:</span> <span class="pyo-desc">각 연은 사랑의 여러 모습을 보여주고 있으며, 순차적으로 연결되어 있지 않고 각기 독립된 시상을 갖고 있다. (당시에 유행하는 여러 가지 이질적이고 독립적인 노래를 궁중의 속악 가사로 합성하여 성립된 것으로 보임.)</span></div>
+<div class="pyo-item"><span class="pyo-tech">대조법:</span> <span class="pyo-desc">근심 가득한 화자(고침상)와 아무 근심 없이 봄을 즐기는 자연물(소춘풍하는 도화)을 대조하여 화자의 외로 움을 부각함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">타 작품 차용(인용):</span> <span class="pyo-desc">3연의 ‘넋이라도 임을 한데 지내겠다고 여겼더니’는 고려 가요 『정과정』의 구절을 그대로 차 용하여, 과거의 굳은 맹세를 상기시키고 원망의 정서를 드러냄.</span></div>
+<div class="pyo-item"><span class="pyo-tech">비유와 상징:</span> <span class="pyo-desc">‘오리’, ‘여울’, ‘소’ 등의 자연물을 통해 남녀 간의 복잡 미묘한 관계와 심리를 우회적으로 형상화함 .</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e9f7ef">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 고려 시대 속요 중 남녀 간의 적나라한 사랑의 감정을 노래한 ‘남녀상열지사(男女相悅之詞)’의 대표작이다. 총 5연(혹은 6연)으로 구성되어 있으나 각 연의 내용이 유기적으로 긴밀하게 연결되기보다는, 당대에 유행하던 여 러 노래의 구절들이 합쳐져 하나의 작품으로 정착된 것으로 보인다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#27ae60">
+    <span class="work-num">2</span>
+    <span class="work-name">면앙정가 (송순)</span>
+    <span class="work-galre">가사</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 대자연 속에서의 유유자적한 풍류 생활과 연군지정(임금의 은혜에 대한 감사)</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">사계절의 경치 묘사 대상 / 봄</span><span class="sieo-colon">: </span><span class="sieo-exp">흰 구름, 연하, 산람 / 여름: 녹양, 꾀꼬리, 서늘한 바람, 녹음 / 가을: 된서리, 금수, 황운 / 겨울: 빙설, 경궁요대, 옥해은산</span></div>
+<div class="sieo-item"><span class="sieo-word">속세와 대비되는 공간</span><span class="sieo-colon">: </span><span class="sieo-exp">‘인간 세상’: 벼슬길, 속세. 화자가 떠나온 공간으로 자연과 대비됨.</span></div>
+<div class="sieo-item"><span class="sieo-word">주제 의식을 드러내는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">/ ‘신선’: 자연과 하나 되어 풍류를 즐기는 화자 자신을 비유. / ‘역군은’: 임금의 은혜. 강호가도의 전형적인 마무리를 보여주는 시어.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">비유법(직유, 은유):</span> <span class="pyo-desc">제월봉을 ‘늙은 용’에, 정자를 ‘청학’에, 시냇물을 ‘비단’에, 단풍을 ‘금수(비단)’에, 눈 덮인 산을 ‘옥해은산’에 비유하는 등 다양한 비유를 통해 대상을 미화함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">의인법 및 활유법:</span> <span class="pyo-desc">산봉우리나 구름, 안개 등을 살아있는 생명체나 인격체처럼 표현하여(예: 아양도 떠는구나, 교태 겨워하는구나) 자연에 생동감과 친근감을 부여함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">대구법과 열거법:</span> <span class="pyo-desc">‘푸르거든 희지 말든지’, ‘앉았다 날았다’, ‘오르거니 내리거니’ 등 대구와 열거를 통해 리듬감을 형 성하고 경치의 다양성을 묘사함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">‘내일이라 넉넉하랴’, ‘근심이라 있으며 시름이라 붙었으랴’ 등을 통해 자연을 즐기는 바쁜 마음과 근심 없는 상태를 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">감정 이입:</span> <span class="pyo-desc">‘기러기’, ‘꾀꼬리’ 등의 자연물에 화자의 흥취를 투영하여 표현함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e9f7ef">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 중기 문신 송순이 지은 가사로, 호남 가단의 대표적인 강호가도(江湖歌道) 작품이다. 정자인 면앙정을 중심으로 근경에서 원경으로, 봄에서 겨울로 시상을 전개하며 자연의 아름다움을 노래했다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#27ae60">
+    <span class="work-num">3</span>
+    <span class="work-name">몽금포 타령 (작자 미상)</span>
+    <span class="work-galre">민요</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 장산곶의 정경과 어부들의 삶의 애환</div><div class="juje-line">• 임과의 만남(재회)에 대한 기쁨과 이별의 아쉬움</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">상징적 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">/ ‘장산곶’, ‘몽금포’, ‘개암포’: 작품의 향토적 정감을 더해주는 구체적인 지명. / ‘북소리’: 임이 탄 배가 들어오거나 나갈 때 울리는 소리로, 재회의 기대감과 만선의 흥겨움을 고조시키는 소재. / ‘봉죽’: 배에 꽂는 긴 대나무로, 고기를 가득 잡은 ‘만선(풍어)’을 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">대조적 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">/ ‘흰 돛(쌍쌍)’ ↔ ‘외로운 사랑’: 짝을 지어 떠다니는 배들과 홀로 있는 화자의 처지를 대조하여 외로움을 부각함. / ‘반돛’ ↔ ‘온 돛’: 임을 실으러 갈 때(빈 배)와 싣고 올 때(만선)의 배의 무게감을 시각적으로 대조하여 풍요로움을 강조함.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">감각적 묘사:</span> <span class="pyo-desc">-시각: ‘백사장’, ‘해당화(붉음)’, ‘푸른 솔’, ‘흰 돛’ 등 다채로운 색채 대비를 통해 몽금포의 아름다운 풍경을 회화적으 로 묘사함.
+-청각: ‘북소리’, ‘에헤요 에헤요(후렴구)’ 등을 통해 흥겨운 분위기를 조성함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">대구법과 반복법:</span> <span class="pyo-desc">‘갈 적엔 반돛’, ‘올 적엔 온 돛’과 같은 대구적 표현과 후렴구의 반복을 통해 운율을 형성하고 의 미를 강조함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e9f7ef">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 황해도 장연군 몽금포 지방에서 전해 내려오는 서도 민요이다. 몽금포의 수려한 경치를 배경으로 어촌 사 람들의 삶과 사랑, 이별의 정한을 서정적이면서도 흥겹게 노래하고 있다.</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="day-section" id="day3">
+  <div class="day-header" style="background:#8e44ad">
+    <div class="day-label">Day 3</div>
+    <div class="day-subtitle">1. 백석정별곡 (신교)  |  2. 사친가(思親歌) (작자 미상)  |  3. 성패관천운(成敗關天運) (김상헌)  |  4. 속사미인곡 (이진유)</div>
+  </div>
+  
+<div class="work-card">
+  <div class="work-title" style="background:#8e44ad">
+    <span class="work-num">1</span>
+    <span class="work-name">백석정별곡 (신교)</span>
+    <span class="work-galre">가사</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 백석정 주변의 아름다운 풍경 예찬과 안분지족하는 은거 생활의 즐거움</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">'백석정(白石亭)'</span><span class="sieo-colon">: </span><span class="sieo-exp">화자가 머무는 공간이자 자연 친화적인 삶을 영위하는 중심장소.</span></div>
+<div class="sieo-item"><span class="sieo-word">'은촉(銀燭)', '취장(翠帳)', '금병(金屏)'</span><span class="sieo-colon">: </span><span class="sieo-exp">각각 달, 구름, 단풍을 비유한 시어로, 자연의 아름다움을 화려하고 귀한 물 건에 빗대어 예찬함.</span></div>
+<div class="sieo-item"><span class="sieo-word">'홍진(紅塵)'</span><span class="sieo-colon">: </span><span class="sieo-exp">'붉은 먼지'라는 뜻으로, 화자가 떠나온 번거롭고 속된 세상(속세)을 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">'청려장(靑藜杖)'</span><span class="sieo-colon">: </span><span class="sieo-exp">지팡이로, 자연에 은거하는 화자의 소박하고 탈속적인 모습을 보여주는 소재.</span></div>
+<div class="sieo-item"><span class="sieo-word">'매학(梅鶴)', '연하(煙霞)'</span><span class="sieo-colon">: </span><span class="sieo-exp">매화와 학, 안개와 노을 등 자연을 의미하며 화자가 벗 삼아 지내는 대상들.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">감각적 이미지:</span> <span class="pyo-desc">'붉은 난간', '은촉', '취장', '금병', '일홍' 등의 다채로운 색채어(시각)와 '노랫소리', '피리 소리', '거 문고 소리'(청각)를 활용하여 백석정 주변의 풍경과 흥취를 생생하게 묘사함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">대구법:</span> <span class="pyo-desc">"사탄의 노랫소리 고기 낚는 늙은이오 / 화평에 피리 소리 소 먹이는 아이로다", "지담에 떴는 배는 일엽이 가볍고 / 물결에 비친 다리 반공에 무지개로다" 등 유사한 통사 구조를 반복하여 리듬감을 형성하고 운치를 더함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">"부귀인들 부러우랴", "누가 아니 부러워하리" 등의 의문형 어미를 통해 화자의 만족감을 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">비유법(은유/직유):</span> <span class="pyo-desc">달을 '은촉', 구름을 '취장', 단풍을 '금병', 소리를 '신선이 노니는 듯' 비유하여 대상을 미화함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#f5eef8">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 후기 문신 신교가 벼슬에서 물러나 황해도 연안의 백석정에서 은거하며 지은 가사이다. 백석정에서 바라본 사계절의 아름다운 경치(특히 봄과 가을의 정취가 혼재되어 나타남)와 그 속에서 낚시와 음주, 거문고 연주 를 즐기는 풍류 생활을 그리고 있다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#8e44ad">
+    <span class="work-num">2</span>
+    <span class="work-name">사친가(思親歌) (작자 미상)</span>
+    <span class="work-galre">가사</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 돌아가신 부모님에 대한 사무치는 그리움과 효도를 다하지 못한 회한(풍수지탄)</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">사친가(思親歌)</span><span class="sieo-colon">: </span><span class="sieo-exp">돌아가신 부모님을 그리워하는 노래.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘공산낙목’, ‘한 줌 흙’</span><span class="sieo-colon">: </span><span class="sieo-exp">돌아가신 부모님의 상태(죽음)를 비유하여 인생무상과 허무함을 드러내는 시어.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘제비’, ‘호랑나비’, ‘산화’, ‘세류’</span><span class="sieo-colon">: </span><span class="sieo-exp">봄의 생동감과 아름다움을 드러내는 자연물로, 부모님을 여읜 화자의 슬픈 처지와 대조되어 화자의 슬픔을 심화시키는 객관적 상관물.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘관등’, ‘그네’</span><span class="sieo-colon">: </span><span class="sieo-exp">명절(초파일, 단오)의 축제 분위기를 보여주는 소재로, 이를 즐기지 못하는 부모님에 대한 안타까움을 유발함.</span></div>
+<div class="sieo-item"><span class="sieo-word">절기나 명절 관련 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">'대보름', '한식일', '답청절' 등</span></div>
+<div class="sieo-item"><span class="sieo-word">‘일촌간장’</span><span class="sieo-colon">: </span><span class="sieo-exp">부모님 생각에 애타는 화자의 마음을 표현한 시어.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">달거리(월령체) 구성:</span> <span class="pyo-desc">정월부터 오월까지 시간의 흐름(달의 순서)에 따라 시상을 전개하며, 각 계절의 풍속과 화자의 정서를 결합하여 표현함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">시간 표지어 사용:</span> <span class="pyo-desc">'정월', '이월', '삼월' 등과 같은 시간 표지를 활용하여 내용을 구분함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">대조적 심상 활용:</span> <span class="pyo-desc">명절의 즐겁고 화려한 분위기(백마금편 소년들, 녹의홍상 미인들)와 화자의 슬프고 외로운 처지를 대비하여 슬픔을 부각함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">고사 인용:</span> <span class="pyo-desc">‘개자추’, ‘적인걸’, ‘증점(기수, 무우)’, ‘도연명(기봉)’ 등 중국의 고사를 인용하여 화자의 정서를 효과적으 로 드러내거나 상황을 빗대어 표현함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">반복과 변주:</span> <span class="pyo-desc">매달 명절마다 “슬프다 우리 부모 ~절인 줄 모르시나”라는 문장을 반복 변주하여 화자의 안타까움과 그리움을 통일감 있게 강조함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#f5eef8">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 작자 미상의 조선 후기 가사로, 달거리(월령체) 형식을 차용하여 사친(思親)의 정을 노래한 작품이다. 계절 의 순환과 명절의 풍요로움 속에서도 부모님의 부재를 확인해야 하는 자식의 슬픔을 절절하게 형상화했다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#8e44ad">
+    <span class="work-num">3</span>
+    <span class="work-name">성패관천운(成敗關天運) (김상헌)</span>
+    <span class="work-galre">고전시가</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 이해타산을 따지지 말고 권보다는 경을 따르라는 당부</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">'천운(天運)'</span><span class="sieo-colon">: </span><span class="sieo-exp">하늘의 운수. 성공과 실패를 결정짓는 요인으로, 인간의 노력 영역 밖의 것임.</span></div>
+<div class="sieo-item"><span class="sieo-word">'의(義)'</span><span class="sieo-colon">: </span><span class="sieo-exp">의로움. 결과와 상관없이 인간이 지향해야 할 올바른 길.</span></div>
+<div class="sieo-item"><span class="sieo-word">'윗옷과 아래옷'</span><span class="sieo-colon">: </span><span class="sieo-exp">상하의 위계질서처럼 뒤바뀔 수 없는 불변의 원칙이나 도리를 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">'권(權)'</span><span class="sieo-colon">: </span><span class="sieo-exp">권도(權道). 목적 달성을 위한 임시방편. 화자는 이를 위험하거나 불완전한 것으로 인식함.</span></div>
+<div class="sieo-item"><span class="sieo-word">'경(經)'</span><span class="sieo-colon">: </span><span class="sieo-exp">경도(經道). 어떤 상황에서도 변치 않는 원칙. 화자가 옹호하고 지키고자 하는 가치.</span></div>
+<div class="sieo-item"><span class="sieo-word">'저울질'</span><span class="sieo-colon">: </span><span class="sieo-exp">급한 상황에서 유불리나 이해득실을 따지는 기회주의적 태도.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대조:</span> <span class="pyo-desc">'아침과 저녁'(가변성) ↔ '윗옷과 아래옷'(불변성), '권'(임시변통) ↔ '경'(불변의 원칙)을 대조하여 주제를 부각 함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">"윗옷과 아래옷을 거꾸로야 입을쏘냐"라는 의문형 진술을 통해 원칙(위계)의 절대성을 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">명령형 어미:</span> <span class="pyo-desc">"삼가라"와 같은 단호한 명령형 어미를 사용하여 청자(선비)에게 강한 교훈과 당부를 전달함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#f5eef8">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 병자호란 당시 청나라에 끝까지 맞서 싸울 것을 주장했던 척화파의 거두 김상헌이 지은 한시이다. 눈앞의 위기를 모면하기 위해 원칙을 저버리는 '권도(權道)'를 경계하고, 어떤 시련 속에서도 변치 않는 '경도(經道)'와 '의 (義)'를 지켜야 함을 역설하고 있다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#8e44ad">
+    <span class="work-num">4</span>
+    <span class="work-name">속사미인곡 (이진유)</span>
+    <span class="work-galre">가사</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 유배 생활의 극심한 고통과 임금에 대한 변함없는 충정(연군지정), 그리고 억울함의 호소</div><div class="juje-line">• 임에 대한 그리움과 안타까움</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">‘임’</span><span class="sieo-colon">: </span><span class="sieo-exp">임금(영조)을 상징. 화자가 간절히 그리워하며 충성을 바치는 대상.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘뭇 여자’</span><span class="sieo-colon">: </span><span class="sieo-exp">화자를 모함하여 유배지로 쫓아낸 정적(간신배)들을 비유함.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘파리 떼, 모기떼, 뱀, 전갈’</span><span class="sieo-colon">: </span><span class="sieo-exp">유배지에서 화자를 괴롭히는 실제 해충들이자, 화자를 핍박하는 가혹한 시련을 상징.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘가을 부채(추선)’, ‘장문부’</span><span class="sieo-colon">: </span><span class="sieo-exp">사랑을 잃거나 버림받은 처지를 비유하거나, 다시 사랑을 찾고 싶은 소망을 담은 소재 (고사 인용).</span></div>
+<div class="sieo-item"><span class="sieo-word">‘꿈’</span><span class="sieo-colon">: </span><span class="sieo-exp">임금을 만날 수 있는 통로이자 소망이 실현되는 일시적 공간.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘닭 소리’</span><span class="sieo-colon">: </span><span class="sieo-exp">꿈을 깨뜨려 현실의 비참함을 자각하게 하는 방해물.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">사실적이고 구체적인 묘사:</span> <span class="pyo-desc">관념적인 충의 표현에 그치지 않고, ‘솟국’, ‘절인 배추’, ‘벼룩’, ‘빈대’ 등 유배지의 처참 한 의식주 생활을 매우 사실적이고 구체적으로 묘사하여 고통을 부각함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">여성 화자의 목소리:</span> <span class="pyo-desc">정철의 &lt;사미인곡&gt; 전통을 이어받아, 신하가 임금을 그리워하는 정을 여인이 임을 그리워하는 마음에 빗대어 표현함(충신연주지사).</span></div>
+<div class="pyo-item"><span class="pyo-tech">비유:</span> <span class="pyo-desc">예) 일월 같은, 가을 부채, 금옥 같은 등</span></div>
+<div class="pyo-item"><span class="pyo-tech">고사 인용:</span> <span class="pyo-desc">굴원(이소), 사마상여(장문부, 백두음), 반첩여(가을 부채), 가태부 등의 중국 고사를 인용하여 자신의 억 울함과 충정을 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">예) 득죄했나, 소홀히 했나, 다시 날꼬, 어이 사리, 단장할꼬 등.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#f5eef8">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 후기 문신 이진유가 유배지에서 지은 가사로, 정철의 &lt;사미인곡&gt;과 &lt;속미인곡&gt;의 맥을 잇는다는 의 미에서 제목이 붙여졌다. 그러나 전대 가사들이 주로 자연 친화적이거나 우아한 표현을 사용한 것과 달리, 이 작품 은 유배지의 굶주림, 질병, 벌레와의 사투 등 비참한 현실을 적나라하게 드러낸다는 점에서 ‘유배 가사’의 리얼리즘 적 성격을 잘 보여주는 작품이다.
+▣ 개관: 조선 영조 때 사대부인 이진유가 유배지인 추자도에서 지은 가사이다.</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="day-section" id="day4">
+  <div class="day-header" style="background:#d35400">
+    <div class="day-label">Day 4</div>
+    <div class="day-subtitle">1. 어부별곡 (이중경)  |  2. 연못에 비 오는 소리 (작자 미상)  |  3. 요일월 순건곤은 (김천택)</div>
+  </div>
+  
+<div class="work-card">
+  <div class="work-title" style="background:#d35400">
+    <span class="work-num">1</span>
+    <span class="work-name">어부별곡 (이중경)</span>
+    <span class="work-galre">연시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 자연에 묻혀 사는 즐거움(안분지족)과 나라를 걱정하는 마음(우국충정)</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">‘시서(詩書)’, ‘명리(名利)’</span><span class="sieo-colon">: </span><span class="sieo-exp">화자가 과거에 추구했던 학문과 부귀공명으로, 세속적 가치를 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘물외(物外)’, ‘풍월강산’</span><span class="sieo-colon">: </span><span class="sieo-exp">속세를 벗어난 공간인 자연을 의미하며, 화자가 지향하는 공간임.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘어부(漁父)’</span><span class="sieo-colon">: </span><span class="sieo-exp">생업을 위한 어부가 아니라, 자연을 즐기며 살아가는 은자(가어옹)를 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘위국 충심(爲國忠心)’</span><span class="sieo-colon">: </span><span class="sieo-exp">자연에 묻혀 살면서도 떨치지 못하는 나라를 위한 충성심.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘창산’, ‘유수’</span><span class="sieo-colon">: </span><span class="sieo-exp">변함없고 유유한 자연의 속성을 보여주는 소재.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대조:</span> <span class="pyo-desc">세속적 가치(명리, 시비)와 자연적 가치(풍월강산, 산수)를 대조하여 화자의 지향점을 부각함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">“어부 무삼 그르리”, “제세할 이 없을러냐”, “그 아니 좋을쏘냐” 등의 의문형 어미를 사용하여 화자의 태도 와 정서를 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">대구법:</span> <span class="pyo-desc">“창산은 높고 높고 유수는 길고 길고”와 같이 유사한 통사 구조를 반복하여 운율을 형성하고 자연의 웅장함 을 묘사함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">자문자답:</span> <span class="pyo-desc">스스로 묻고 답하거나 판단을 유보하는 형식을 통해 내면의 갈등과 깨달음을 드러냄.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#fdf2e9">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 인조 때의 문신 이중경이 지은 총 4수의 연시조이다. 벼슬하지 않고 자연에 귀의하여 안분지족하는 삶을 노래하면서도, 한편으로는 현실 정치와 나라의 앞날을 걱정하는 유학자의 고뇌가 담겨 있다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#d35400">
+    <span class="work-num">2</span>
+    <span class="work-name">연못에 비 오는 소리 (작자 미상)</span>
+    <span class="work-galre">시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 임을 만나지 못한 안타까움과 간절한 그리움</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">비 오는 소리</span><span class="sieo-colon">: </span><span class="sieo-exp">화자의 잠(꿈)을 깨우는 청각적 소재이자, 임과의 만남을 방해하는 장애물.</span></div>
+<div class="sieo-item"><span class="sieo-word">꿈</span><span class="sieo-colon">: </span><span class="sieo-exp">현실에서 만날 수 없는 임을 만날 수 있게 해주는 매개체이자 통로.</span></div>
+<div class="sieo-item"><span class="sieo-word">구슬</span><span class="sieo-colon">: </span><span class="sieo-exp">연잎에 맺힌 ‘빗방울’을 아름답게 미화한 은유적 표현.</span></div>
+<div class="sieo-item"><span class="sieo-word">눈물</span><span class="sieo-colon">: </span><span class="sieo-exp">잎에 맺힌 빗방울을 보며 연상한 것으로, 화자의 슬픈 감정이 이입된 소재(객관적 상관물).</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">은유법:</span> <span class="pyo-desc">빗방울을 ‘구슬’에 빗대어 표현함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">직유법:</span> <span class="pyo-desc">빗방울이 떨어지는 모습을 ‘눈물 듣듯(떨어지듯) 하더라’라고 표현함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#fdf2e9">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 작자 미상의 시조로, 임을 그리워하는 화자가 꿈속에서라도 임을 보려 했으나 빗소리 때문에 깨어난 상황 을 그리고 있다. 화자는 잠을 깨운 빗소리를 원망하면서도, 연잎에 맺힌 빗방울을 자신의 눈물과 동일시하며 임에 대한 애절한 사랑과 슬픔을 서정적으로 노래하고 있다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#d35400">
+    <span class="work-num">3</span>
+    <span class="work-name">요일월 순건곤은 (김천택)</span>
+    <span class="work-galre">평시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 변해버린 각박한 세태에 대한 한탄과 태평성대(이상향)에 대한 동경</div><div class="juje-line">• 때를 만나지 못한(불우한 시기에 태어난) 지식인의 비애와 고뇌</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">대립적 의미의 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">/ ‘요일월 순건곤’(자연/불변): 요·순 임금 시절의 태평성대를 상징하며, 시간이 흘러도 변하지 않는 자연의 영원성을 의미함. ↕ / ‘세상 인사’(인간사/가변): 시간이 흐름에 따라 옛날의 순박함을 잃고 부정적으로 변해버린 인간 세상의 일이나 인심 을 의미함.</span></div>
+<div class="sieo-item"><span class="sieo-word">화자의 처지를 드러내는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">‘늦게 난 줄’은 태평성대가 다 지나간 뒤인 말세(혼란한 시기)에 태어났다는 화자의 인 식을 보여줌.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대유법:</span> <span class="pyo-desc">‘요일월 순건곤’이라는 시어를 통해 태평성대와 이상적인 정치를 비유적으로 표현함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">대조법:</span> <span class="pyo-desc">‘옛날대로 있는(불변)’ 자연과 ‘저리 달라진(가변)’ 인간사를 극명하게 대비하여 주제 의식을 부각함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">‘어이 저리 달랐는고’라는 물음의 형식을 통해 부정적으로 변한 세태에 대한 안타까움을 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">직설적 정서 표출:</span> <span class="pyo-desc">종장에서 ‘못내 슬퍼하노라’라고 하여 화자의 비애감을 직접적으로 드러냄.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#fdf2e9">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 후기의 가객 김천택이 지은 평시조로, 변함없는 자연(요일월 순건곤)과 변해버린 인간사(세상 인사)를 대비하여 현실을 비판적으로 바라보고 있다. 화자는 요순시대와 같은 이상적인 도덕 정치가 사라진 현실을 개탄하 며, 자신이 그 시절을 누리지 못하고 뒤늦게 태어난 것에 대해 깊은 슬픔을 토로하는 상고주의(옛것을 숭상함)적 태도를 보인다.</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="day-section" id="day5">
+  <div class="day-header" style="background:#c0392b">
+    <div class="day-label">Day 5</div>
+    <div class="day-subtitle">1. 원가(怨歌) (신충)  |  2. 월곡답가 (정훈)  |  3. 유산가 (작자 미상)  |  4. 임으란 회양 금성 오리나무 되고 (이정보)</div>
+  </div>
+  
+<div class="work-card">
+  <div class="work-title" style="background:#c0392b">
+    <span class="work-num">1</span>
+    <span class="work-name">원가(怨歌) (신충)</span>
+    <span class="work-galre">향가, 가사</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 약속을 지키지 않은 임금에 대한 원망.</div><div class="juje-line">• 버림받은 신하의 비통한 심정과 자신의 처지에 대한 한탄.</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">원가(怨歌)</span><span class="sieo-colon">: </span><span class="sieo-exp">(옛 약속을 저버린 임금을) 원망하는 노래.</span></div>
+<div class="sieo-item"><span class="sieo-word">잣(잣나무)</span><span class="sieo-colon">: </span><span class="sieo-exp">사시사철 푸른 나무로, 변치 않는 ‘신의’나 ‘약속’을 상징함. (처음에 임금이 했던 굳은 약속).</span></div>
+<div class="sieo-item"><span class="sieo-word">가을</span><span class="sieo-colon">: </span><span class="sieo-exp">초목이 시드는 계절임에도 잣나무는 마르지 않는다는 점에서, 약속의 굳건함을 강조하는 시간적 배경.</span></div>
+<div class="sieo-item"><span class="sieo-word">겨울</span><span class="sieo-colon">: </span><span class="sieo-exp">잣나무(약속)와 대조되는 계절로, 약속을 잊고 차갑게 변해 버린 임금의 태도(변심)와 냉혹한 현실을 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">달</span><span class="sieo-colon">: </span><span class="sieo-exp">높이 떠서 세상을 비추는 존재로, ‘임금’(효성왕)을 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">연못</span><span class="sieo-colon">: </span><span class="sieo-exp">달(임금)의 그림자가 비치는 공간으로, 임금의 은총이 미치는 궁궐이나 조정을 의미함.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">자연물에 빗댄 비유(은유법):</span> <span class="pyo-desc">‘잣나무’(약속), ‘겨울’(변심), ‘달’(임금), ‘모래’(화자) 등 자연물을 활용하여 화자의 상황 과 정서를 우회적이면서도 호소력 있게 드러냄.</span></div>
+<div class="pyo-item"><span class="pyo-tech">대조적 심상:</span> <span class="pyo-desc">‘가을(마르지 않는 잣나무)’과 ‘겨울(변해 버린 낯)’의 대조를 통해 임금의 변심을 부각함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">영탄적 어조:</span> <span class="pyo-desc">‘~겨울에여’, ‘~처지여’ 등의 영탄적 종결 어미를 사용하여 화자의 절망감과 탄식을 고조시킴.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#fdedec">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+￭갈래: 10구체 향가 (현재 전하는 가사는 8구만 남아 있어 8구체로 보기도 함, 배경 설화와 함께 전해짐).
+￭성격: 원망적(怨望的), 주술적(呪術的).
+￭배경 설화: 신라 효성왕이 잠저(왕위에 오르기 전)에 있을 때 신충과 함께 잣나무 밑에서 후일 벼슬을 주겠다고 약속 했으나, 즉위 후 이를 잊자 신충이 이 노래를 지어 잣나무에 걸었다. 그러자 잣나무가 말라버렸고, 왕이 이를 보고 뉘우쳐 신충을 등용하니 나무가 되살아났다고 한다.
+￭의의: 노래가 자연물(잣나무)에 영향을 미쳤다는 점에서 향가의 주술적 힘을 보여 주는 작품이다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#c0392b">
+    <span class="work-num">2</span>
+    <span class="work-name">월곡답가 (정훈)</span>
+    <span class="work-galre">연시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 부재하는 벗에 대한 그리움과 안타까움</div><div class="juje-line">• 벗(월곡)의 고결한 인품에 대한 예찬과 지기(知己)로서의 유대감</div><div class="juje-line">• 혼탁한 세상을 떠나 자연 속에 은거하며 신선처럼 살고 싶은 소망</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">‘벗’</span><span class="sieo-colon">: </span><span class="sieo-exp">이 작품에서 작가는 임진왜란 때 의병장이었던 월곡 우배선을 벗으로 설정하고 있다. 월곡은 자신들의 안위를 위해 백성을 외면한 지배층과는 달리 왜적에 맞서 백성들을 보살폈고, 전란 후에는 벼슬에 연연하지 않고 초야에 은둔했던 삶을 살았다. 작가는 ‘우도’를 통해 월곡을 추모하며 충의를 중시했던 월곡의 내면에 동조하려는 의식을 보이고 있다.</span></div>
+<div class="sieo-item"><span class="sieo-word">대립적 의미 / 자연</span><span class="sieo-colon">: </span><span class="sieo-exp">예) 청송, 백운
+↕ / 속세: 예) 진념, 세상</span></div>
+<div class="sieo-item"><span class="sieo-word">화자가 지향하는 가치를 담은 시어(긍정)</span><span class="sieo-colon">: </span><span class="sieo-exp">'옛사람', '벗(님)', '한 분', '고인'은 화자가 추구하는 도덕적 이상을 실현 하고 있는 대상(월곡)을 지칭하며, '청송', '백운', '초옥 삼간'은 욕심 없는 청빈한 삶의 공간을 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">세속적 가치를 담은 시어(부정)</span><span class="sieo-colon">: </span><span class="sieo-exp">'이제 사람', '분 바른 각시님네'는 겉모습만 중시하고 세속적 욕망을 좇는 인물들을 의미하며, '세상의 어지러운 일'은 화자가 기피하고자 하는 현실의 부정적 상황을 상징함.</span></div>
+<div class="sieo-item"><span class="sieo-word">단절과 장애물의 이미지</span><span class="sieo-colon">: </span><span class="sieo-exp">'뫼(산)', '구름(7수)'은 화자와 벗 사이를 가로막아 만남을 방해하는 물리적 장애물을 의미 함. (※ 4수의 '백운'은 탈속적 자연물이지만, 7수의 '구름'은 장애물로 쓰임)</span></div>
+<div class="sieo-item"><span class="sieo-word">초월적 세계를 상징하는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">'상산', '방장산', '신선', '청학'은 화자가 궁극적으로 도달하고자 하는 이상향(무릉도 원, 신선 세계)을 상징함.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대조적 상황 제시:</span> <span class="pyo-desc">화자(순수, 소박)와 세속적 인물(가식, 허영)을 대조하여 화자의 가치관을 부각함. 예) 내 양자 하 험하니(소박함) ↔ 분 바른 각시님네(가식), 다 웃고 다니거든(비웃음) ↔ 혼자 곱다 하노라(인정)</span></div>
+<div class="pyo-item"><span class="pyo-tech">대구법:</span> <span class="pyo-desc">예) 제4수 초장, 제6수의 초중장, 제7수 초장</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">예) 구태여 넷이 가리런가</span></div>
+<div class="pyo-item"><span class="pyo-tech">고사 인용:</span> <span class="pyo-desc">중국의 고사(상산사호)를 인용하여 은둔에 대한 정당성과 의지를 드러냄. 예) 상산에 채지하러 부디 넷이 가리런가</span></div>
+<div class="pyo-item"><span class="pyo-tech">도교적 색채의 활용:</span> <span class="pyo-desc">작품 후반부에 신선 사상을 반영하여 현실 초월의 의지를 드러냄. 예) 방장산 기슭, 신선님 네, 청학</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#fdedec">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 작가 정훈이 임진왜란 때 의병장으로 활약했던 벗 우배선(월곡)의 삶을 예찬하고 그를 그리워하며 지은 총 10수의 연시조이다. 전반부에서는 옛 성현의 풍모를 지닌 월곡을 예찬하고 자신의 진면목을 알아주는 벗에 대한 고마움을 드러내며, 중반부에서는 물리적 거리로 인한 안타까움과 그리움을 호소한다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#c0392b">
+    <span class="work-num">3</span>
+    <span class="work-name">유산가 (작자 미상)</span>
+    <span class="work-galre">잡가, 민요</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 봄날 자연의 경치 완상과 흥취</div><div class="juje-line">• 봄을 맞이한 산천의 아름다운 경치 유람과 풍류.</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">자연</span><span class="sieo-colon">: </span><span class="sieo-exp">이 작품에 제시된 자연은 아무 조건 없이 즐길 수 있는 유흥적 대상이다.</span></div>
+<div class="sieo-item"><span class="sieo-word">봄의 계절감이 드러나는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">예) 화란 춘성, 만화 방창, 만산 홍록, 춘색, 기화요초, 유상앵비, 양류세지 등</span></div>
+<div class="sieo-item"><span class="sieo-word">‘죽장망혜(竹杖芒鞋)’, ‘단표자(單瓢子)’</span><span class="sieo-colon">: </span><span class="sieo-exp">대나무 지팡이와 짚신, 표주박 하나. 화자의 소박하고 간편한 차림새를 나타 내며, 안분지족하는 태도를 보여줌.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘무릉도원(武陵桃源)’, ‘기산 영수(箕山潁水)’</span><span class="sieo-colon">: </span><span class="sieo-exp">화자가 바라보는 현재의 공간을 비유한 말. 속세를 떠난 이상향이나 은 자들이 사는 곳에 빗대어 자연의 아름다움과 탈속적인 분위기를 강조함.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘수정렴(水晶簾)’, ‘은옥(銀玉)’</span><span class="sieo-colon">: </span><span class="sieo-exp">깨끗하고 맑게 쏟아지는 폭포수와 물방울을 보석에 비유하여 아름다움을 극대화한 시 어.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">우아미:</span> <span class="pyo-desc">온갖 것이 아름답게 어우러져 조화를 이룬 자연에서 맛볼 수 있는 즐거움, 즉 아름다운 자연에 몰입하여 그 속에서 즐거움을 지향하는 모습을 발견하게 되는데, 이런 우아미는 우리 문학의 전통이다.</span></div>
+<div class="pyo-item"><span class="pyo-tech">감각적 묘사:</span> <span class="pyo-desc">감각적 이미지를 통해 봄 경치를 예찬하고 있다. 시각적, 청각적 이미지를 사용하여 봄의 화창함과 현 란함, 생동감 넘치는 모습을 묘사하고 있다. 자연물을 역동적으로 표현하고 있다.</span></div>
+<div class="pyo-item"><span class="pyo-tech">음성 상징어(의성어와 의태어) 사용:</span> <span class="pyo-desc">‘펄펄펄, 첩첩, 층층, 우줄우줄’ 등의 의태어와 ‘콸콸, 주루루룩, 쏼쏼’ 등의 의성 어를 구사하여 대상의 생동감과 우리말의 묘미를 살림.</span></div>
+<div class="pyo-item"><span class="pyo-tech">고사 인용:</span> <span class="pyo-desc">도연명의 ‘도화원기’(무릉도원), 왕유의 시, 소부와 허유의 고사 등을 인용하여 경치의 수준을 높이고 화 자의 풍류를 과시함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">상투적 한자어와 우리말의 혼용:</span> <span class="pyo-desc">한자어는 당대 상류 계층이 즐겨 사용하던 표현 수단이고, 우리말(순수 국어)은 하 층 계층이 주로 향유하던 구비 문학에서 주로 사용하던 것으로서, 이와 같은 언어 혼용은 하층 문화의 상층 문화 지향 욕구를 드러낸 것이다. 당시의 전문 소리꾼들이 자신들의 생계 유지를 위해 상층 계층의 문화적 취향을 모방 하고 반영한 결과이다. 이 작품의 향유층에 사대부들도 포함되었다는 것을 알 수 있다.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#fdedec">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 후기 서울·경기 지방의 전문 소리꾼들에 의해 불리던 12잡가 중 하나이다. 4·4조의 가사(歌辭) 형식을 빌려 왔으나, 격식에 얽매이지 않고 자유로운 편이다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#c0392b">
+    <span class="work-num">4</span>
+    <span class="work-name">임으란 회양 금성 오리나무 되고 (이정보)</span>
+    <span class="work-galre">사설시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 임과 떨어지지 않고자 하는 마음. 임에 대한 변함없는 사랑.</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">임과 화자(나)의 관계에 대한 비유</span><span class="sieo-colon">: </span><span class="sieo-exp">=오리나무와 칡넝쿨의 관계 =나비와 납거미의 관계 원관념 보조관념 임 오리나무, 나비 나 칡넝쿨, 납거미</span></div>
+<div class="sieo-item"><span class="sieo-word">화자가 바라는 임과의 관계를 나타낸 말</span><span class="sieo-colon">: </span><span class="sieo-exp">예) 얼거짐(얽어짐), 휘휘 감김, 뒤틀어져 감김. → 사랑의 결합을 의미 함.</span></div>
+<div class="sieo-item"><span class="sieo-word">화자와 임 사이의 장애물을 의미하는 시어</span><span class="sieo-colon">: </span><span class="sieo-exp">예) 바람비, 눈서리</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">비유(은유법과 직유법):</span> <span class="pyo-desc">임을 오리나무에, 자신을 칡넝쿨에 비유(은유)하고, 감기는 모습을 납거미가 나비를 감는 것 에 빗대어(직유) 표현함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">음성 상징어(의태어) 사용으로 인한 생동감:</span> <span class="pyo-desc">예) 칭칭, 찬찬, 휘휘</span></div>
+<div class="pyo-item"><span class="pyo-tech">유사 시구의 반복:</span> <span class="pyo-desc">예) 이리로 츤츤(칭칭), 저리로 츤츤(칭칭) / 휘휘(휘휘찬찬) 감겨, 주야장상(길이길이) 뒤트러 져 감겨있어 → 의미 강조와 운율감 형성</span></div>
+<div class="pyo-item"><span class="pyo-tech">중장의 확대:</span> <span class="pyo-desc">이 작품은 임에 대한 사랑을 오래도록 지속하려고 하는 화자의 의지를 담은 사설시조이다. 중장이 제한 없이 길어지는 형식을 통해, 임과 하나 되고 싶은 소망을 구체적이고 수다스럽게 나열함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">‘몸 바꿈’이라는 변신의 발상:</span> <span class="pyo-desc">임과 화자 자신이 오리나무와 칡넝쿨로 변신한다는 발상을 통해 어떠한 시련이 있어도 떨어지지 않겠다는 임을 향한 간절한 마음을 노래하고 있다. 화자는 임을 향한 애정을 극대화하고 지속하기 위해 몸 바꿈, 즉 전신이라는 현실 초월적인 상상력을 동원하고 있다. (2022 모의)</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#fdedec">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 후기의 가객 이정보가 지은 사설시조로, 추상적인 ‘사랑’의 감정을 구체적인 사물(나무와 칡넝쿨)의 결 합으로 형상화한 것이 특징이다. 특히 거미가 나비를 감는 원초적이고 다소 파격적인 비유를 통해, 임과 잠시도 떨 어지고 싶지 않은 화자의 적극적이고 노골적인 애정을 해학적이면서도 절실하게 표현하고 있다.</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="day-section" id="day6">
+  <div class="day-header" style="background:#16a085">
+    <div class="day-label">Day 6</div>
+    <div class="day-subtitle">1. 정처관군동(靜處觀群動) (최명길)  |  2. 진중음(陣中吟) (이순신)  |  3. 창밖에 가마솥 때우라는 장사 (작자 미상)</div>
+  </div>
+  
+<div class="work-card">
+  <div class="work-title" style="background:#16a085">
+    <span class="work-num">1</span>
+    <span class="work-name">정처관군동(靜處觀群動) (최명길)</span>
+    <span class="work-galre">고전시가</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 현상(방법)은 다르나 본질(충심)은 같다는 깨달음</div><div class="juje-line">• 시류에 따른 유연한 대처(권도)의 필요성과 변치 않는 충심(정도).</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">‘고요한 곳’</span><span class="sieo-colon">: </span><span class="sieo-exp">사사로운 감정이나 편견이 배제된 객관적이고 냉철한 성찰의 공간 또는 마음가짐.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘끓는 물’ ↔ ‘얼음장’</span><span class="sieo-colon">: </span><span class="sieo-exp">겉모습은 정반대(뜨거움 ↔ 차가움)이지만 본질은 모두 ‘물’임. 대립하는 두 입장(주화와 척화) 도 본질(충심)은 같음을 비유로 나타냄.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘털옷’ ↔ ‘삼베옷’</span><span class="sieo-colon">: </span><span class="sieo-exp">계절(상황)에 따라 입는 옷은 다르지만 몸을 보호하는 ‘옷’의 기능은 같음. 상황에 따른 임기응변 (권도)의 타당성을 비유로 나타냄.</span></div>
+<div class="sieo-item"><span class="sieo-word">‘속맘’</span><span class="sieo-colon">: </span><span class="sieo-exp">겉으로 드러난 행동 이면에 있는 변치 않는 진심(충성심, 정도).</span></div>
+<div class="sieo-item"><span class="sieo-word">‘말함’ ↔ ‘침묵함’</span><span class="sieo-colon">: </span><span class="sieo-exp">‘말함’은 척화파(김상헌)의 명분론을, ‘침묵함’은 주화파(최명길)의 현실론을 의미하나, 둘 다 천기 (하늘의 이치)라고 하여 상대를 존중함.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대구와 대조:</span> <span class="pyo-desc">‘끓는 물’과 ‘얼음장’, ‘털옷’과 ‘삼베옷’ 등 대조적인 소재를 짝지어(대구) 현상은 다르나 본질은 같다는 주제 의식을 강화함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">설의법:</span> <span class="pyo-desc">“속맘이야 어찌 정도와 어긋나겠는가”라는 의문형 진술을 통해, 방법은 달라도 나라를 위하는 마음(정도)은 변함없음을 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">청자 설정:</span> <span class="pyo-desc">“그대 이 이치를 깨닫는다면”이라며 구체적인 청자(정치적 반대파)에게 말을 건네는 방식을 통해 설득과 화해를 시도함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e8f8f5">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 병자호란 당시 청나라와의 화친을 주장했던 주화파 최명길이, 끝까지 항전을 주장했던 척화파 김상헌에게 자신의 뜻을 전하고 화해를 청하기 위해 지은 한시이다. 최명길은 이 시를 통해 겉으로 드러나는 대처 방식(주화와 척화)은 서로 다르지만, 그 근본은 모두 나라와 백성을 구하기 위한 충심에서 비롯된 것임을 역설하고 있다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#16a085">
+    <span class="work-num">2</span>
+    <span class="work-name">진중음(陣中吟) (이순신)</span>
+    <span class="work-galre">고전시가</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 우국충정과 국난 평정의 의지 및 자연 속에서의 삶에 대한 염원</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">진중음(陣中吟)</span><span class="sieo-colon">: </span><span class="sieo-exp">군부대 안에서 읊다.</span></div>
+<div class="sieo-item"><span class="sieo-word">한바다</span><span class="sieo-colon">: </span><span class="sieo-exp">적과 대치하고 있는 긴장감 감도는 공간이자, 화자의 우국충정이 서린 배경.</span></div>
+<div class="sieo-item"><span class="sieo-word">가을바람</span><span class="sieo-colon">: </span><span class="sieo-exp">쓸쓸하고 비장한 분위기를 자아내며 화자의 깊은 시름과 고뇌를 부각하는 소재.</span></div>
+<div class="sieo-item"><span class="sieo-word">큰 난리</span><span class="sieo-colon">: </span><span class="sieo-exp">임진왜란이라는 참혹한 전쟁 상황을 의미함.</span></div>
+<div class="sieo-item"><span class="sieo-word">귀거래사</span><span class="sieo-colon">: </span><span class="sieo-exp">중국의 도연명이 관직을 버리고 고향으로 돌아가며 지은 시로, 전쟁이 끝나면 공명심을 버리고 자연으로 돌아가고자 하는 화자의 바람을 의미함.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대조:</span> <span class="pyo-desc">자신의 공로를 깎아내리려는 무리(조정의 시기 질투)와 세상에 널리 알려진 자신의 이름(백성의 신망)을 대조 하여 현실의 아이러니를 드러냄.</span></div>
+<div class="pyo-item"><span class="pyo-tech">인용:</span> <span class="pyo-desc">도연명의 고사(귀거래사)를 인용하여 국난 극복 후의 삶에 대한 소망을 드러냄.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e8f8f5">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 임진왜란 당시 수군 통제사였던 이순신 장군이 전장의 긴박한 상황 속에서도 홀로 깨어 나라의 앞날을 걱 정하는 우국충정을 노래한 5언 율시의 한시이다. 가을밤 진중의 쓸쓸한 분위기를 배경으로 국난의 아픔과 빨리 평 화가 오기를 바라는 간절한 염원을 담고 있으며, 자신을 시기하는 조정의 현실 속에서도 오직 나라를 구하겠다는 일념과 전쟁이 끝난 후에는 미련 없이 물러나겠다는 ‘선공후사(先公後私)’ 및 무욕의 정신을 보여준다.</div>
+    </div>
+  </div>
+</div>
+<div class="work-card">
+  <div class="work-title" style="background:#16a085">
+    <span class="work-num">3</span>
+    <span class="work-name">창밖에 가마솥 때우라는 장사 (작자 미상)</span>
+    <span class="work-galre">사설시조, 시조</span>
+  </div>
+  <div class="work-body">
+    <div class="row-2col">
+      <div class="col col-juje">
+        <div class="col-label">📌 주제</div>
+        <div class="col-content juje-content"><div class="juje-line">• 이별을 막을 수 없다는 안타까움과 체념.</div><div class="juje-line">• 임과의 이별로 인한 슬픔과 한탄.</div></div>
+      </div>
+      <div class="col col-sieo">
+        <div class="col-label">📝 핵심 시어</div>
+        <div class="col-content sieo-content"><div class="sieo-item"><span class="sieo-word">가마솥 때우라는 장사</span><span class="sieo-colon">: </span><span class="sieo-exp">시상 전개의 계기를 마련해 주는 인물이자, 이별을 막고 싶은 화자의 간절한 소망이 투영된 대상. 화자에게 이별에 대한 인식(이별을 막을 수 없다는 점)을 환기시켜 주는 인물.</span></div>
+<div class="sieo-item"><span class="sieo-word">이별 나는 구멍</span><span class="sieo-colon">: </span><span class="sieo-exp">눈에 보이지 않는 ‘이별’(추상적 관념)을 솥의 구멍처럼 때울 수 있는 구체적인 사물로 형상화함.</span></div>
+<div class="sieo-item"><span class="sieo-word">진시황, 한 무제, 제갈량, 서초 패왕</span><span class="sieo-colon">: </span><span class="sieo-exp">권력, 지혜, 힘을 가진 역사적 영웅들. 이들조차 막지 못한 ‘이별’의 불가항력성 을 강조하기 위해 동원된 인물들.</span></div>
+<div class="sieo-item"><span class="sieo-word">긴 이별</span><span class="sieo-colon">: </span><span class="sieo-exp">인간의 힘으로 어찌할 수 없는 운명적인 이별, 혹은 죽음으로 인한 영원한 이별을 암시.</span></div></div>
+      </div>
+    </div>
+    <div class="row-pyo">
+      <div class="col-label-full">✍️ 표현 기법</div>
+      <div class="col-content pyo-content"><div class="pyo-item"><span class="pyo-tech">대화 형식(문답법):</span> <span class="pyo-desc">초장에서 화자가 묻고, 중장에서 장수가 대답하는 문답 구조를 통해 시상을 전개함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">추상적 관념의 구체화:</span> <span class="pyo-desc">‘이별’이라는 추상적인 정서를 ‘구멍’이라는 구체적인 형상으로 시각화하여 표현함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">고사 인용과 열거:</span> <span class="pyo-desc">중국의 역사적 인물들(진시황, 한무제, 제갈량, 항우)을 나열하여 이별은 거스를 수 없는 자연의 섭리임을 강조함.</span></div>
+<div class="pyo-item"><span class="pyo-tech">해학적 발상:</span> <span class="pyo-desc">이별이라는 비극적인 상황을 ‘솥 때우기’라는 기발한 발상과 엉뚱한 문답으로 풀어내어 웃음을 유발함.</span></div></div>
+    </div>
+    <div class="row-gaegwan" style="background:#e8f8f5">
+      <div class="col-label-full">📖 작품 개관</div>
+      <div class="col-content gaegwan-text">개관
+이 작품은 조선 후기 사설시조로, 생활 주변의 소재인 ‘가마솥 땜질’을 이별의 상황에 끌어들인 기발한 착상이 돋보이 는 작품이다. 화자는 솥 때우는 장수와의 대화를 통해 이별을 물리적으로 막아보고 싶은 간절함을 드러내지만, 결 국 영웅들도 피하지 못한 것이 이별이라는 사실을 깨닫고 체념한다.</div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>
