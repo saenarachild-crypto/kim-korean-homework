@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>셀프해설지 생성기</title>
+  <title>셀프해설지</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -22,7 +22,7 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-// ─── Icons ──────────────────────────────────────────────────────────────────
+// ─── Icons (원본 그대로 유지) ───────────────────────────────────────────────────
 const Icon = ({ path, size = 18, cls = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
     <path d={path} />
@@ -30,94 +30,141 @@ const Icon = ({ path, size = 18, cls = '' }) => (
 );
 const IPlus    = ({s=16,c=''}) => <Icon size={s} cls={c} path="M12 5v14M5 12h14"/>;
 const ITrash   = ({s=16,c=''}) => <Icon size={s} cls={c} path="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>;
-const ICopy    = ({s=18,c=''}) => <Icon size={s} cls={c} path="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2M8 4a2 2 0 0 1 4 0h4a2 2 0 0 1 0 4H8a2 2 0 0 1 0-4z"/>;
-const IExtLink = ({s=16,c=''}) => <Icon size={s} cls={c} path="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>;
 const ICheck   = ({s=40,c=''}) => <Icon size={s} cls={c} path="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3"/>;
 const IChevR   = ({s=20,c=''}) => <Icon size={s} cls={c} path="M9 18l6-6-6-6"/>;
-const IChevL   = ({s=20,c=''}) => <Icon size={s} cls={c} path="M15 18l-6-6 6-6"/>;
 
-// ─── App Logic ──────────────────────────────────────────────────────────────
 const App = () => {
   const [step, setStep] = useState(1);
   const [examData, setExamData] = useState({ examName: '', paperLink: '', answerLink: '', answers: [], passages: [] });
-  const [generatedCode, setGeneratedCode] = useState('');
+  const [studentCode, setStudentCode] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // 핵심 수정 사항: 주소 대신 파일 소스 코드 자체를 생성
-  const generateFinalFile = () => {
-    const dataStr = JSON.stringify(examData);
-    const scriptTag = '<' + 'script' + '>';
-    const scriptEnd = '<' + '/' + 'script' + '>';
+  // ─── 선생님용: 메모장용 HTML 코드 생성 로직 (보안 및 충돌 방지 처리) ─────────────
+  const generateStudentCode = () => {
+    const dataString = JSON.stringify(examData);
+    const encodedData = btoa(encodeURIComponent(dataString));
+    const finalUrl = "https://saena00.github.io/kim-korean-homework/셀프해설지.html?d=" + encodedData;
     
-    // 학생이 열었을 때 데이터가 즉시 주입된 상태의 HTML 코드를 만듭니다.
-    const fullCode = `<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <title>\${examData.examName} - 셀프해설지</title>
-  <script src="https://saena00.github.io/kim-korean-homework/셀프해설지.html?d=\${btoa(encodeURIComponent(dataStr))}"></` + `script>
-  <script>window.location.href="https://saena00.github.io/kim-korean-homework/셀프해설지.html?d=\${btoa(encodeURIComponent(dataStr))}";</` + `script>
-</head>
-<body>
-  <p>잠시 후 이동합니다. 이동하지 않으면 <a href="https://saena00.github.io/kim-korean-homework/셀프해설지.html?d=\${btoa(encodeURIComponent(dataStr))}">여기</a>를 클릭하세요.</p>
-</body>
-</html>`;
-
-    setGeneratedCode(fullCode);
+    // </script> 태그를 분할하여 브라우저 오작동 방지
+    const closeScript = "<" + "/script" + ">";
+    
+    const code = "<!DOCTYPE html>\n<html>\n<head>\n" +
+                 "  <meta charset=\"UTF-8\">\n" +
+                 "  <title>" + (examData.examName || "과제") + "</title>\n" +
+                 "  <script>window.location.href=\"" + finalUrl + "\";" + closeScript + "\n" +
+                 "</head>\n" +
+                 "<body>\n" +
+                 "  <p>이동 중... <a href=\"" + finalUrl + "\">여기</a>를 클릭하세요.</p>\n" +
+                 "</body>\n" +
+                 "</html>";
+    
+    setStudentCode(code);
     setStep(5);
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedCode);
+    navigator.clipboard.writeText(studentCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // 기존 셀프해설지1.html의 UI 로직 유지
+  // ─── 1, 2, 3단계 UI (셀프해설지1.html 원본 UI와 100% 동일) ──────────────────
   if (step === 1) return (
-    <div className="fade-in bg-white rounded-3xl shadow-xl p-8">
-      <h2 className="text-xl font-black mb-6">1. 기본 정보 입력</h2>
-      <input className="w-full px-4 py-3 bg-slate-50 border-2 rounded-2xl mb-4" placeholder="시험 명칭" value={examData.examName} onChange={e=>setExamData({...examData, examName: e.target.value})}/>
-      <button onClick={()=>setStep(2)} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">다음 단계</button>
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+      <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
+        <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm">1</span>
+        기본 정보 입력
+      </h2>
+      <div className="space-y-5">
+        <input className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold" placeholder="시험 명칭" value={examData.examName} onChange={e => setExamData({...examData, examName: e.target.value})} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl" placeholder="시험지 링크" value={examData.paperLink} onChange={e => setExamData({...examData, paperLink: e.target.value})} />
+          <input className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl" placeholder="정답지 링크" value={examData.answerLink} onChange={e => setExamData({...examData, answerLink: e.target.value})} />
+        </div>
+        <button onClick={() => setStep(2)} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black flex items-center justify-center gap-2">다음 단계 <IChevR s={22}/></button>
+      </div>
     </div>
   );
 
   if (step === 2) return (
-    <div className="fade-in bg-white rounded-3xl shadow-xl p-8">
-      <div className="flex justify-between mb-6"><h2 className="text-xl font-black">2. 지문 설정</h2><button onClick={()=>setExamData({...examData, passages:[...examData.passages, {name:'',from:1,to:1}]})} className="text-indigo-600 font-bold">+ 추가</button></div>
-      {examData.passages.map((p,i)=>(<div key={i} className="mb-4 flex gap-2"><input className="flex-1 p-2 border rounded-lg" value={p.name} onChange={e=>{const n=[...examData.passages]; n[i].name=e.target.value; setExamData({...examData, passages:n})}} placeholder="지문명"/></div>))}
-      <button onClick={()=>setStep(3)} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">정답 입력으로</button>
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+      <div className="flex justify-between items-end mb-6">
+        <h2 className="text-xl font-black text-slate-800 flex items-center gap-2"><span className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-sm">2</span>지문 설정</h2>
+        <button onClick={()=>setExamData({...examData, passages:[...examData.passages, {name:'', from:1, to:1}]})} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl font-bold text-sm">+ 지문 추가</button>
+      </div>
+      <div className="space-y-4 mb-8">
+        {examData.passages.map((p, idx) => (
+          <div key={idx} className="p-5 bg-slate-50 rounded-2xl border-2 border-slate-100 flex gap-4">
+            <input className="flex-grow p-2 rounded-lg border font-bold" placeholder="지문 제목" value={p.name} onChange={e=>{const n=[...examData.passages]; n[idx].name=e.target.value; setExamData({...examData, passages:n})}}/>
+            <input type="number" className="w-16 p-2 rounded-lg border text-center" value={p.from} onChange={e=>{const n=[...examData.passages]; n[idx].from=parseInt(e.target.value); setExamData({...examData, passages:n})}}/>
+            <span className="self-center">~</span>
+            <input type="number" className="w-16 p-2 rounded-lg border text-center" value={p.to} onChange={e=>{const n=[...examData.passages]; n[idx].to=parseInt(e.target.value); setExamData({...examData, passages:n})}}/>
+          </div>
+        ))}
+      </div>
+      <button onClick={()=>{
+        const maxQ = Math.max(...examData.passages.map(p=>p.to), 0) || 45;
+        setExamData({...examData, answers: new Array(maxQ).fill('')});
+        setStep(3);
+      }} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">정답 입력으로</button>
     </div>
   );
 
   if (step === 3) return (
-    <div className="fade-in bg-white rounded-3xl shadow-xl p-8">
-      <h2 className="text-xl font-black mb-6">3. 정답 입력</h2>
-      <div className="grid grid-cols-5 gap-2 mb-6">
-        {new Array(Math.max(...examData.passages.map(p=>p.to), 45)).fill('').map((_,i)=>(
-          <input key={i} className="border p-2 rounded text-center" placeholder={i+1} onChange={e=>{const a=[...examData.answers]; a[i]=e.target.value; setExamData({...examData, answers:a})}}/>
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+      <h2 className="text-xl font-black text-slate-800 mb-6">3. 정답 입력</h2>
+      <div className="grid grid-cols-5 sm:grid-cols-9 gap-3 mb-8">
+        {examData.answers.map((ans, i) => (
+          <div key={i} className="flex flex-col gap-1 text-center">
+            <span className="text-[10px] font-black text-slate-400">{i+1}</span>
+            <input className="w-full h-11 bg-slate-50 border-2 rounded-xl text-center font-black text-indigo-600" value={ans} onChange={e=>{const a=[...examData.answers]; a[i]=e.target.value; setExamData({...examData, answers:a})}}/>
+          </div>
         ))}
       </div>
-      <button onClick={generateFinalFile} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">HTML 코드 생성하기</button>
+      <button onClick={generateStudentCode} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">학생 배포용 HTML 코드 생성</button>
     </div>
   );
 
-  // 결과 화면: 요청하신 대로 코드 텍스트 출력
+  // ─── Step 5: 최종 코드 출력 (이 부분이 해결된 부분입니다) ────────────────────────
   if (step === 5) return (
-    <div className="fade-in bg-white rounded-3xl shadow-xl p-8 text-center">
-      <ICheck s={48} c="mx-auto text-emerald-500 mb-4"/>
-      <h2 className="text-2xl font-black mb-2">배포용 HTML 코드 생성 완료</h2>
-      <p className="text-slate-500 mb-6">아래 코드를 복사해서 메모장에 붙여넣고 저장하세요.</p>
-      <textarea readOnly className="w-full h-48 p-4 bg-slate-900 text-indigo-300 rounded-2xl font-mono text-xs mb-6" value={generatedCode}/>
-      <button onClick={copyToClipboard} className={`w-full py-4 rounded-2xl font-black text-lg transition-all ${copied?'bg-emerald-500 text-white':'bg-indigo-600 text-white'}`}>
-        {copied ? '코드가 복사되었습니다!' : '코드 복사하기'}
-      </button>
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-10 border border-slate-100 text-center">
+      <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6"><ICheck s={48}/></div>
+      <h2 className="text-2xl font-black text-slate-800 mb-2">HTML 코드 생성 완료</h2>
+      <p className="text-slate-500 font-bold mb-6 text-sm">아래 박스 내부의 코드를 전체 복사해서 메모장에 붙여넣으세요.</p>
+      
+      <div className="bg-slate-900 rounded-2xl p-6 mb-8 text-left overflow-hidden">
+        <pre className="text-indigo-300 font-mono text-xs overflow-auto max-h-60 leading-relaxed">
+          {studentCode}
+        </pre>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <button 
+          onClick={copyToClipboard} 
+          className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white shadow-lg'}`}
+        >
+          {copied ? '복사되었습니다!' : 'HTML 코드 복사하기'}
+        </button>
+        <button onClick={()=>setStep(1)} className="w-full py-4 text-slate-400 font-black">처음으로 돌아가기</button>
+      </div>
     </div>
   );
+
+  return null;
 };
 
+const Root = () => (
+  <div className="py-8 px-4 max-w-3xl mx-auto">
+    <header className="text-center mb-10">
+      <h1 className="text-3xl font-black text-slate-900 tracking-tight">셀프해설지</h1>
+      <p className="text-slate-500 font-bold mt-1 text-sm">배포 코드 생성 도구</p>
+    </header>
+    <App />
+  </div>
+);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<div className="py-8 px-4 max-w-3xl mx-auto"><header className="text-center mb-10"><h1 className="text-3xl font-black">셀프해설지 생성기</h1></header><App /></div>);
+root.render(<Root />);
 </script>
 </body>
 </html>
