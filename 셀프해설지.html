@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>셀프해설지</title>
+  <title>셀프해설지 생성기</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -22,7 +22,7 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-// ─── Icons (SVG inline) ──────────────────────────────────────────────────────
+// ─── Icons ──────────────────────────────────────────────────────────────────
 const Icon = ({ path, size = 18, cls = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={cls}>
     <path d={path} />
@@ -35,504 +35,89 @@ const IExtLink = ({s=16,c=''}) => <Icon size={s} cls={c} path="M18 13v6a2 2 0 0 
 const ICheck   = ({s=40,c=''}) => <Icon size={s} cls={c} path="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3"/>;
 const IChevR   = ({s=20,c=''}) => <Icon size={s} cls={c} path="M9 18l6-6-6-6"/>;
 const IChevL   = ({s=20,c=''}) => <Icon size={s} cls={c} path="M15 18l-6-6 6-6"/>;
-const IAlert   = ({s=18,c=''}) => <Icon size={s} cls={c} path="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>;
 
+// ─── App Logic ──────────────────────────────────────────────────────────────
 const App = () => {
   const [step, setStep] = useState(1);
-  const [examData, setExamData] = useState({
-    examName: '',
-    paperLink: '',
-    answerLink: '',
-    answers: [],
-    passages: []
-  });
-  const [studentLink, setStudentLink] = useState('');
-  const [isStudentMode, setIsStudentMode] = useState(false);
-  const [studentAnswers, setStudentAnswers] = useState([]);
-  const [showResult, setShowResult] = useState(false);
-  const [feedback, setFeedback] = useState([]);
+  const [examData, setExamData] = useState({ examName: '', paperLink: '', answerLink: '', answers: [], passages: [] });
+  const [generatedCode, setGeneratedCode] = useState('');
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const data = urlParams.get('d');
-    if (data) {
-      try {
-        const decoded = JSON.parse(decodeURIComponent(atob(data)));
-        setExamData(decoded);
-        setStudentAnswers(new Array(decoded.answers.length).fill(''));
-        setFeedback(new Array(decoded.answers.length).fill(''));
-        setIsStudentMode(true);
-      } catch (e) {
-        console.error("Data decoding error:", e);
-      }
-    }
-  }, []);
-
-  const hasP = examData.passages.length > 0;
-
-  // ─── 선생님용: 생성 로직 (수정된 부분) ───────────────────────────────────────
-  const generateStudentLink = () => {
-    const dataString = JSON.stringify(examData);
-    const encodedData = btoa(encodeURIComponent(dataString));
+  // 핵심 수정 사항: 주소 대신 파일 소스 코드 자체를 생성
+  const generateFinalFile = () => {
+    const dataStr = JSON.stringify(examData);
+    const scriptTag = '<' + 'script' + '>';
+    const scriptEnd = '<' + '/' + 'script' + '>';
     
-    // 선생님의 깃허브 저장소 주소로 고정
-    const baseUrl = "https://saena00.github.io/kim-korean-homework/셀프해설지.html";
-    const finalLink = `${baseUrl}?d=${encodedData}`;
-    
-    setStudentLink(finalLink);
+    // 학생이 열었을 때 데이터가 즉시 주입된 상태의 HTML 코드를 만듭니다.
+    const fullCode = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>\${examData.examName} - 셀프해설지</title>
+  <script src="https://saena00.github.io/kim-korean-homework/셀프해설지.html?d=\${btoa(encodeURIComponent(dataStr))}"></` + `script>
+  <script>window.location.href="https://saena00.github.io/kim-korean-homework/셀프해설지.html?d=\${btoa(encodeURIComponent(dataStr))}";</` + `script>
+</head>
+<body>
+  <p>잠시 후 이동합니다. 이동하지 않으면 <a href="https://saena00.github.io/kim-korean-homework/셀프해설지.html?d=\${btoa(encodeURIComponent(dataStr))}">여기</a>를 클릭하세요.</p>
+</body>
+</html>`;
+
+    setGeneratedCode(fullCode);
     setStep(5);
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const addPassage = () => {
-    setExamData(prev => ({
-      ...prev,
-      passages: [...prev.passages, { name: '', from: 1, to: 1 }]
-    }));
-  };
-
-  const removePassage = (idx) => {
-    setExamData(prev => ({
-      ...prev,
-      passages: prev.passages.filter((_, i) => i !== idx)
-    }));
-  };
-
-  const handlePassageChange = (idx, field, val) => {
-    const newP = [...examData.passages];
-    newP[idx][field] = (field === 'from' || field === 'to') ? parseInt(val) || 0 : val;
-    setExamData(prev => ({ ...prev, passages: newP }));
-  };
-
-  const handleAnswerChange = (idx, val) => {
-    const newA = [...examData.answers];
-    newA[idx] = val;
-    setExamData(prev => ({ ...prev, answers: newA }));
-  };
-
-  const handleStudentAnswer = (idx, val) => {
-    const newSA = [...studentAnswers];
-    newSA[idx] = val;
-    setStudentAnswers(newSA);
-  };
-
-  const handleFeedback = (idx, val) => {
-    const newF = [...feedback];
-    newF[idx] = val;
-    setFeedback(newF);
-  };
-
-  // ─── UI Rendering ─────────────────────────────────────────────────────────
-  
-  // Step 1: 기본 정보
-  if (step === 1 && !isStudentMode) {
-    return (
-      <div className="fade-in bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-8 border border-slate-100">
-        <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm">1</span>
-          기본 정보 입력
-        </h2>
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm font-bold text-slate-500 mb-2 ml-1">시험 명칭</label>
-            <input 
-              className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all font-bold placeholder:text-slate-300"
-              placeholder="예: 2024년 3월 학력평가 고3 국어"
-              value={examData.examName}
-              onChange={e => setExamData({...examData, examName: e.target.value})}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-slate-500 mb-2 ml-1">시험지 링크 (PDF 등)</label>
-              <input 
-                className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all font-medium text-slate-600"
-                placeholder="https://..."
-                value={examData.paperLink}
-                onChange={e => setExamData({...examData, paperLink: e.target.value})}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-500 mb-2 ml-1">정답지 링크</label>
-              <input 
-                className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all font-medium text-slate-600"
-                placeholder="https://..."
-                value={examData.answerLink}
-                onChange={e => setExamData({...examData, answerLink: e.target.value})}
-              />
-            </div>
-          </div>
-          <div className="pt-4">
-            <button 
-              onClick={() => setStep(2)}
-              disabled={!examData.examName}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
-            >
-              다음 단계로 <IChevR s={22}/>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Step 2: 지문 및 문항 설정
-  if (step === 2 && !isStudentMode) {
-    return (
-      <div className="fade-in bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-8 border border-slate-100">
-        <div className="flex justify-between items-end mb-6">
-          <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm">2</span>
-            지문 및 문항 설정
-          </h2>
-          <button onClick={addPassage} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl font-bold text-sm hover:bg-indigo-100 flex items-center gap-1.5 transition-colors">
-            <IPlus s={18}/> 지문 추가
-          </button>
-        </div>
-        
-        <div className="space-y-4 mb-8">
-          {examData.passages.map((p, idx) => (
-            <div key={idx} className="p-5 bg-slate-50 rounded-2xl border-2 border-slate-100 relative group">
-              <button onClick={()=>removePassage(idx)} className="absolute -top-2 -right-2 w-8 h-8 bg-white border border-slate-200 text-slate-400 hover:text-red-500 rounded-full flex items-center justify-center shadow-sm transition-colors">
-                <ITrash s={16}/>
-              </button>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="md:col-span-2">
-                  <input 
-                    placeholder="지문 제목 (예: 화작-강연)" 
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none font-bold text-sm"
-                    value={p.name}
-                    onChange={e=>handlePassageChange(idx, 'name', e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input type="number" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-center font-bold" value={p.from} onChange={e=>handlePassageChange(idx, 'from', e.target.value)}/>
-                  <span className="text-slate-400 font-bold">~</span>
-                  <input type="number" className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-center font-bold" value={p.to} onChange={e=>handlePassageChange(idx, 'to', e.target.value)}/>
-                </div>
-                <div className="flex items-center justify-center text-xs font-black text-slate-400">번 문항</div>
-              </div>
-            </div>
-          ))}
-          {examData.passages.length === 0 && (
-            <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
-              <p className="text-slate-400 font-bold">지문 단위로 관리하려면 지문을 추가하세요.<br/><span className="text-xs font-medium">지문 없이 문항만 입력할 수도 있습니다.</span></p>
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-3">
-          <button onClick={()=>setStep(1)} className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2">
-            <IChevL s={22}/> 이전
-          </button>
-          <button 
-            onClick={() => {
-              const maxQ = Math.max(...examData.passages.map(p => p.to), 0);
-              const count = maxQ || 45; // 지문 없으면 기본 45문항
-              setExamData(prev => ({...prev, answers: new Array(count).fill('')}));
-              setStep(3);
-            }}
-            className="flex-[2] py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
-          >
-            정답 입력하기 <IChevR s={22}/>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Step 3: 정답 입력
-  if (step === 3 && !isStudentMode) {
-    return (
-      <div className="fade-in bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-8 border border-slate-100">
-        <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm">3</span>
-          정답 정보 입력
-        </h2>
-        <div className="grid grid-cols-5 sm:grid-cols-9 gap-3 mb-8">
-          {examData.answers.map((ans, i) => (
-            <div key={i} className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-black text-slate-400 ml-1">{i+1}</span>
-              <input 
-                className="w-full h-11 bg-slate-50 border-2 border-slate-100 rounded-xl text-center font-black text-indigo-600 focus:border-indigo-500 focus:bg-white outline-none transition-all"
-                value={ans}
-                onChange={e=>handleAnswerChange(i, e.target.value)}
-              />
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-3">
-          <button onClick={()=>setStep(2)} className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black text-lg transition-all">이전</button>
-          <button onClick={generateStudentLink} className="flex-[2] py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2">
-            학생용 링크 생성 <ICheck s={24}/>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Step 5: 링크 결과
-  if (step === 5 && !isStudentMode) {
-    return (
-      <div className="fade-in bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-10 border border-slate-100 text-center">
-        <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-          <ICheck s={48}/>
-        </div>
-        <h2 className="text-2xl font-black text-slate-800 mb-2">학생용 링크 생성 완료!</h2>
-        <p className="text-slate-500 font-bold mb-8">아래 링크를 복사하여 학생들에게 전달하세요.</p>
-        
-        <div className="p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 mb-8 break-all font-mono text-xs text-slate-500 leading-relaxed">
-          {studentLink}
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <button 
-            onClick={()=>copyToClipboard(studentLink)}
-            className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200'}`}
-          >
-            {copied ? '링크가 복사되었습니다!' : '링크 주소 복사하기'}
-          </button>
-          <button onClick={()=>setStep(1)} className="w-full py-4 text-slate-400 font-black hover:text-slate-600 transition-colors">처음으로 돌아가기</button>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── 학생용 모드 ────────────────────────────────────────────────────────────
-  if (isStudentMode) {
-    if (showResult) {
-      const correctCount = studentAnswers.filter((sa, i) => sa === examData.answers[i]).length;
-      const totalCount = examData.answers.length;
-      const score = Math.round((correctCount / totalCount) * 100);
-
-      // 카카오톡 제출용 텍스트 생성
-      const getSubmitText = () => {
-        let text = `[${examData.examName}] 셀프해설지 제출\n`;
-        text += `정답률: ${score}% (${correctCount}/${totalCount})\n\n`;
-        
-        examData.passages.forEach(p => {
-          const pAnswers = studentAnswers.slice(p.from - 1, p.to);
-          const pCorrect = examData.answers.slice(p.from - 1, p.to);
-          const pFeedback = feedback.slice(p.from - 1, p.to);
-          
-          let pText = '';
-          let hasWrong = false;
-          
-          for(let i=0; i<pAnswers.length; i++) {
-            if (pAnswers[i] !== pCorrect[i]) {
-              hasWrong = true;
-              pText += `- ${p.from + i}번: ${pFeedback[i] || '(내용 없음)'}\n`;
-            }
-          }
-          
-          if (hasWrong) {
-            text += `■ ${p.name}\n${pText}\n`;
-          }
-        });
-        return text;
-      };
-
-      return (
-        <div className="fade-in bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
-          <div className="text-center mb-10">
-            <div className="inline-block px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full font-black text-sm mb-4 tracking-wider">RESULT</div>
-            <h2 className="text-5xl font-black text-slate-900 mb-2">{score}<span className="text-2xl ml-1">점</span></h2>
-            <p className="text-slate-400 font-bold">전체 {totalCount}문항 중 {correctCount}문항 정답</p>
-          </div>
-
-          <div className="space-y-8">
-            {(hasP ? examData.passages : [{name:'전체 문항', from:1, to:examData.answers.length}]).map((p, idx) => {
-              const pStart = p.from - 1;
-              const pEnd = p.to;
-              const pRange = studentAnswers.slice(pStart, pEnd);
-              const pAnswers = examData.answers.slice(pStart, pEnd);
-              
-              const isAllCorrect = pRange.every((sa, i) => sa === pAnswers[i]);
-              if (isAllCorrect) return null;
-
-              return (
-                <div key={idx} className="fade-in">
-                  <h3 className="font-black text-slate-800 mb-4 flex items-center gap-2">
-                    <span className="w-1.5 h-5 bg-red-400 rounded-full"></span>
-                    {p.name} <span className="text-slate-300 text-sm ml-1 font-bold">오답 분석</span>
-                  </h3>
-                  <div className="space-y-3">
-                    {pRange.map((sa, i) => {
-                      const qIdx = pStart + i;
-                      const isCorrect = sa === examData.answers[qIdx];
-                      if (isCorrect) return null;
-                      
-                      return (
-                        <div key={qIdx} className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-                          <div className="flex justify-between items-center mb-3">
-                            <span className="font-black text-red-500">{qIdx+1}번 문항</span>
-                            <div className="flex gap-2 text-xs font-black">
-                              <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-400">내 답: {sa || '미입력'}</span>
-                              <span className="px-2.5 py-1 bg-red-50 text-red-600 rounded-lg">정답: {examData.answers[qIdx]}</span>
-                            </div>
-                          </div>
-                          <textarea 
-                            className="w-full p-4 bg-white border-2 border-slate-100 rounded-xl focus:border-red-200 outline-none text-sm font-bold placeholder:text-slate-300 min-h-[100px]"
-                            placeholder="왜 틀렸는지, 정답의 근거는 무엇인지 스스로 정리해 보세요."
-                            value={feedback[qIdx]}
-                            onChange={e=>handleFeedback(qIdx, e.target.value)}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-
-            {studentAnswers.every((sa, i) => sa === examData.answers[i]) && (
-              <div className="py-20 text-center">
-                <div className="text-6xl mb-4">🎉</div>
-                <h3 className="text-2xl font-black text-slate-800">만점입니다!</h3>
-                <p className="text-slate-500 font-bold mt-2">틀린 문항이 없네요. 완벽합니다!</p>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-12 pt-8 border-t-2 border-slate-50">
-            <button 
-              onClick={() => copyToClipboard(getSubmitText())}
-              className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex justify-center items-center gap-2 ${copied ? 'bg-emerald-500 text-white' : 'bg-[#FEE500] hover:bg-[#FDD800] text-black shadow-lg shadow-yellow-100'}`}
-            >
-              <ICopy s={22}/>{copied ? '복사가 완료되었습니다!' : '카톡 제출용 분석결과 복사'}
-            </button>
-            <p className="text-center text-slate-400 text-xs mt-4 font-bold">복사 후 선생님께 카카오톡으로 전송하세요.</p>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="fade-in">
-        <div className="bg-indigo-600 rounded-3xl p-8 mb-6 shadow-xl shadow-indigo-100 relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-white text-2xl font-black mb-4">답안을 입력해 주세요</h2>
-            <div className="flex gap-3">
-              {examData.paperLink && (
-                <a href={examData.paperLink} target="_blank" className="flex-1 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all">
-                  <IExtLink/> 시험지 보기
-                </a>
-              )}
-              {examData.answerLink && (
-                <a href={examData.answerLink} target="_blank" className="flex-1 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all">
-                  <IExtLink/> 정답지 보기
-                </a>
-              )}
-            </div>
-          </div>
-          <div className="absolute top-[-20px] right-[-20px] w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="space-y-6 mb-10">
-          {(hasP ? examData.passages : [{name:'답안 입력', from:1, to:examData.answers.length}]).map((p, idx) => (
-            <div key={idx} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 p-6 border border-slate-100">
-              <h3 className="font-black text-slate-800 mb-5 flex items-center gap-2">
-                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
-                {p.name}
-              </h3>
-              <div className="grid grid-cols-5 sm:grid-cols-8 gap-3">
-                {studentAnswers.slice(p.from - 1, p.to).map((ans, i) => {
-                  const qIdx = p.from - 1 + i;
-                  return (
-                    <div key={qIdx} className="flex flex-col gap-1">
-                      <span className="text-[10px] font-black text-slate-400 ml-1">{qIdx+1}</span>
-                      <input 
-                        className={`w-full h-12 rounded-xl text-center font-black transition-all outline-none border-2 ${studentAnswers[qIdx] ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-slate-50 border-slate-100 text-slate-400 focus:border-indigo-300'}`}
-                        value={ans}
-                        maxLength={1}
-                        onChange={e=>handleStudentAnswer(qIdx, e.target.value)}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <button 
-          onClick={() => {
-            window.scrollTo(0,0);
-            setShowResult(true);
-          }}
-          disabled={studentAnswers.some(a => !a)}
-          className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white rounded-3xl font-black text-xl shadow-xl shadow-indigo-200 transition-all mb-12"
-        >
-          채점 및 분석하기
-        </button>
-      </div>
-    );
-  }
-
-  return null;
-};
-
-// Progress bar logic
-const ProgressTracker = ({step, hasP, isStudentMode}) => {
-  if (isStudentMode) return null;
-  const labels = ['기본 정보', '문항 설정', '정답 입력', '링크 생성'];
-  return (
-    <div className="max-w-3xl mx-auto mb-8 px-2">
-      <div className="flex justify-between mb-3">
-        {labels.map((l, i) => (
-          <span key={i} className={`text-[11px] font-black tracking-tighter ${step >= i+1 ? 'text-indigo-600' : 'text-slate-300'}`}>{l}</span>
-        ))}
-      </div>
-      <div className="h-2 bg-slate-200 rounded-full overflow-hidden flex">
-        {[1,2,3,5].map((s, i) => (
-          <div key={i} className={`h-full transition-all duration-500 ${step >= s ? 'bg-indigo-500' : ''}`} style={{width: '25%'}}></div>
-        ))}
-      </div>
+  // 기존 셀프해설지1.html의 UI 로직 유지
+  if (step === 1) return (
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-8">
+      <h2 className="text-xl font-black mb-6">1. 기본 정보 입력</h2>
+      <input className="w-full px-4 py-3 bg-slate-50 border-2 rounded-2xl mb-4" placeholder="시험 명칭" value={examData.examName} onChange={e=>setExamData({...examData, examName: e.target.value})}/>
+      <button onClick={()=>setStep(2)} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">다음 단계</button>
     </div>
   );
-};
 
-const Root = () => {
-  const [step, setStep] = useState(1);
-  const [isStudentMode, setIsStudentMode] = useState(false);
-  
-  // App 컴포넌트 내부에서 URL 파라미터를 확인하지만, 
-  // ProgressTracker 노출 여부를 위해 여기서도 체크
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('d')) {
-      setIsStudentMode(true);
-    }
-  }, []);
+  if (step === 2) return (
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-8">
+      <div className="flex justify-between mb-6"><h2 className="text-xl font-black">2. 지문 설정</h2><button onClick={()=>setExamData({...examData, passages:[...examData.passages, {name:'',from:1,to:1}]})} className="text-indigo-600 font-bold">+ 추가</button></div>
+      {examData.passages.map((p,i)=>(<div key={i} className="mb-4 flex gap-2"><input className="flex-1 p-2 border rounded-lg" value={p.name} onChange={e=>{const n=[...examData.passages]; n[i].name=e.target.value; setExamData({...examData, passages:n})}} placeholder="지문명"/></div>))}
+      <button onClick={()=>setStep(3)} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">정답 입력으로</button>
+    </div>
+  );
 
-  return (
-    <div className="py-8 px-4 max-w-3xl mx-auto">
-      <header className="text-center mb-10">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">셀프해설지</h1>
-        <p className="text-slate-400 font-bold mt-1 text-sm">스스로 분석하며 성장하는 국어 공부</p>
-      </header>
-      
-      {!isStudentMode && <div className="max-w-3xl mx-auto mb-8 px-2">
-        <div className="flex justify-between mb-3">
-          {['기본 정보', '문항 설정', '정답 입력', '링크 생성'].map((l, i) => (
-            <span key={i} className="text-[11px] font-black tracking-tighter text-slate-300">{l}</span>
-          ))}
-        </div>
-        <div className="h-2 bg-slate-200 rounded-full"></div>
-      </div>}
+  if (step === 3) return (
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-8">
+      <h2 className="text-xl font-black mb-6">3. 정답 입력</h2>
+      <div className="grid grid-cols-5 gap-2 mb-6">
+        {new Array(Math.max(...examData.passages.map(p=>p.to), 45)).fill('').map((_,i)=>(
+          <input key={i} className="border p-2 rounded text-center" placeholder={i+1} onChange={e=>{const a=[...examData.answers]; a[i]=e.target.value; setExamData({...examData, answers:a})}}/>
+        ))}
+      </div>
+      <button onClick={generateFinalFile} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black">HTML 코드 생성하기</button>
+    </div>
+  );
 
-      <App />
+  // 결과 화면: 요청하신 대로 코드 텍스트 출력
+  if (step === 5) return (
+    <div className="fade-in bg-white rounded-3xl shadow-xl p-8 text-center">
+      <ICheck s={48} c="mx-auto text-emerald-500 mb-4"/>
+      <h2 className="text-2xl font-black mb-2">배포용 HTML 코드 생성 완료</h2>
+      <p className="text-slate-500 mb-6">아래 코드를 복사해서 메모장에 붙여넣고 저장하세요.</p>
+      <textarea readOnly className="w-full h-48 p-4 bg-slate-900 text-indigo-300 rounded-2xl font-mono text-xs mb-6" value={generatedCode}/>
+      <button onClick={copyToClipboard} className={`w-full py-4 rounded-2xl font-black text-lg transition-all ${copied?'bg-emerald-500 text-white':'bg-indigo-600 text-white'}`}>
+        {copied ? '코드가 복사되었습니다!' : '코드 복사하기'}
+      </button>
     </div>
   );
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<Root />);
+root.render(<div className="py-8 px-4 max-w-3xl mx-auto"><header className="text-center mb-10"><h1 className="text-3xl font-black">셀프해설지 생성기</h1></header><App /></div>);
 </script>
 </body>
 </html>
