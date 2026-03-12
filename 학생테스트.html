@@ -3325,6 +3325,75 @@ function startTimer(i){
     if(sec<=0){ clearInterval(timers[i]); $(`timer-${i}`).style.color='#b91c1c'; }
   },1000);
 }
+<script>
+/* ===================== 업그레이드 baked 데이터 ===================== */
+window.__BAKED_ASGN__ = {
+  title: "수능특강 고전시가 문제편 (3월 1주차)",
+  period: "3월 1주차",
+  message: "12지문 36문제 + 문제지/해설지 링크 입력",
+  passages: [ /* 이전과 동일한 12지문 데이터 */ 
+    {type:"lit", genre:"고전시가", author:"신충·이순신", title:"원가 + 진중음", pages:"p.3", paras:7, qs:3, problemLink:"", explanationLink:""},
+    // ... (나머지 11개도 이전과 동일)
+  ],
+  questions: [ /* 36문제 정답 그대로 */ 
+    {num:1,ans:5},{num:2,ans:3},{num:3,ans:1}, /* ... 생략 ... */ {num:36,ans:1}
+  ]
+};
+
+/* ===================== 세로 스크롤 작품 탭 ===================== */
+const originalBuildTabs = buildStudentTabs;
+buildStudentTabs = function() {
+  originalBuildTabs();
+  const wrap = $('s-tabs');
+  wrap.style.flexDirection = 'column';
+  wrap.style.width = 'auto';
+  wrap.style.maxHeight = '420px';
+  wrap.style.overflowY = 'auto';
+  wrap.style.paddingRight = '8px';
+};
+
+/* ===================== 마스터 프롬프트 스타일 셀프해설지 ===================== */
+function renderExplanations(){
+  const container = $('expl-container');
+  container.innerHTML = `<div class="card" style="background:#f0f9ff;border-color:#bae6fd">
+    <div style="font-size:13px;color:#0c4a6e">✏️ 셀프해설지 — 정답 확인 후 오답 원인과 근거를 직접 적어보세요</div>
+  </div>`;
+
+  const circled = ['','①','②','③','④','⑤'];
+  ASGN.questions.forEach((q,i) => {
+    const e = EXPL[i] || {};
+    let html = `<div class="expl-card" style="border:1.5px solid #bae6fd;padding:18px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:22px;font-weight:900;color:#0c4a6e">${q.num}번</span>
+        <span style="background:#e0f2fe;color:#0369a1;padding:6px 16px;border-radius:999px;font-weight:800">정답 ${circled[q.ans]}</span>
+      </div>
+      
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:8px">내가 고른 오답 (선택)</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">`;
+    
+    [1,2,3,4,5].forEach(n => {
+      const isSelected = e.myAns === n;
+      const isCorrect = n === q.ans;
+      html += `<button onclick="setMyAns(${i},${n},${q.ans})" class="my-ans-btn" style="height:42px;border-radius:10px;font-size:15px;font-weight:800;${isSelected?(isCorrect?'background:#d1fae5;color:#166534':'background:#fee2e2;color:#b91c1c'):'background:white;border:1.5px solid #e0f2fe;color:#0369a1'}">
+        ${circled[n]}
+      </button>`;
+    });
+
+    html += `</div></div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#0369a1">오답 원인 분석</label>
+        <textarea id="er-${i}" rows="3" class="inp" placeholder="왜 틀렸나요? 어떤 부분에서 실수했나요?" oninput="saveExplField(${i})">${esc(e.reason||'')}</textarea>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#0369a1">정답 근거 정리</label>
+        <textarea id="eb-${i}" rows="3" class="inp" placeholder="정답이 정답인 이유를 지문 근거와 함께 설명하세요" oninput="saveExplField(${i})">${esc(e.basis||'')}</textarea>
+      </div>
+    </div>`;
+
+    container.innerHTML += html;
+  });
+}
 </script>
 </body>
 </html>
