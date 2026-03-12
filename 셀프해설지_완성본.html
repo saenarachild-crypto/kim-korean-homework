@@ -71,13 +71,10 @@
 
     // ─── App Entry ───────────────────────────────────────────────────────────────
     function App() {
-      const [examData, setExamData] = useState(null);
+      const [examData, setExamData] = useState(() => window.__EXAM_DATA__ || null);
 
       useEffect(() => {
-        if (window.__EXAM_DATA__) {
-          setExamData(window.__EXAM_DATA__);
-          return;
-        }
+        if (window.__EXAM_DATA__) return;
         const params = new URLSearchParams(window.location.search);
         const d = params.get('d');
         if (d) {
