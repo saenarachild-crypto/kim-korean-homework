@@ -3233,6 +3233,98 @@ window.__BAKED_ASGN__ = {
     {num:34,ans:5},{num:35,ans:3},{num:36,ans:1}
   ]
 };
+/* ===================== 문제 풀이 과정 강화 ===================== */
+function renderExplanations(){
+  const container = $('expl-container');
+  container.innerHTML = `<div class="card" style="background:#f0f9ff">
+    <div style="font-size:13px;color:#0c4a6e">✏️ 셀프해설지 — 정답 확인 후 오답 원인·근거를 직접 적어보세요</div>
+  </div>`;
+
+  const circled = ['','①','②','③','④','⑤'];
+  ASGN.questions.forEach((q,i) => {
+    const e = EXPL[i] || {attempt:1, timeLeft:120, classification:'주제파악'};
+    
+    let html = `<div class="expl-card" id="expl-card-${i}" style="border:1.5px solid #bae6fd;padding:20px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-size:22px;font-weight:900;color:#0c4a6e">${q.num}번</span>
+        <span style="background:#e0f2fe;color:#0369a1;padding:6px 18px;border-radius:999px;font-weight:800">정답 ${circled[q.ans]}</span>
+      </div>
+
+      <!-- 1. 내가 고른 오답 -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:8px">내가 고른 오답</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">`;
+    
+    [1,2,3,4,5].forEach(n => {
+      const isSel = e.myAns === n;
+      html += `<button onclick="setMyAns(${i},${n},${q.ans})" style="height:44px;border-radius:10px;font-weight:800;${isSel ? (n===q.ans?'background:#d1fae5;color:#166534':'background:#fee2e2;color:#b91c1c') : 'background:white;border:1.5px solid #bae6fd'}">${circled[n]}</button>`;
+    });
+
+    html += `</div></div>
+
+      <!-- 2. 문제 분류 + 도전횟수 + 타이머 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+        <div>
+          <label style="font-size:11px;color:#0369a1">문제 분류</label>
+          <select id="class-${i}" onchange="saveExplField(${i})" style="width:100%;padding:8px;border-radius:8px">
+            <option ${e.classification==='주제파악'?'selected':''}>주제파악</option>
+            <option ${e.classification==='내용이해'?'selected':''}>내용이해</option>
+            <option ${e.classification==='어휘'?'selected':''}>어휘</option>
+            <option ${e.classification==='표현법'?'selected':''}>표현법</option>
+            <option ${e.classification==='논리구조'?'selected':''}>논리구조</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:#0369a1">도전 횟수</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="attempt-${i}" style="font-size:18px;font-weight:900">${e.attempt}회</span>
+            <button onclick="addAttempt(${i})" style="padding:4px 12px;background:#f3e8ff;color:#6b46c1;border-radius:6px;font-size:12px">재도전</button>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;color:#0369a1">타이머 (문항당 2분)</label>
+          <div id="timer-${i}" style="font-size:18px;font-weight:900;color:#c2410c">2:00</div>
+          <button onclick="startTimer(${i})" style="font-size:12px;padding:4px 10px">시작</button>
+        </div>
+      </div>
+
+      <!-- 3. 오답 원인 분석 -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#0369a1">오답 원인 분석</label>
+        <textarea id="er-${i}" rows="3" class="inp" placeholder="왜 틀렸나요? 어떤 부분에서 실수했나요?" oninput="saveExplField(${i})">${esc(e.reason||'')}</textarea>
+      </div>
+
+      <!-- 4. 정답 근거 정리 -->
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#0369a1">정답 근거 정리</label>
+        <textarea id="eb-${i}" rows="3" class="inp" placeholder="정답이 정답인 이유를 지문 근거와 함께 설명하세요" oninput="saveExplField(${i})">${esc(e.basis||'')}</textarea>
+      </div>
+    </div>`;
+
+    container.innerHTML += html;
+  });
+}
+
+/* 도전횟수 증가 */
+function addAttempt(i){
+  const e = EXPL[i] = EXPL[i]||{};
+  e.attempt = Math.min((e.attempt||1)+1, 3);
+  renderExplanations(); // 즉시 반영
+}
+
+/* 타이머 (간단 버전) */
+let timers = {};
+function startTimer(i){
+  if(timers[i]) return;
+  let sec = 120;
+  timers[i] = setInterval(()=>{
+    sec--;
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    $(`timer-${i}`).textContent = `${m}:${s<10?'0':''}${s}`;
+    if(sec<=0){ clearInterval(timers[i]); $(`timer-${i}`).style.color='#b91c1c'; }
+  },1000);
+}
 </script>
 </body>
 </html>
