@@ -1734,7 +1734,7 @@ function saveExplField(i){
   autoSave();
 }
 <script>
-/* ===================== 모든 요구 반영 최종 baked 데이터 ===================== */
+/* ===================== 최종 baked 데이터 (모든 요구 반영) ===================== */
 window.__BAKED_ASGN__ = {
   title: "수능특강 고전시가 문제편 (3월 1주차)",
   period: "3월 1주차",
@@ -1868,6 +1868,12 @@ function saveExplField(i){
   EXPL[i].classification = $(`class-${i}`)?.value || '주제파악';
   autoSave();
 }
+
+/* 강제 학생용 실행 */
+window.addEventListener('DOMContentLoaded', () => {
+  loadStudent(window.__BAKED_ASGN__);
+});
+</script>
 </script>
 </body>
 </html>
