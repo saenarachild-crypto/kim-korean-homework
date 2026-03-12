@@ -1598,6 +1598,140 @@ function renderReviewExpl(){
     </div>`;
   });
   container.innerHTML=html||`<div class="card" style="text-align:center;color:var(--t3);padding:30px"><div>셀프해설지 미작성</div></div>`;
+}<script>
+/* ===================== 모든 요구 반영 최종 baked 데이터 ===================== */
+window.__BAKED_ASGN__ = {
+  title: "수능특강 고전시가 문제편 (3월 1주차)",
+  period: "3월 1주차",
+  message: "12지문 36문제 완벽 분석 + 셀프해설지\n문제지와 해설지 링크만 입력하세요!",
+  passages: [
+    {type:"lit", genre:"고전시가", author:"신충·이순신", title:"원가 + 진중음", pages:"p.3", paras:7, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"고전시가", author:"작자 미상", title:"만전춘별사", pages:"p.7", paras:8, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"시조", author:"정훈", title:"월곡답가", pages:"p.11", paras:10, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"고전시가", author:"조식·김천택", title:"두류산 양단수", pages:"p.14", paras:5, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"고전시가", author:"원천석·이정보", title:"세한고절", pages:"p.17", paras:6, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"시조", author:"송순", title:"면앙정가", pages:"p.21", paras:28, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"고전시가", author:"작자 미상", title:"사친가", pages:"p.27", paras:15, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"고전시가", author:"이진유", title:"속사미인곡", pages:"p.33", paras:12, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"타령", author:"작자 미상", title:"몽금포 타령", pages:"p.38", paras:8, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"고전시가", author:"작자 미상", title:"유산가", pages:"p.42", paras:18, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"별곡", author:"신교", title:"백석정별곡", pages:"p.43", paras:14, qs:3, problemLink:"", explanationLink:""},
+    {type:"lit", genre:"고전시가", author:"김상헌·최명길", title:"성패관천운", pages:"p.47", paras:6, qs:3, problemLink:"", explanationLink:""}
+  ],
+  questions: [
+    {num:1,ans:5},{num:2,ans:3},{num:3,ans:1},{num:4,ans:5},{num:5,ans:5},{num:6,ans:3},
+    {num:7,ans:3},{num:8,ans:5},{num:9,ans:3},{num:10,ans:3},{num:11,ans:3},{num:12,ans:4},
+    {num:13,ans:5},{num:14,ans:2},{num:15,ans:4},{num:16,ans:1},{num:17,ans:5},{num:18,ans:1},
+    {num:19,ans:5},{num:20,ans:4},{num:21,ans:2},{num:22,ans:3},{num:23,ans:3},{num:24,ans:4},
+    {num:25,ans:2},{num:26,ans:3},{num:27,ans:3},{num:28,ans:4},{num:29,ans:2},{num:30,ans:5},
+    {num:31,ans:2},{num:32,ans:2},{num:33,ans:4},{num:34,ans:5},{num:35,ans:3},{num:36,ans:1}
+  ]
+};
+
+/* ===================== 세로 스크롤 작품 리스트 ===================== */
+buildStudentTabs = function(){
+  const wrap = $('s-tabs');
+  wrap.innerHTML = '';
+  wrap.style.display = 'block';
+  wrap.style.maxHeight = '520px';
+  wrap.style.overflowY = 'auto';
+  wrap.style.padding = '12px';
+  wrap.style.background = 'var(--paper)';
+  wrap.style.borderRadius = '12px';
+  wrap.style.border = '1.5px solid var(--border2)';
+
+  ASGN.passages.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.style.width = '100%';
+    btn.style.marginBottom = '8px';
+    btn.style.padding = '16px';
+    btn.style.borderRadius = '12px';
+    btn.style.textAlign = 'left';
+    btn.style.border = (i===CUR ? '2px solid var(--lit)' : '1.5px solid var(--border2)');
+    btn.style.background = (i===CUR ? 'var(--lit2)' : 'white');
+    btn.innerHTML = `
+      <div style="display:flex;gap:12px;align-items:center">
+        <span style="font-size:14px;font-weight:800;background:var(--lit2);color:var(--lit);padding:4px 10px;border-radius:6px;">${i+1}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;color:var(--ink)">${esc(p.title)}</div>
+          <div style="font-size:12px;color:var(--t3)">${esc(p.author || '작자 미상')}</div>
+        </div>
+      </div>`;
+    btn.onclick = () => { saveCurrentPassage(); CUR = i; buildStudentTabs(); renderPassage(i); };
+    wrap.appendChild(btn);
+  });
+};
+
+/* ===================== 셀프해설지 (문제 분류만 유지) ===================== */
+function renderExplanations(){
+  const container = $('expl-container');
+  container.innerHTML = `<div class="card" style="background:#f0f9ff;border-color:#bae6fd">
+    <div style="font-size:13px;color:#0c4a6e">✏️ 셀프해설지 — 오답을 선택한 후 분석해주세요</div>
+  </div>`;
+
+  const circled = ['','①','②','③','④','⑤'];
+  ASGN.questions.forEach((q,i) => {
+    const e = EXPL[i] || {};
+    let html = `<div class="expl-card" style="border:1.5px solid #bae6fd;padding:20px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-size:22px;font-weight:900;color:#0c4a6e">${q.num}번</span>
+        <span id="correct-badge-${i}" style="display:none;background:#e0f2fe;color:#0369a1;padding:6px 18px;border-radius:999px;font-weight:800">정답 ${circled[q.ans]}</span>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:8px">내가 고른 오답</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">`;
+    
+    [1,2,3,4,5].forEach(n => {
+      const isSel = e.myAns === n;
+      html += `<button onclick="setMyAns(${i},${n},${q.ans})" style="height:44px;border-radius:10px;font-weight:800;${isSel ? (n===q.ans?'background:#d1fae5;color:#166534':'background:#fee2e2;color:#b91c1c') : 'background:white;border:1.5px solid #bae6fd'}">${circled[n]}</button>`;
+    });
+
+    html += `</div></div>
+
+      <!-- 문제 분류 -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#0369a1">문제 분류</label>
+        <select id="class-${i}" onchange="saveExplField(${i})" style="width:100%;padding:10px;border-radius:8px">
+          <option value="주제파악" ${e.classification==='주제파악'?'selected':''}>주제파악</option>
+          <option value="내용이해" ${e.classification==='내용이해'?'selected':''}>내용이해</option>
+          <option value="어휘" ${e.classification==='어휘'?'selected':''}>어휘</option>
+          <option value="표현법" ${e.classification==='표현법'?'selected':''}>표현법</option>
+          <option value="논리구조" ${e.classification==='논리구조'?'selected':''}>논리구조</option>
+          <option value="기타" ${e.classification==='기타'?'selected':''}>기타</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#0369a1">오답 원인 분석</label>
+        <textarea id="er-${i}" rows="3" class="inp" placeholder="왜 틀렸나요? 어떤 부분에서 실수했나요?" oninput="saveExplField(${i})">${esc(e.reason||'')}</textarea>
+      </div>
+
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#0369a1">정답 근거 정리</label>
+        <textarea id="eb-${i}" rows="3" class="inp" placeholder="정답이 정답인 이유를 지문 근거와 함께 설명하세요" oninput="saveExplField(${i})">${esc(e.basis||'')}</textarea>
+      </div>
+    </div>`;
+
+    container.innerHTML += html;
+  });
+};
+
+/* 오답 선택 시 정답 배지 표시 */
+window.setMyAns = function(i, chosen, correct){
+  EXPL[i] = EXPL[i] || {};
+  EXPL[i].myAns = chosen;
+  document.getElementById(`correct-badge-${i}`).style.display = 'inline-block';
+  autoSave();
+  renderExplanations();
+};
+
+function saveExplField(i){
+  EXPL[i] = EXPL[i] || {};
+  EXPL[i].reason = $(`er-${i}`)?.value || '';
+  EXPL[i].basis = $(`eb-${i}`)?.value || '';
+  EXPL[i].classification = $(`class-${i}`)?.value || '주제파악';
+  autoSave();
 }
 </script>
 </body>
