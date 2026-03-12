@@ -1,203 +1,156 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>수능특강 셀프분석 + 셀프해설지</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style>
-/* ===================== RESET & BASE ===================== */
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --ink:#1C2B4A;
-  --ink2:#2D3F60;
-  --gold:#B8862A;
-  --gold2:#F5EDD6;
-  --gold3:#E8D5A0;
-  --cream:#F6F1E8;
-  --paper:#FDFAF5;
-  --lit:#5B3A8C;
-  --lit2:#F0EAF8;
-  --lit3:#D4C3EE;
-  --read:#1A6B5C;
-  --read2:#E6F4F1;
-  --read3:#B0D9D2;
-  --red:#C0392B;
-  --red2:#FDEEEC;
-  --green:#1E7A4A;
-  --green2:#E8F7EE;
-  --yellow:#C47A00;
-  --yellow2:#FEF8E8;
-  --border:#DDD5C2;
-  --border2:#EDE8DF;
-  --t2:#6B6254;
-  --t3:#A09786;
-  --card:#FDFAF5;
-  --r:12px;
-  --shadow:0 2px 12px rgba(28,43,74,.09);
-  --shadow2:0 4px 24px rgba(28,43,74,.13);
-}
-body{
-  font-family:'Noto Sans KR',system-ui,sans-serif;
-  background:var(--cream);
-  color:var(--ink);
-  min-height:100vh;
-  -webkit-tap-highlight-color:transparent;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c4963a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-input,textarea,select,button{font-family:inherit}
-textarea{resize:none}
-.hide{display:none!important}
-.page{max-width:620px;margin:0 auto;padding-bottom:120px}
-.inner{padding:0 16px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>수능특강 통합 셀프분석 + 카톡 보고서</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-light: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --gray: #6b7280;
+      --light: #f3f4f6;
+      --white: #ffffff;
+    }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--light);
+      margin: 0;
+      padding: 16px;
+      color: #111827;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 1.8rem; text-align: center; margin: 1rem 0; color: var(--primary); }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-kakao {
+      background: #FEE500;
+      color: #3C1E1E;
+      font-weight: bold;
+    }
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      margin: 8px 0;
+      font-size: 0.95rem;
+    }
+    .passage-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; }
+    .question-block { margin: 1.5rem 0; padding: 1rem; background: #f8fafc; border-radius: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>통합 셀프분석 + 셀프해설지</h1>
 
-/* ===================== HEADER ===================== */
-.app-hd{
-  background:var(--ink);
-  padding:0 16px;
-  position:sticky;top:0;z-index:80;
-  display:flex;align-items:center;justify-content:space-between;
-  height:54px;
-  box-shadow:0 2px 16px rgba(28,43,74,.25);
-}
-.app-hd .logo-r{display:flex;align-items:center;gap:10px}
-.app-hd img{height:28px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9}
-.app-hd .brand h1{
-  font-family:'Noto Serif KR',serif;
-  font-size:13.5px;font-weight:700;
-  color:#fff;line-height:1.2;letter-spacing:-.01em;
-}
-.app-hd .brand p{font-size:9px;font-weight:500;color:var(--gold3);letter-spacing:.15em;text-transform:uppercase;margin-top:1px}
-.mode-chip{
-  font-size:10px;font-weight:700;
-  padding:4px 12px;border-radius:99px;
-  background:rgba(184,134,42,.25);
-  color:var(--gold3);
-  border:1px solid rgba(184,134,42,.35);
-  letter-spacing:.05em;
-}
-.mini-tools{display:flex;gap:6px}
-.mini-tool-btn{
-  font-size:11px;font-weight:700;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.08);
-  color:rgba(255,255,255,.85);
-  border-radius:8px;padding:6px 10px;cursor:pointer;
-  transition:all .18s;
-}
-.mini-tool-btn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3)}
+  <div class="card">
+    <div class="passage-title">[예시] 2월 3주차 보강</div>
 
-/* ===================== TOAST ===================== */
-#toast{
-  position:fixed;bottom:130px;left:50%;
-  transform:translateX(-50%) translateY(12px);
-  background:var(--ink);color:#fff;
-  padding:10px 22px;border-radius:99px;
-  font-size:12.5px;font-weight:700;
-  opacity:0;transition:all .28s;pointer-events:none;
-  white-space:nowrap;z-index:300;
-  border:1px solid rgba(184,134,42,.3);
-  box-shadow:0 8px 32px rgba(28,43,74,.3);
-}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    <label>이름</label>
+    <input type="text" id="studentName" placeholder="홍길동">
 
-/* ===================== CARDS ===================== */
-.card{
-  background:var(--card);
-  border:1.5px solid var(--border2);
-  border-radius:var(--r);
-  padding:18px;margin-bottom:12px;
-  box-shadow:var(--shadow);
-}
-.card-ttl{
-  font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.08em;
-  display:flex;align-items:center;gap:8px;
-  margin-bottom:16px;color:var(--ink);
-}
-.card-ttl::before{
-  content:'';width:3px;height:14px;
-  background:var(--gold);border-radius:2px;flex-shrink:0;
-}
-.card-ttl.lit-ttl{color:var(--lit)}.card-ttl.lit-ttl::before{background:var(--lit)}
-.card-ttl.read-ttl{color:var(--read)}.card-ttl.read-ttl::before{background:var(--read)}
-.card-ttl.expl-ttl{color:#0891b2}.card-ttl.expl-ttl::before{background:#0891b2}
+    <label>시험 전 전략 / 목표</label>
+    <textarea id="preNotes" rows="4" placeholder="예: 비문학 40분 이내 끝내기, 문학 보기 먼저 확인"></textarea>
 
-/* ===================== FORM ELEMENTS ===================== */
-.field{margin-bottom:12px}.field:last-child{margin-bottom:0}
-label.lbl{
-  display:block;font-size:10px;font-weight:700;
-  color:var(--t2);text-transform:uppercase;
-  letter-spacing:.08em;margin-bottom:5px;
-}
-.inp{
-  width:100%;border:1.5px solid var(--border);
-  border-radius:9px;padding:9px 12px;
-  font-size:13px;background:var(--paper);
-  transition:border-color .18s,box-shadow .18s;
-  color:var(--ink);line-height:1.6;
-}
-.inp:focus{outline:none;box-shadow:0 0 0 3px rgba(184,134,42,.12)}
-.inp.lit:focus{border-color:var(--lit);box-shadow:0 0 0 3px rgba(91,58,140,.1)}
-.inp.read:focus{border-color:var(--read);box-shadow:0 0 0 3px rgba(26,107,92,.1)}
-.inp:focus:not(.lit):not(.read){border-color:var(--gold)}
-.inp.sm{padding:7px 10px;font-size:12.5px}
-.inp:disabled{background:#f4f1eb;color:var(--t2)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:7px}
+    <!-- 실제로는 지문별로 반복되는 영역 -->
+    <div class="question-block">
+      <strong>지문 1. 독서 이론 (능숙한 독자)</strong><br>
+      <label>소요 시간</label>
+      <input type="text" placeholder="예: 7분 40초" data-passage="1" class="timeTaken">
 
-/* ===================== TYPE TOGGLE ===================== */
-.type-tgl{display:flex;gap:7px;margin-bottom:14px}
-.type-btn{
-  flex:1;padding:10px 8px;
-  border:1.5px solid var(--border);
-  border-radius:10px;font-size:12.5px;font-weight:700;
-  background:var(--paper);color:var(--t3);cursor:pointer;
-  transition:all .2s;display:flex;flex-direction:column;
-  align-items:center;gap:3px;
-}
-.type-btn .tb-icon{font-size:20px}
-.type-btn .tb-lbl{font-size:10.5px}
-.type-btn.on-lit{background:var(--lit2);border-color:var(--lit);color:var(--lit)}
-.type-btn.on-read{background:var(--read2);border-color:var(--read);color:var(--read)}
+      <label>지문 분석 요약</label>
+      <textarea rows="3" placeholder="주제: 능숙한 독자의 특징 / 흐름: ..." data-passage="1" class="reasoning"></textarea>
 
-/* ===================== TOGGLE BUTTONS ===================== */
-.tgl-row{display:flex;gap:5px}
-.tgl-btn{
-  flex:1;padding:7px;border:1.5px solid var(--border);
-  border-radius:8px;font-size:11.5px;font-weight:700;
-  background:var(--paper);color:var(--t3);cursor:pointer;transition:all .18s;
-}
-.tgl-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+      <div style="margin: 1rem 0;">
+        <strong>문항</strong>
+        <div>1번 - 내 답: <input type="text" size="3" data-q="1"> / 정답: 4 / 난이도: 
+          <select data-q="1" class="difficulty">
+            <option value="">-</option>
+            <option value="O">O (맞음)</option>
+            <option value="T">△ (애매)</option>
+            <option value="X">X (틀림)</option>
+          </select>
+        </div>
+        <textarea rows="2" placeholder="이 답을 고른 이유 / 틀린 이유" data-q="1" class="q-reasoning"></textarea>
+      </div>
+      <!-- 다른 문항들도 동일 패턴으로 추가 가능 -->
+    </div>
 
-/* ===================== STATUS BUTTONS ===================== */
-.st-row{display:flex;gap:5px}
-.st-btn{
-  width:30px;height:30px;border-radius:50%;
-  border:1.5px solid var(--border);background:var(--paper);
-  cursor:pointer;display:flex;align-items:center;
-  justify-content:center;font-size:12px;
-  transition:all .18s;flex-shrink:0;
-}
-.st-btn.on-c{background:var(--green);border-color:var(--green);color:#fff}
-.st-btn.on-u{background:var(--yellow);border-color:var(--yellow);color:#fff}
-.st-btn.on-w{background:var(--red);border-color:var(--red);color:#fff}
+    <!-- 실제 과제라면 위 블록이 여러 개 반복됨 -->
 
-/* ===================== PASSAGE PANEL ===================== */
-.passage-panel{border-radius:var(--r);margin-bottom:12px;overflow:hidden;border:1.5px solid var(--border)}
-.passage-panel.lit{border-color:var(--lit3)}
-.passage-panel.read{border-color:var(--read3)}
-.passage-toggle{
-  width:100%;padding:12px 16px;border:none;
-  background:var(--paper);display:flex;
-  align-items:center;justify-content:space-between;
-  cursor:pointer;font-size:13px;font-weight:700;
+    <label>최종 반성 및 다음 계획</label>
+    <textarea id="postNotes" rows="5" placeholder="비문학 시간 관리 미흡 → 매일 1지문 8분 컷 연습"></textarea>
+
+    <div style="margin-top: 2rem; text-align: center;">
+      <button class="btn btn-primary" onclick="generateReport()">카카오톡 제출용 보고서 생성</button>
+      <button class="btn btn-kakao" id="copyBtn" style="margin-left: 12px; display:none;" onclick="copyToClipboard()">복사하기</button>
+    </div>
+
+    <pre id="reportOutput" style="margin-top:1.5rem; white-space:pre-wrap; background:#f1f5f9; padding:1rem; border-radius:8px; display:none;"></pre>
+  </div>
+</div>
+
+<script>
+const reportOutput = document.getElementById('reportOutput');
+const copyBtn = document.getElementById('copyBtn');
+
+function generateReport() {
+  const name = document.getElementById('studentName').value.trim() || '이름없음';
+  const pre = document.getElementById('preNotes').value.trim();
+  const post = document.getElementById('postNotes').value.trim();
+
+  let report = `[셀프해설지 제출]\n`;
+  report += `시험명: 2월 3주차 보강\n`;
+  report += `이름: ${name}\n\n`;
+
+  report += `■ 시험 전 전략\n${pre || '없음'}\n\n`;
+
+  // 실제로는 모든 지문 반복 (여기서는 예시로 1개만)
+  report += `▶ 지문 1. 독서 이론 (능숙한 독자)\n`;
+  const time = document.querySelector('.timeTaken').value.trim() || '-';
+  const reasoning = document.querySelector('.reasoning').value.trim() || '-';
+  report += `- 소요 시간: ${time}\n`;
+  report += `- 지문 분석: ${reasoning}\n`;
+
+  // 문항 예시 (실제로는 반복)
+  report += `  1번 [O] 내답:4  정답:4  (O) / 이유: 보기와 대조하여 가장 적합\n`;
+
+  report += `\n■ 결과: (점수는 수동 입력 또는 계산 필요)\n`;
+  report += `\n■ 최종 반성\n${post || '없음'}\n`;
+
+  reportOutput.textContent = report;
+  reportOutput.style.display = 'block';
+  copyBtn.style.display = 'inline-block';
 }
-.passage-toggle.lit{color:var(--lit)}
-.passage-toggle.read{color:var(--read)}
-.passage-toggle .pt-icon{font-size:14px;transition:transform .25s}
-.passage-toggle.open .pt-icon{transform:rotate(180deg)}
-.passage-body{max-height:0;overflow:hidden;transition:max-height .35s ease;background:#
+
+function copyToClipboard() {
+  const text = reportOutput.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('카카오톡에 붙여넣기 가능한 보고서가 복사되었습니다!');
+  }).catch(() => {
+    alert('복사 실패. 텍스트를 직접 선택해서 복사해주세요.');
+  });
+}
+</script>
+</body>
+</html>
