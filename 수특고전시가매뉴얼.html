@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수능특강 고전시가 셀프분석 — 사용 매뉴얼</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1C2B4A;--ink2:#2D3F60;
+  --gold:#B8862A;--gold2:#F5EDD6;--gold3:#E8D5A0;
+  --cream:#F6F1E8;--paper:#FDFAF5;
+  --lit:#8B4513;--lit2:#FDF5E6;
+  --read:#1A6B5C;--read2:#E6F4F1;
+  --green:#1E7A4A;--green2:#E8F7EE;
+  --red:#C0392B;--red2:#FDEEEC;
+  --yellow:#C47A00;--yellow2:#FEF8E8;
+  --border:#DDD5C2;--border2:#EDE8DF;
+  --t2:#6B6254;--t3:#A09786;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:var(--cream);color:var(--ink);
+  line-height:1.7;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23c4963a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ─── HERO ─── */
+.hero{
+  background:linear-gradient(135deg,var(--ink) 0%,#2D3F60 60%,#1a3a2a 100%);
+  padding:64px 24px 52px;text-align:center;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23B8862A' fill-opacity='0.07'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40z'/%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-block;font-size:11px;font-weight:700;
+  background:rgba(184,134,42,.25);color:#E8D5A0;
+  border:1px solid rgba(184,134,42,.4);
+  padding:5px 18px;border-radius:99px;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:18px;position:relative;
+}
+.hero h1{
+  font-family:'Noto Serif KR',serif;font-size:clamp(24px,5vw,36px);
+  font-weight:900;color:#fff;line-height:1.25;margin-bottom:10px;position:relative;
+}
+.hero h1 em{color:var(--gold3);font-style:normal}
+.hero p{font-size:14px;color:rgba(255,255,255,.65);line-height:1.8;position:relative;max-width:480px;margin:0 auto}
+.hero-divider{
+  width:60px;height:3px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  margin:18px auto 20px;border-radius:2px;position:relative;
+}
+
+/* ─── NAV ─── */
+.toc-bar{
+  background:rgba(253,250,245,.96);backdrop-filter:blur(12px);
+  border-bottom:2px solid var(--border2);
+  position:sticky;top:0;z-index:90;
+  overflow-x:auto;white-space:nowrap;
+  padding:0 12px;
+}
+.toc-inner{
+  display:inline-flex;gap:0;max-width:860px;margin:0 auto;
+}
+.toc-link{
+  display:inline-block;padding:13px 16px;
+  font-size:12px;font-weight:700;color:var(--t2);
+  text-decoration:none;border-bottom:3px solid transparent;
+  transition:all .2s;white-space:nowrap;
+}
+.toc-link:hover{color:var(--gold);border-bottom-color:var(--gold3)}
+
+/* ─── LAYOUT ─── */
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px}
+
+/* ─── SECTION HEADERS ─── */
+.sec-header{
+  display:flex;align-items:center;gap:14px;
+  padding:32px 0 18px;
+}
+.sec-num{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--ink);color:var(--gold3);
+  font-family:'Noto Serif KR',serif;font-size:18px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 4px 16px rgba(28,43,74,.25);
+}
+.sec-title{
+  font-family:'Noto Serif KR',serif;
+  font-size:22px;font-weight:700;color:var(--ink);
+}
+.sec-title span{font-size:13px;font-weight:500;color:var(--t3);margin-left:8px;font-family:'Noto Sans KR',sans-serif}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--paper);border:1.5px solid var(--border2);
+  border-radius:14px;padding:22px 24px;margin-bottom:14px;
+  box-shadow:0 2px 14px rgba(28,43,74,.07);
+}
+.card-title{
+  font-size:11px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--t2);
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+}
+.card-title::before{content:'';width:3px;height:14px;background:var(--gold);border-radius:2px}
+.card-title.lit::before{background:var(--lit)}
+.card-title.read::before{background:var(--read)}
+.card-title.green::before{background:var(--green)}
+
+/* ─── STEP FLOW ─── */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{
+  display:flex;gap:16px;position:relative;
+  padding-bottom:24px;
+}
+.step:last-child{padding-bottom:0}
+.step::before{
+  content:'';position:absolute;left:18px;top:38px;bottom:0;
+  width:2px;background:var(--border);
+}
+.step:last-child::before{display:none}
+.step-dot{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:var(--gold);color:#fff;
+  font-weight:900;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(184,134,42,.35);
+  position:relative;z-index:1;
+}
+.step-body{flex:1;padding-top:7px}
+.step-body h3{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:6px}
+.step-body p{font-size:13px;color:var(--t2);line-height:1.75}
+
+/* ─── BADGE CHIPS ─── */
+.chip{
+  display:inline-block;font-size:10.5px;font-weight:800;
+  padding:3px 10px;border-radius:6px;margin:2px;
+}
+.chip-gold{background:var(--gold2);color:var(--gold)}
+.chip-lit{background:var(--lit2);color:var(--lit)}
+.chip-read{background:var(--read2);color:var(--read)}
+.chip-green{background:var(--green2);color:var(--green)}
+.chip-red{background:var(--red2);color:var(--red)}
+.chip-yellow{background:var(--yellow2);color:var(--yellow)}
+.chip-ink{background:#e8ecf3;color:var(--ink)}
+.chip-kakao{background:#FEF9C3;color:#856404}
+
+/* ─── ROLES ─── */
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:480px){.roles{grid-template-columns:1fr}}
+.role-card{
+  border-radius:12px;padding:18px;
+  display:flex;flex-direction:column;gap:8px;
+  position:relative;overflow:hidden;
+}
+.role-card.teacher{background:var(--ink);color:#fff}
+.role-card.student{background:var(--gold2);border:1.5px solid var(--gold3)}
+.role-card .role-icon{font-size:28px}
+.role-card .role-name{font-size:15px;font-weight:800}
+.role-card.teacher .role-name{color:var(--gold3)}
+.role-card.student .role-name{color:var(--ink)}
+.role-card .role-desc{font-size:12px;line-height:1.65;opacity:.8}
+
+/* ─── FIELD ROWS ─── */
+.field-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:11px 14px;border-radius:10px;margin-bottom:7px;
+  background:var(--cream);border:1px solid var(--border2);
+}
+.field-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.field-info h4{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.field-info p{font-size:12px;color:var(--t2);line-height:1.6}
+
+/* ─── HIGHLIGHT BOX ─── */
+.hl{
+  border-radius:12px;padding:16px 18px;margin:14px 0;
+  display:flex;gap:12px;align-items:flex-start;
+  font-size:13px;line-height:1.75;
+}
+.hl-tip{background:#fffbeb;border-left:4px solid #f59e0b;color:#78350f}
+.hl-warn{background:var(--red2);border-left:4px solid var(--red);color:#7f1d1d}
+.hl-info{background:var(--read2);border-left:4px solid var(--read);color:#134e4a}
+.hl-gold{background:var(--gold2);border-left:4px solid var(--gold);color:#78350f}
+.hl-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+
+/* ─── STATUS TABLE ─── */
+.st-table{width:100%;border-collapse:collapse;font-size:13px}
+.st-table th{
+  background:var(--ink);color:var(--gold3);
+  font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  padding:10px 14px;text-align:left;
+}
+.st-table td{padding:11px 14px;border-bottom:1px solid var(--border2);vertical-align:top}
+.st-table tr:last-child td{border-bottom:none}
+.st-table tr:nth-child(even) td{background:#faf8f3}
+.circle-o{font-size:16px;font-weight:900;color:var(--green)}
+.circle-delta{font-size:16px;font-weight:900;color:var(--yellow)}
+.circle-x{font-size:16px;font-weight:900;color:var(--red)}
+
+/* ─── KAKAO PREVIEW ─── */
+.kakao-preview{
+  background:#B2C7D9;border-radius:16px;padding:16px;
+  font-family:monospace;font-size:12px;line-height:1.8;
+  color:#1a1a1a;max-height:320px;overflow-y:auto;
+}
+.kakao-bubble{
+  background:#fff;border-radius:4px 14px 14px 14px;
+  padding:12px 14px;display:inline-block;max-width:85%;
+  white-space:pre-wrap;font-size:12px;line-height:1.8;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
+}
+
+/* ─── FLOW DIAGRAM ─── */
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:16px 0}
+.flow-box{
+  background:var(--paper);border:1.5px solid var(--border2);
+  border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;
+  color:var(--ink);text-align:center;line-height:1.4;
+}
+.flow-box.active{background:var(--ink);color:var(--gold3);border-color:var(--ink)}
+.flow-box.gold{background:var(--gold2);border-color:var(--gold3);color:var(--gold)}
+.flow-box.green{background:var(--green2);border-color:#86efac;color:var(--green)}
+.flow-arrow{font-size:18px;color:var(--t3);flex-shrink:0}
+
+/* ─── GRID ─── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:540px){.g2{grid-template-columns:1fr}}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:540px){.g3{grid-template-columns:1fr 1fr}}
+
+/* ─── MINI CARDS ─── */
+.mini-card{
+  background:var(--cream);border:1px solid var(--border2);
+  border-radius:10px;padding:14px;font-size:12.5px;
+}
+.mini-card h4{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.mini-card p{color:var(--t2);line-height:1.65}
+
+/* ─── DIVIDER ─── */
+.divider{height:1px;background:var(--border2);margin:8px 0 20px}
+
+/* ─── FOOTER ─── */
+footer{
+  background:var(--ink);color:rgba(255,255,255,.5);
+  text-align:center;padding:28px 16px;
+  font-size:11.5px;line-height:1.8;
+}
+footer strong{color:var(--gold3)}
+
+/* scroll reveal */
+.sr{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s}
+.sr.visible{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <span class="hero-badge">📜 User Manual · 사용 설명서</span>
+  <h1>수능특강 고전시가<br><em>셀프분석 + 셀프해설지</em></h1>
+  <div class="hero-divider"></div>
+  <p>선생님과 학생 모두를 위한<br>고전시가 작품 분석 &amp; 문제 도전 통합 플랫폼 사용 가이드</p>
+</div>
+
+<!-- ── TOC ── -->
+<nav class="toc-bar">
+  <div class="toc-inner">
+    <a class="toc-link" href="#overview">① 개요</a>
+    <a class="toc-link" href="#teacher">② 선생님 모드</a>
+    <a class="toc-link" href="#student">③ 학생 모드</a>
+    <a class="toc-link" href="#analysis">④ 셀프분석</a>
+    <a class="toc-link" href="#challenge">⑤ 도전 시스템</a>
+    <a class="toc-link" href="#expl">⑥ 셀프해설지</a>
+    <a class="toc-link" href="#submit">⑦ 제출 &amp; 보고서</a>
+    <a class="toc-link" href="#review">⑧ 검토 모드</a>
+    <a class="toc-link" href="#tips">⑨ 활용 팁</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ══════════════════════════════
+     ① 개요
+════════════════════════════════ -->
+<section id="overview">
+  <div class="sec-header sr">
+    <div class="sec-num">①</div>
+    <div>
+      <div class="sec-title">전체 개요 <span>Overview</span></div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">이 앱이란?</div>
+    <p style="font-size:13.5px;line-height:1.85;color:var(--t2)">
+      수능특강 고전시가 문제편을 공부하는 학생이 <strong style="color:var(--ink)">스스로 작품을 분석하고</strong>,
+      수능 문제에 <strong style="color:var(--ink)">도전하며</strong>, 분석 내용을 <strong style="color:var(--ink)">선생님께 제출</strong>하는 통합 학습 도구입니다.
+      선생님은 과제를 만들고, 학생은 분석 후 카카오톡으로 제출하면 됩니다.
+    </p>
+    <div class="divider"></div>
+    <div class="roles">
+      <div class="role-card teacher">
+        <div class="role-icon">👩‍🏫</div>
+        <div class="role-name">선생님 모드</div>
+        <div class="role-desc">과제 생성기로 작품·문항·정답을 설정하고, HTML 파일을 만들어 카카오톡으로 배포합니다.</div>
+      </div>
+      <div class="role-card student">
+        <div class="role-icon">📖</div>
+        <div class="role-name">학생 모드</div>
+        <div class="role-desc">받은 파일을 열어 작품을 분석하고, 도전 문제를 풀고, 분석 결과를 제출합니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">전체 흐름</div>
+    <div class="flow">
+      <div class="flow-box active">선생님<br>과제 생성</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box gold">파일 배포<br>(카톡)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">학생<br>셀프분석</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">도전 &amp;<br>셀프해설지</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box green">제출 &amp;<br>카톡 보고서</div>
+    </div>
+  </div>
+
+  <div class="g2 sr">
+    <div class="mini-card">
+      <h4>📱 모바일 최적화</h4>
+      <p>스마트폰에서도 편하게 사용할 수 있도록 최적화되어 있습니다. 별도 앱 설치가 필요 없습니다.</p>
+    </div>
+    <div class="mini-card">
+      <h4>💾 자동 저장</h4>
+      <p>입력 내용은 브라우저에 자동 저장됩니다. 앱을 닫아도 마지막 상태가 유지됩니다.</p>
+    </div>
+    <div class="mini-card">
+      <h4>🔒 오프라인 사용</h4>
+      <p>인터넷 없이도 사용 가능합니다. 파일 하나만 있으면 어디서든 열 수 있습니다.</p>
+    </div>
+    <div class="mini-card">
+      <h4>📊 Google Sheets 연동</h4>
+      <p>제출 시 구글 스프레드시트에 자동으로 데이터가 기록됩니다. (선생님 설정 시)</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ② 선생님 모드
+════════════════════════════════ -->
+<section id="teacher">
+  <div class="sec-header sr">
+    <div class="sec-num">②</div>
+    <div><div class="sec-title">선생님 모드 <span>Teacher Mode · 과제 생성기</span></div></div>
+  </div>
+
+  <div class="hl hl-gold sr">
+    <span class="hl-icon">🔑</span>
+    <div>앱을 처음 열면 <strong>생성기(선생님 모드)</strong>가 나타납니다. 화면 오른쪽 상단의 <strong>「생성기」</strong> 칩이 표시된 상태입니다.</div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">과제 만들기 순서</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">1</div>
+        <div class="step-body">
+          <h3>🤖 AI 자동 추출 (선택)</h3>
+          <p>수능특강 해설지 PDF를 업로드하면 Claude AI가 작품 정보·문항 번호·정답을 자동으로 분석합니다. <strong>10~30초</strong> 소요됩니다. 자동 추출 후 내용을 확인하고 수정하세요.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">2</div>
+        <div class="step-body">
+          <h3>📋 주간 과제 정보 입력</h3>
+          <p>과제 제목, 마감 기한, 학습 기간, 선생님 메시지를 입력합니다.<br>
+          예) <em style="color:var(--gold)">「2027 수능특강 고전시가 3월 1주차」</em></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">3</div>
+        <div class="step-body">
+          <h3>📜 작품 / 지문 목록 추가</h3>
+          <p>각 지문마다 <strong>갈래, 작가, 제목, 페이지, 작품 수, 문항 수</strong>를 입력합니다.<br>
+          복합 지문(가·나·다)은 작품 수를 조정하세요.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">4</div>
+        <div class="step-body">
+          <h3>📝 수능 문제 설정 (선택)</h3>
+          <p>문항 번호, 정답(①~⑤), 도전 횟수를 설정합니다. 설정하면 <strong>도전 시스템</strong>이 활성화됩니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">5</div>
+        <div class="step-body">
+          <h3>🔗 링크 설정 (선택)</h3>
+          <p>시험지 URL, 해설지 URL, Google Sheets 연동 URL을 입력합니다.<br>해설지 URL은 학생이 모든 도전을 완료한 후에만 공개됩니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">6</div>
+        <div class="step-body">
+          <h3>📁 파일 생성 &amp; 배포</h3>
+          <p><strong>「통합 파일 생성 &amp; 저장」</strong> 버튼을 눌러 HTML 파일을 다운로드한 뒤, 카카오톡으로 학생들에게 전송합니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title lit">작품 / 지문 입력 항목 설명</div>
+    <div class="field-row">
+      <span class="field-icon">📜</span>
+      <div class="field-info">
+        <h4>갈래 선택</h4>
+        <p>향가 / 고려가요 / 시조 / 가사 / 유배가사 / 잡가 / 한시 / 악장 / 경기체가 / 민요 / 기타 중 선택</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">✍️</span>
+      <div class="field-info">
+        <h4>작가</h4>
+        <p>작가 이름 입력. 작자미상이면 「작자미상」</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📖</span>
+      <div class="field-info">
+        <h4>제목 / 작품명</h4>
+        <p>단일 작품: 「면앙정가」 / 복합 지문: 「(가) 만전춘별사 / (나)~(다) 시조」 형식</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📄</span>
+      <div class="field-info">
+        <h4>페이지</h4>
+        <p>교재 페이지. 예) <em>p.21~25</em></p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">🔢</span>
+      <div class="field-info">
+        <h4>작품 수 / 문항 수</h4>
+        <p>복합 지문이면 작품 수를 해당 개수로 설정. 문항 수는 해당 지문의 문제 수</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hl hl-info sr">
+    <span class="hl-icon">📊</span>
+    <div>
+      <strong>Google Sheets 연동</strong>: Google Apps Script URL을 입력하면 학생이 제출할 때마다 스프레드시트에 이름·점수·도전 결과가 자동 기록됩니다. 이미 기본 URL이 입력되어 있습니다.
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ③ 학생 모드
+════════════════════════════════ -->
+<section id="student">
+  <div class="sec-header sr">
+    <div class="sec-num">③</div>
+    <div><div class="sec-title">학생 모드 시작하기 <span>Student Mode</span></div></div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">파일 열기</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">1</div>
+        <div class="step-body">
+          <h3>카카오톡에서 파일 받기</h3>
+          <p>선생님이 카카오톡으로 보내준 <strong>.html 파일</strong>을 저장합니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">2</div>
+        <div class="step-body">
+          <h3>파일 열기</h3>
+          <p>저장된 파일을 <strong>크롬(Chrome) 또는 사파리(Safari) 브라우저</strong>로 열면 바로 시작됩니다. 별도 설치 필요 없음.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">3</div>
+        <div class="step-body">
+          <h3>이름 &amp; 연락처 입력</h3>
+          <p>화면 상단 바에 <strong>이름</strong>과 <strong>연락처(010-xxxx-xxxx)</strong>를 입력합니다. 제출 및 보고서에 표시됩니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">화면 구성</div>
+    <div class="field-row">
+      <span class="field-icon">📊</span>
+      <div class="field-info">
+        <h4>상단 진행 바</h4>
+        <p>전체 지문 중 분석이 완료된 지문의 비율을 황금색 바로 표시</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">🗂️</span>
+      <div class="field-info">
+        <h4>지문 선택 드롭다운</h4>
+        <p>분석할 지문을 선택합니다. ◀ 이전 / 다음 ▶ 버튼으로 이동 가능. 완료된 지문은 녹색 점(●)으로 표시</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📖</span>
+      <div class="field-info">
+        <h4>셀프분석 탭</h4>
+        <p>작품·지문 분석 입력 화면. 기본으로 열려 있음</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">🔒</span>
+      <div class="field-info">
+        <h4>셀프해설지 탭</h4>
+        <p>모든 지문 분석 완료 후 잠금 해제. 문제 도전 &amp; 오답 분석 화면</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">💬</span>
+      <div class="field-info">
+        <h4>하단 버튼 바</h4>
+        <p>🖨️ PDF 저장 · 💾 임시저장 · 💬 카톡 보고서 · 📁 제출 저장</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hl hl-tip sr">
+    <span class="hl-icon">💡</span>
+    <div>
+      <strong>임시저장 기능</strong>: 작업 중 <strong>💾 임시저장</strong> 버튼을 누르면 JSON 파일이 저장됩니다. 다음에 <strong>📂 이어쓰기</strong> 버튼으로 불러와서 계속 작성할 수 있습니다.
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ④ 셀프분석
+════════════════════════════════ -->
+<section id="analysis">
+  <div class="sec-header sr">
+    <div class="sec-num">④</div>
+    <div><div class="sec-title">셀프분석 작성법 <span>Self-Analysis</span></div></div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">공통 — 지문 정보 카드</div>
+    <div class="field-row">
+      <span class="field-icon">📅</span>
+      <div class="field-info"><h4>학습 날짜</h4><p>오늘 날짜가 자동 입력됩니다.</p></div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📄</span>
+      <div class="field-info"><h4>페이지</h4><p>교재 페이지 번호 확인 및 수정</p></div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📑</span>
+      <div class="field-info"><h4>지문 유형</h4><p>단일 지문 / 복합 지문 선택</p></div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">😊</span>
+      <div class="field-info">
+        <h4>작품 친숙도 (문학 전용)</h4>
+        <p><span class="chip chip-read">😊 익숙</span> 이전에 배운 적 있거나 잘 아는 작품 &nbsp;|&nbsp; <span class="chip chip-lit">😅 낯섦</span> 처음 접하거나 어려웠던 작품</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">⏱️</span>
+      <div class="field-info">
+        <h4>목표 / 소요 시간</h4>
+        <p>목표 시간 설정 후 실제 걸린 시간을 기록. 예) 08:00 / 09:30</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title lit">고전시가 — 작품 기본 정보</div>
+    <div class="field-row">
+      <span class="field-icon">📜</span>
+      <div class="field-info"><h4>갈래</h4><p>시조·가사·향가·고려가요·한시 등 선택</p></div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">✍️</span>
+      <div class="field-info"><h4>작가 / 작자</h4><p>작가명 또는 「작자미상」 확인</p></div>
+    </div>
+  </div>
+
+  <div class="card sr" style="border-top:3px solid var(--lit)">
+    <div class="card-title lit">2. 작품 핵심 분석 (고전시가) — 9가지 항목</div>
+    <div class="field-row">
+      <span class="field-icon">①</span>
+      <div class="field-info">
+        <h4>화자의 정서 / 태도</h4>
+        <p>화자가 느끼는 정서와 태도를 서술합니다.<br>예) <em style="color:var(--gold)">「임에 대한 그리움과 체념, 연군지정」</em></p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">②</span>
+      <div class="field-info">
+        <h4>주제</h4>
+        <p>작품의 핵심 주제를 한 문장으로. 예) <em style="color:var(--gold)">「자연 속 은일과 임금에 대한 충성」</em></p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">③</span>
+      <div class="field-info">
+        <h4>갈래 / 형식 분석</h4>
+        <p>갈래(시조·가사·향가 등) + 율격(3·4조/4·4조) + 연 구조를 정리</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">④</span>
+      <div class="field-info">
+        <h4>표현상 특징</h4>
+        <p>반복·대조·역설·설의·의인화·객관적상관물·감정이입·선경후정·시각적심상 등</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">⑤</span>
+      <div class="field-info">
+        <h4>핵심 시어 / 소재의 상징</h4>
+        <p>중심 소재가 상징하는 의미 분석.<br>예) <em style="color:var(--gold)">「'대' → 절개와 지조 / '달' → 임금 또는 이상세계」</em></p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">⑥</span>
+      <div class="field-info">
+        <h4>화자의 처지 / 배경 상황</h4>
+        <p>화자가 처한 상황.<br>예) <em style="color:var(--gold)">「유배 중 / 낙향 후 강호생활 / 임과 이별」</em></p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">⑦</span>
+      <div class="field-info">
+        <h4>임(대상)과의 관계</h4>
+        <p>임=임금(연군지정) / 임=연인 / 자연=벗 / 자연=안식처 등</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">⑧</span>
+      <div class="field-info">
+        <h4>한자어 / 고어 핵심 어휘</h4>
+        <p>어려운 고어·한자어 정리.<br>예) <em style="color:var(--gold)">「여희다 → 이별하다 / 세한고절 → 추운 계절의 절개」</em></p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">⑨</span>
+      <div class="field-info">
+        <h4>배경지식 / 고사·전고</h4>
+        <p>작품 이해에 필요한 배경지식.<br>예) <em style="color:var(--gold)">「도연명 귀거래사, 상산사호, 굴원」</em></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">하단 공통 입력 항목</div>
+    <div class="field-row">
+      <span class="field-icon">📌</span>
+      <div class="field-info">
+        <h4>시어의 함축적 의미 <span class="chip chip-gold">+ 추가 가능</span></h4>
+        <p>핵심 시어 → 함축 의미를 키-값 형태로 여러 개 추가 가능</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📚</span>
+      <div class="field-info">
+        <h4>어휘 정리 <span class="chip chip-gold">+ 추가 가능</span></h4>
+        <p>어휘 → 뜻풀이를 키-값 형태로 여러 개 추가 가능</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">💭</span>
+      <div class="field-info">
+        <h4>문항별 분석</h4>
+        <p>각 문제에 대해 정답 여부(○/△/✕)와 오답 이유를 기록</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📝</span>
+      <div class="field-info">
+        <h4>학습 성찰</h4>
+        <p>이 지문을 공부하면서 느낀 점, 부족한 부분, 다음 학습 계획 등을 자유롭게 서술</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hl hl-warn sr">
+    <span class="hl-icon">⚠️</span>
+    <div>셀프해설지 탭은 <strong>모든 지문 분석이 완료</strong>된 후에만 열립니다. 각 지문에서 ① 화자의 정서 또는 ② 주제 중 하나, 그리고 ③ 갈래/형식 또는 ④ 표현상 특징 중 하나를 입력해야 완료로 인정됩니다.</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ⑤ 도전 시스템
+════════════════════════════════ -->
+<section id="challenge">
+  <div class="sec-header sr">
+    <div class="sec-num">⑤</div>
+    <div><div class="sec-title">도전 시스템 <span>Challenge System</span></div></div>
+  </div>
+
+  <div class="hl hl-gold sr">
+    <span class="hl-icon">🏆</span>
+    <div>선생님이 문제와 정답을 설정했을 때 활성화됩니다. 셀프해설지 탭 안에 있는 <strong>도전 카드</strong>에서 진행합니다.</div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">도전 방법</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">1</div>
+        <div class="step-body">
+          <h3>셀프해설지 탭 열기</h3>
+          <p>모든 지문 분석을 완료하면 셀프해설지 탭의 잠금이 해제됩니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">2</div>
+        <div class="step-body">
+          <h3>답 선택 &amp; 제출</h3>
+          <p>① ~ ⑤ 중 하나를 선택하고 <strong>「제출」</strong> 버튼을 누릅니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">3</div>
+        <div class="step-body">
+          <h3>결과 확인</h3>
+          <p>정답이면 🎉, 오답이면 남은 도전 횟수가 표시됩니다. 모든 도전 소진 시 정답이 공개됩니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">도전 횟수 &amp; 점수</div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:14px">각 문제마다 최대 도전 횟수(기본 3회)가 있습니다. 결과는 카카오 보고서에 반영됩니다.</p>
+    <table class="st-table">
+      <thead>
+        <tr><th>상황</th><th>결과</th><th>점수 반영</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1회에 정답</td>
+          <td><span style="color:var(--green);font-weight:700">✓ 정답 맞힘</span></td>
+          <td>정답으로 집계</td>
+        </tr>
+        <tr>
+          <td>2~3회 만에 정답</td>
+          <td><span style="color:var(--green);font-weight:700">✓ 정답 맞힘</span></td>
+          <td>정답으로 집계</td>
+        </tr>
+        <tr>
+          <td>도전 횟수 소진</td>
+          <td><span style="color:var(--red);font-weight:700">✕ 도전 종료</span> (정답 공개)</td>
+          <td>오답으로 집계</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hl hl-info sr">
+    <span class="hl-icon">🔓</span>
+    <div>모든 도전이 완료되면 선생님이 설정한 <strong>해설지 URL 링크</strong>가 공개됩니다.</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ⑥ 셀프해설지
+════════════════════════════════ -->
+<section id="expl">
+  <div class="sec-header sr">
+    <div class="sec-num">⑥</div>
+    <div><div class="sec-title">셀프해설지 작성법 <span>Self-Explanation</span></div></div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">문항별 셀프해설 3단계</div>
+    <div class="field-row">
+      <span class="field-icon">❌</span>
+      <div class="field-info">
+        <h4>오답 원인 분석</h4>
+        <p>왜 틀렸는지 스스로 원인을 분석합니다.<br>예) <em style="color:var(--gold)">「선지의 '역설' 의미를 헷갈려서 오답 선택」</em></p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">✅</span>
+      <div class="field-info">
+        <h4>정답 근거 정리</h4>
+        <p>정답이 왜 정답인지 지문 근거를 들어 설명합니다.</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">💡</span>
+      <div class="field-info">
+        <h4>관련 핵심 개념</h4>
+        <p>이 문제와 관련된 수능 핵심 개념을 정리합니다.<br>예) <em style="color:var(--gold)">「역설법: 표면상 모순이지만 심층적 진실을 담은 표현」</em></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">문제별 상태 표시</div>
+    <table class="st-table">
+      <thead>
+        <tr><th>아이콘</th><th>의미</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="circle-o">○ 정답 맞힘</span></td><td>도전에서 정답을 맞힌 문제</td></tr>
+        <tr><td><span class="circle-x">✕ 도전 종료</span></td><td>모든 도전 횟수를 소진한 문제</td></tr>
+        <tr><td style="color:var(--t3);font-weight:700">— 미완료</td><td>아직 도전하지 않은 문제</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ⑦ 제출 & 카톡 보고서
+════════════════════════════════ -->
+<section id="submit">
+  <div class="sec-header sr">
+    <div class="sec-num">⑦</div>
+    <div><div class="sec-title">제출 &amp; 카톡 보고서 <span>Submit &amp; Kakao Report</span></div></div>
+  </div>
+
+  <div class="g2 sr">
+    <div class="card" style="border-color:#FDD835">
+      <div class="card-title" style="color:#856404"><span style="background:#FDD835;width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>💬 카톡 보고서</div>
+      <p style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:12px">
+        분석 내용 요약본을 텍스트로 생성합니다. 복사해서 카카오톡 단톡방에 붙여넣어 제출합니다.
+      </p>
+      <div style="font-size:12px;color:var(--t3)">하단 <strong style="color:#856404">💬 카톡 보고서</strong> 버튼 → 복사 → 카톡에 붙여넣기</div>
+    </div>
+    <div class="card" style="border-color:var(--ink)">
+      <div class="card-title green">📁 제출 저장</div>
+      <p style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:12px">
+        분석 전체 내용을 HTML 파일로 저장합니다. 선생님께 파일로 제출할 때 사용합니다.
+      </p>
+      <div style="font-size:12px;color:var(--t3)">하단 <strong style="color:var(--ink)">📁 제출 저장</strong> 버튼 → 파일 저장 → 카톡으로 파일 전송</div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title" style="color:#856404">💬 카카오톡 보고서 내용</div>
+    <div class="kakao-preview">
+      <div class="kakao-bubble">[수능특강 셀프분석 제출]
+━━━━━━━━━━━━━━━━━━━━
+과제: 2027 수능특강 고전시가 문제편
+기간: 3월 1주차
+이름: 홍길동 (010-1234-5678)
+도전점수: 85점 (11/13)
+
+▶ 1. (가) 원가 / (나) 진중음
+   시간: 08:30 / 목표: 08:00
+   친숙도: 낯섦
+   정서: 충신연주지사, 임금에 대한 충성과 그리움
+   주제: 충신의 연군지정과 보국의 의지
+   문항: 01[O] 02[△] 03[X]
+
+▶ 2. (가) 만전춘별사 / (나)~(다) 시조
+   시간: 07:20 / 목표: 07:00
+   친숙도: 익숙
+   정서: 임과의 이별에 대한 슬픔, 재회의 소망
+   주제: 이별의 슬픔과 임에 대한 그리움
+   문항: 04[O] 05[O] 06[△]
+
+━━━━━━━━━━━━━━━━━━━━
+문제 도전 결과
+  1번 [정답] (1회)
+  2번 [정답] (2회)
+  3번 [오답] (3회) -> 정답 ①
+━━━━━━━━━━━━━━━━━━━━
+제출: 2026. 3. 13. 오전 09:30</div>
+    </div>
+  </div>
+
+  <div class="hl hl-tip sr">
+    <span class="hl-icon">💡</span>
+    <div>
+      <strong>두 가지 제출 방법 모두 사용하는 것을 권장합니다.</strong><br>
+      카톡 보고서(텍스트)는 선생님이 빠르게 확인용, HTML 파일 제출은 전체 분석 내용 보관용입니다.
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ⑧ 검토 모드
+════════════════════════════════ -->
+<section id="review">
+  <div class="sec-header sr">
+    <div class="sec-num">⑧</div>
+    <div><div class="sec-title">선생님 검토 모드 <span>Teacher Review</span></div></div>
+  </div>
+
+  <div class="hl hl-gold sr">
+    <span class="hl-icon">📂</span>
+    <div>학생이 제출한 <strong>「제출_이름_과제명.html」 파일</strong>을 선생님이 브라우저에서 열면 자동으로 검토 모드가 활성화됩니다.</div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">검토 화면 구성</div>
+    <div class="field-row">
+      <span class="field-icon">📊</span>
+      <div class="field-info">
+        <h4>전체 분석 요약</h4>
+        <p>전체 문항 수 / 정답(○) / 헷갈림(△) / 오답(✕) 통계를 카드 형태로 표시</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">📜</span>
+      <div class="field-info">
+        <h4>작품별 셀프분석 내용</h4>
+        <p>화자의 정서·주제·갈래분석·표현상 특징·시어 상징 등 학생이 입력한 분석 전체 확인</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">✏️</span>
+      <div class="field-info">
+        <h4>셀프해설지 탭</h4>
+        <p>문항별 도전 기록(1회차~), 오답 원인 분석, 정답 근거, 핵심 개념 내용 확인</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">🖨️</span>
+      <div class="field-info">
+        <h4>PDF 저장</h4>
+        <p>학생 분석 내용을 PDF로 출력할 수 있습니다. 피드백 시 활용 가능</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">문항별 도전 이력 표시</div>
+    <table class="st-table">
+      <thead>
+        <tr><th>표시</th><th>의미</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span style="background:var(--green2);color:var(--green);font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px">1회차: ③ ✓</span></td><td>1회 도전에서 ③번을 선택해 정답 맞힘</td></tr>
+        <tr><td><span style="background:var(--red2);color:var(--red);font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px">2회차: ② ✗</span></td><td>2회 도전에서 ②번을 선택했으나 오답</td></tr>
+        <tr><td><span style="color:var(--t3);font-size:11px;font-weight:700">미완료</span></td><td>도전하지 않음</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════
+     ⑨ 활용 팁
+════════════════════════════════ -->
+<section id="tips">
+  <div class="sec-header sr">
+    <div class="sec-num">⑨</div>
+    <div><div class="sec-title">활용 팁 &amp; 자주 묻는 질문 <span>Tips &amp; FAQ</span></div></div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title green">🚀 학습 효율을 높이는 팁</div>
+
+    <div class="field-row">
+      <span class="field-icon">🎯</span>
+      <div class="field-info">
+        <h4>시간 기록을 꼭 하세요</h4>
+        <p>목표 시간과 소요 시간을 기록하면 자신의 풀이 속도를 파악하고 개선할 수 있습니다.</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">🔍</span>
+      <div class="field-info">
+        <h4>고어/한자 어휘는 반드시 정리</h4>
+        <p>⑧번 항목을 꼼꼼히 채우면 반복 학습 효과가 높아집니다. 어휘 정리 섹션도 함께 활용하세요.</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">🌟</span>
+      <div class="field-info">
+        <h4>친숙도 활용</h4>
+        <p>낯섦(😅)으로 표시한 작품을 모아 복습 계획을 세우면 효율적입니다. 선생님도 취약 작품을 파악하는 데 참고합니다.</p>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-icon">💬</span>
+      <div class="field-info">
+        <h4>학습 성찰 꼭 쓰기</h4>
+        <p>분석이 끝나면 느낀 점과 다음에 보완할 점을 학습 성찰에 적어두면 메타인지 향상에 효과적입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr">
+    <div class="card-title">❓ 자주 묻는 질문</div>
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:5px">Q. 앱을 닫으면 내용이 사라지나요?</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;padding-left:16px">
+        아니요. 입력 내용은 브라우저에 <strong>자동 저장</strong>됩니다. 단, 브라우저 캐시를 지우거나 다른 기기에서 열면 사라집니다.
+        다른 기기에서 이어 쓰려면 <strong>💾 임시저장</strong>으로 JSON 파일을 받아 옮기세요.
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:5px">Q. 셀프해설지 탭이 계속 잠겨 있어요.</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;padding-left:16px">
+        모든 지문에서 <strong>① 화자의 정서 또는 ② 주제</strong> 중 하나, 그리고 <strong>③ 갈래/형식 또는 ④ 표현상 특징</strong> 중 하나를 반드시 입력해야 완료 처리가 됩니다.
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:5px">Q. PDF 저장이 안 돼요.</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;padding-left:16px">
+        일부 모바일 환경에서 PDF 생성이 실패할 수 있습니다. 이 경우 <strong>브라우저 인쇄 기능(Ctrl+P / ⌘+P) → PDF로 저장</strong>을 이용하세요.
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:5px">Q. 선생님 파일(생성기)과 학생 파일이 같은 파일인가요?</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;padding-left:16px">
+        네. 원본 HTML 파일을 선생님이 생성기로 사용하고, 생성된 파일(과제 정보가 포함된 파일)을 학생에게 배포합니다. 제출된 파일(제출_이름_과제명.html)을 열면 자동으로 검토 모드가 됩니다.
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div>
+      <div style="font-size:14px;font-weight:800;color:var(--ink);margin-bottom:5px">Q. Google Sheets 연동은 어떻게 하나요?</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;padding-left:16px">
+        이미 기본 Google Apps Script URL이 설정되어 있습니다. 학생이 제출 버튼을 누를 때마다 스프레드시트에 자동 기록됩니다. 별도 설정 없이 바로 사용 가능합니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr" style="border-color:var(--gold3);background:linear-gradient(135deg,var(--gold2),var(--paper))">
+    <div class="card-title gold-ttl" style="color:var(--gold)"><span style="background:var(--gold);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>⌨️ 버튼 모음</div>
+    <div class="g2">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:var(--t2);margin-bottom:8px">헤더 도구 (상단 오른쪽)</div>
+        <div class="field-row" style="margin-bottom:6px">
+          <span class="chip chip-ink">📂 이어쓰기</span>
+          <div class="field-info" style="margin-left:4px"><p>임시저장 JSON 불러오기</p></div>
+        </div>
+        <div class="field-row" style="margin-bottom:6px">
+          <span class="chip chip-ink">💾 임시저장</span>
+          <div class="field-info" style="margin-left:4px"><p>현재 상태를 JSON으로 저장</p></div>
+        </div>
+        <div class="field-row">
+          <span class="chip chip-ink">🖨️ PDF</span>
+          <div class="field-info" style="margin-left:4px"><p>현재 화면을 PDF로 출력</p></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:800;color:var(--t2);margin-bottom:8px">하단 버튼 바</div>
+        <div class="field-row" style="margin-bottom:6px">
+          <span class="chip chip-kakao">💬 카톡 보고서</span>
+          <div class="field-info" style="margin-left:4px"><p>텍스트 요약 복사</p></div>
+        </div>
+        <div class="field-row">
+          <span class="chip chip-green">📁 제출 저장</span>
+          <div class="field-info" style="margin-left:4px"><p>전체 파일 저장 &amp; 제출</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</div><!-- /wrap -->
+
+<footer>
+  <strong>수능특강 고전시가 셀프분석 + 셀프해설지</strong><br>
+  2027 수능 대비 · Classical Korean Poetry Self-Study Platform<br>
+  <span style="font-size:10px;opacity:.5;margin-top:4px;display:block">이 매뉴얼은 앱 사용을 돕기 위해 작성되었습니다.</span>
+</footer>
+
+<script>
+// scroll reveal
+const sr = document.querySelectorAll('.sr');
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});
+},{threshold:.08});
+sr.forEach(el=>io.observe(el));
+
+// TOC highlight
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.toc-link');
+const sio = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.style.color='');
+      const active = document.querySelector(`.toc-link[href="#${e.target.id}"]`);
+      if(active){active.style.color='var(--gold)';active.style.borderBottomColor='var(--gold)';}
+    }
+  });
+},{rootMargin:'-40% 0px -55% 0px'});
+sections.forEach(s=>sio.observe(s));
+</script>
+</body>
+</html>
